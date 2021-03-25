@@ -87,10 +87,9 @@ class MainActivity : AppCompatActivity(), ListCallbacks, Observer<MovieState> {
             }
             is MovieState.Error -> {
                 binding.tvStatus.visibility = View.GONE
-                val msg = state.error.message
                 Snackbar.make(
                     binding.rvMovies, getString(R.string.error)
-                            + ": " + msg,
+                            + ": " + state.error.message,
                     Snackbar.LENGTH_INDEFINITE
                 ).show()
             }
