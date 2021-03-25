@@ -14,7 +14,12 @@ class MovieModel(
     fun loadList() {
         state.value = MovieState.Loading
         Thread {
-            state.postValue(MovieState.SuccessList(repository.getList()))
+            try {
+                state.postValue(MovieState.SuccessList(repository.getList()))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                state.postValue(MovieState.Error(e))
+            }
         }.start()
     }
 }
