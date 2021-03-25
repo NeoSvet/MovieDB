@@ -1,10 +1,11 @@
-package ru.neosvet.moviedb
+package ru.neosvet.moviedb.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import ru.neosvet.moviedb.R
 
 class MainActivity : AppCompatActivity() {
     private lateinit var etSearch: TextInputEditText
