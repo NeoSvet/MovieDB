@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import ru.neosvet.moviedb.MovieFragment
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentListBinding
 import ru.neosvet.moviedb.list.ListCallbacks
@@ -19,6 +20,8 @@ import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.Movie
 import java.util.*
+
+private const val MAIN_STACK = "main";
 
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private var _binding: FragmentListBinding? = null
@@ -87,7 +90,13 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     override fun onItemClicked(id: Int) {
-
+        val manager = activity?.supportFragmentManager
+        if (manager != null) {
+            manager.beginTransaction()
+                .replace(R.id.container, MovieFragment.newInstance(id))
+                .addToBackStack(MAIN_STACK)
+                .commit()
+        }
     }
 
     override fun onChanged(state: MovieState) {
