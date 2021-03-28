@@ -2,9 +2,14 @@ package ru.neosvet.moviedb.repository
 
 import java.util.ArrayList
 
+private val list = ArrayList<Movie>()
+
 class MovieRepository {
+
     fun getList(): ArrayList<Movie> {
-        var list: ArrayList<Movie> = ArrayList<Movie>()
+        if (list.size > 0)
+            return list
+
         list.add(
             Movie(
                 0, "title0", "des0",
@@ -41,5 +46,13 @@ class MovieRepository {
             )
         )
         return list
+    }
+
+    fun getItem(id: Int): Movie? {
+        for (item in list) {
+            if (item.id == id)
+                return item
+        }
+        return null
     }
 }
