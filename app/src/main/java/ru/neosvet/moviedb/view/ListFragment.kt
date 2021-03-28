@@ -75,6 +75,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 )
             )
         }
+        adapter.notifyDataSetChanged()
     }
 
     private fun initViews() {
