@@ -22,4 +22,22 @@ class MovieModel(
             }
         }.start()
     }
+
+    fun loadDetails(id: Int?) {
+        if (id == null)
+            return
+        state.value = MovieState.Loading
+        Thread {
+            try {
+                val item = repository.getItem(id);
+                if (item == null)
+                    state.postValue(MovieState.Error(Exception("Item no found")))
+                else
+                    state.postValue(MovieState.SuccessItem(item))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                state.postValue(MovieState.Error(e))
+            }
+        }.start()
+    }
 }
