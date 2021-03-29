@@ -15,11 +15,9 @@ class MovieModel(
         state.value = MovieState.Loading
         Thread {
             try {
+                val list = repository.getList(category_id)
                 state.postValue(
-                    MovieState.SuccessList(
-                        "category" + category_id,
-                        repository.getList(category_id)
-                    )
+                    MovieState.SuccessList(list.title, list.movies)
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
