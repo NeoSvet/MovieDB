@@ -122,6 +122,8 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 showList(state.title, state.list)
                 if (lastId < finalId)
                     model.loadList(++lastId)
+                else
+                    model.getState().value = MovieState.Finished
             }
             is MovieState.Loading -> {
                 binding.tvStatus.visibility = View.VISIBLE

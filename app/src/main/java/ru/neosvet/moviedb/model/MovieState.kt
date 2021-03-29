@@ -7,4 +7,5 @@ sealed class MovieState {
     data class SuccessItem(val item: Movie) : MovieState()
     data class Error(val error: Throwable) : MovieState()
     object Loading : MovieState()
+    object Finished : MovieState()
 }
