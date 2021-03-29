@@ -1,10 +1,9 @@
 package ru.neosvet.moviedb.view
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -36,13 +35,13 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
         _binding = FragmentListBinding.inflate(inflater, container, false)
         return binding.getRoot()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViews()
         initList()
     }
 
@@ -61,7 +60,27 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         _binding = null
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.list, menu)
+        val search = menu.findItem(R.id.search)
+        val searchText = search.actionView as SearchView
+        searchText.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                Toast.makeText(requireContext(), query, Toast.LENGTH_SHORT).show()
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                return true
+            }
+        })
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
     private fun initList() {
+        binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvCatalog.adapter = catalog
+
         model = ViewModelProvider(this).get(MovieModel::class.java)
         lastId = catalog.itemCount - 1
         if (lastId < finalId)
@@ -84,14 +103,6 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         }
         catalog.addItem(title, adapter)
         catalog.notifyDataSetChanged()
-    }
-
-    private fun initViews() {
-        binding.btnSearch.setOnClickListener {
-            Toast.makeText(requireContext(), binding.etSearch.text, Toast.LENGTH_SHORT).show()
-        }
-        binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvCatalog.adapter = catalog;
     }
 
     override fun onItemClicked(id: Int) {
