@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ru.neosvet.moviedb.MovieFragment
 import ru.neosvet.moviedb.R
@@ -85,7 +86,10 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         binding.btnSearch.setOnClickListener {
             Toast.makeText(requireContext(), binding.etSearch.text, Toast.LENGTH_SHORT).show()
         }
-        binding.rvMovies.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvMovies.layoutManager = LinearLayoutManager(
+            requireContext(),
+            RecyclerView.HORIZONTAL, false
+        )
         binding.rvMovies.adapter = adapter;
     }
 
