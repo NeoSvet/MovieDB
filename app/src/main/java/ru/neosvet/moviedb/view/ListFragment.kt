@@ -14,6 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import ru.neosvet.moviedb.MovieFragment
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentListBinding
+import ru.neosvet.moviedb.list.CatalogAdapter
 import ru.neosvet.moviedb.list.ListCallbacks
 import ru.neosvet.moviedb.list.MovieItem
 import ru.neosvet.moviedb.list.MoviesAdapter
@@ -27,7 +28,7 @@ private const val MAIN_STACK = "main";
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-    private lateinit var adapter: MoviesAdapter
+    private var catalog = CatalogAdapter()
     private lateinit var model: MovieModel
 
     override fun onCreateView(
@@ -40,7 +41,6 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        adapter = MoviesAdapter(this)
         initViews();
         loadList();
     }
@@ -69,6 +69,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     private fun showList(list: ArrayList<Movie>) {
+        val adapter = MoviesAdapter(this)
         for (movie in list) {
             adapter.addItem(
                 MovieItem(
@@ -79,18 +80,16 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 )
             )
         }
-        adapter.notifyDataSetChanged()
+        catalog.addItem("catalog title", adapter)
+        catalog.notifyDataSetChanged()
     }
 
     private fun initViews() {
         binding.btnSearch.setOnClickListener {
             Toast.makeText(requireContext(), binding.etSearch.text, Toast.LENGTH_SHORT).show()
         }
-        binding.rvMovies.layoutManager = LinearLayoutManager(
-            requireContext(),
-            RecyclerView.HORIZONTAL, false
-        )
-        binding.rvMovies.adapter = adapter;
+        binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvCatalog.adapter = catalog;
     }
 
     override fun onItemClicked(id: Int) {
@@ -115,7 +114,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             is MovieState.Error -> {
                 binding.tvStatus.visibility = View.GONE
                 Snackbar.make(
-                    binding.rvMovies, getString(R.string.error)
+                    binding.rvCatalog, getString(R.string.error)
                             + ": " + state.error.message,
                     Snackbar.LENGTH_INDEFINITE
                 ).show()
