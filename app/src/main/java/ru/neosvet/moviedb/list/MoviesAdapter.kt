@@ -21,11 +21,7 @@ class MoviesAdapter(val callbacks: ListCallbacks) : RecyclerView.Adapter<MovieHo
     }
 
     override fun onBindViewHolder(holder: MovieHolder, position: Int) {
-        holder.tvTitle?.text = data[position].title
-        holder.tvDescription?.text = data[position].description
-        holder.itemView.setOnClickListener {
-            callbacks.onItemClicked(data[position].id)
-        }
+        holder.setItem(data[position], callbacks)
     }
 
     override fun getItemCount(): Int {

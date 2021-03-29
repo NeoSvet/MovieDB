@@ -16,4 +16,12 @@ class MovieHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         tvTitle = itemView?.findViewById(R.id.tvTitle)
         tvDescription = itemView?.findViewById(R.id.tvDescription)
     }
+
+    fun setItem(item: MovieItem, callbacks: ListCallbacks) {
+        tvTitle?.text = item.title
+        tvDescription?.text = item.description
+        itemView.setOnClickListener {
+            callbacks.onItemClicked(item.id)
+        }
+    }
 }
