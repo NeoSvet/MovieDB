@@ -11,11 +11,16 @@ class MovieModel(
 
     fun getState() = state
 
-    fun loadList() {
+    fun loadList(catalog_id: Int) {
         state.value = MovieState.Loading
         Thread {
             try {
-                state.postValue(MovieState.SuccessList(repository.getList()))
+                state.postValue(
+                    MovieState.SuccessList(
+                        "catalog" + catalog_id,
+                        repository.getList(catalog_id)
+                    )
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
                 state.postValue(MovieState.Error(e))

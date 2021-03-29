@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ru.neosvet.moviedb.MovieFragment
 import ru.neosvet.moviedb.R
@@ -23,13 +22,15 @@ import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.Movie
 import java.util.*
 
-private const val MAIN_STACK = "main";
+private const val MAIN_STACK = "main"
 
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private var catalog = CatalogAdapter()
     private lateinit var model: MovieModel
+    private val finalId = 2
+    private var lastId = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,8 +42,8 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViews();
-        loadList();
+        initViews()
+        initList()
     }
 
     override fun onResume() {
@@ -60,15 +61,16 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         _binding = null
     }
 
-    private fun loadList() {
-        model = ViewModelProvider(
-            this,
-            ViewModelProvider.NewInstanceFactory()
-        ).get(MovieModel::class.java)
-        model.loadList()
+    private fun initList() {
+        model = ViewModelProvider(this).get(MovieModel::class.java)
+        lastId = catalog.itemCount - 1
+        if (lastId < finalId)
+            model.loadList(++lastId)
+        else
+            catalog.notifyDataSetChanged()
     }
 
-    private fun showList(list: ArrayList<Movie>) {
+    private fun showList(title: String, list: ArrayList<Movie>) {
         val adapter = MoviesAdapter(this)
         for (movie in list) {
             adapter.addItem(
@@ -80,7 +82,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 )
             )
         }
-        catalog.addItem("catalog title", adapter)
+        catalog.addItem(title, adapter)
         catalog.notifyDataSetChanged()
     }
 
@@ -106,7 +108,9 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         when (state) {
             is MovieState.SuccessList -> {
                 binding.tvStatus.visibility = View.GONE
-                showList(state.list)
+                showList(state.title, state.list)
+                if (lastId < finalId)
+                    model.loadList(++lastId)
             }
             is MovieState.Loading -> {
                 binding.tvStatus.visibility = View.VISIBLE

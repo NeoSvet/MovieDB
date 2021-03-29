@@ -2,56 +2,62 @@ package ru.neosvet.moviedb.repository
 
 import java.util.ArrayList
 
-private val list = ArrayList<Movie>()
+private val catalog = HashMap<Int, ArrayList<Movie>>()
+private var lastId = -1
 
 class MovieRepository {
 
-    fun getList(): ArrayList<Movie> {
-        if (list.size > 0)
-            return list
+    fun getList(catalog_id: Int): ArrayList<Movie> {
+        if (catalog.containsKey(catalog_id))
+            return catalog[catalog_id] ?: ArrayList<Movie>()
 
+        val list = ArrayList<Movie>()
         list.add(
             Movie(
-                0, "title0", "des0",
-                "genres0", 2000,
-                "country0", "poster0"
+                ++lastId, "title" + lastId, "des",
+                "genres" + catalog_id, 2000,
+                "country", "poster"
             )
         )
         list.add(
             Movie(
-                1, "title1", "des1",
-                "genres1", 2001,
+                ++lastId, "title" + lastId, "des1",
+                "genres" + catalog_id, 2001,
                 "country1", "poster1"
             )
         )
         list.add(
             Movie(
-                2, "title2", "des2",
-                "genres2", 2002,
+                ++lastId, "title" + lastId, "des2",
+                "genres" + catalog_id, 2002,
                 "country2", "poster2"
             )
         )
         list.add(
             Movie(
-                3, "title3", "des3",
-                "genres3", 2003,
+                ++lastId, "title" + lastId, "des3",
+                "genres" + catalog_id, 2003,
                 "country3", "poster3"
             )
         )
         list.add(
             Movie(
-                4, "title4", "des4",
-                "genres4", 2004,
+                ++lastId, "title" + lastId, "des4",
+                "genres" + catalog_id, 2004,
                 "country4", "poster4"
             )
         )
+        catalog.put(catalog_id, list)
+
         return list
     }
 
     fun getItem(id: Int): Movie? {
-        for (item in list) {
-            if (item.id == id)
-                return item
+        for (list in catalog.values) {
+            for (item in list) {
+                if (item.id == id)
+                    return item
+            }
         }
         return null
     }
