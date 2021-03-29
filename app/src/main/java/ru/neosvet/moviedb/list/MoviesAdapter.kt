@@ -8,7 +8,7 @@ import ru.neosvet.moviedb.R
 import java.util.*
 
 class MoviesAdapter(val callbacks: ListCallbacks) : RecyclerView.Adapter<MovieHolder>() {
-    private val data: ArrayList<MovieItem> = ArrayList<MovieItem>()
+    private val data = ArrayList<MovieItem>()
 
     fun addItem(item: MovieItem) {
         data.add(item)
