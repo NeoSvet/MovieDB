@@ -11,14 +11,14 @@ class MovieModel(
 
     fun getState() = state
 
-    fun loadList(catalog_id: Int) {
+    fun loadList(category_id: Int) {
         state.value = MovieState.Loading
         Thread {
             try {
                 state.postValue(
                     MovieState.SuccessList(
-                        "catalog" + catalog_id,
-                        repository.getList(catalog_id)
+                        "category" + category_id,
+                        repository.getList(category_id)
                     )
                 )
             } catch (e: Exception) {
@@ -34,7 +34,7 @@ class MovieModel(
         state.value = MovieState.Loading
         Thread {
             try {
-                val item = repository.getItem(id);
+                val item = repository.getItem(id)
                 if (item == null)
                     state.postValue(MovieState.Error(Exception("Item no found")))
                 else
