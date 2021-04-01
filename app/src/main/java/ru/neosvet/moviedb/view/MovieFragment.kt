@@ -20,7 +20,9 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     private var movieId: Int? = null
     private var _binding: FragmentMovieBinding? = null
     private val binding get() = _binding!!
-    private lateinit var model: MovieModel
+    private val model: MovieModel by lazy {
+        ViewModelProvider(this).get(MovieModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,10 +60,6 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     }
 
     private fun loadDetails() {
-        model = ViewModelProvider(
-            this,
-            ViewModelProvider.NewInstanceFactory()
-        ).get(MovieModel::class.java)
         model.loadDetails(movieId)
     }
 
