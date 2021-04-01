@@ -129,11 +129,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             }
             is MovieState.Error -> {
                 binding.tvStatus.visibility = View.GONE
-                Snackbar.make(
-                    binding.rvCatalog, getString(R.string.error)
-                            + ": " + state.error.message,
-                    Snackbar.LENGTH_INDEFINITE
-                ).show()
+                binding.rvCatalog.showError(state.error.message)
             }
         }
     }

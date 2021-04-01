@@ -69,11 +69,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
                 showItem(state.item)
             }
             is MovieState.Error -> {
-                Snackbar.make(
-                    binding.tvTitle, getString(R.string.error)
-                            + ": " + state.error.message,
-                    Snackbar.LENGTH_INDEFINITE
-                ).show()
+                binding.tvTitle.showError(state.error.message)
             }
         }
     }
