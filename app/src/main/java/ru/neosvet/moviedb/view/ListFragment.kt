@@ -106,9 +106,8 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     override fun onItemClicked(id: Int) {
-        val manager = activity?.supportFragmentManager
-        if (manager != null) {
-            manager.beginTransaction()
+        activity?.supportFragmentManager?.let {
+            it.beginTransaction()
                 .replace(R.id.container, MovieFragment.newInstance(id))
                 .addToBackStack(MAIN_STACK)
                 .commit()
