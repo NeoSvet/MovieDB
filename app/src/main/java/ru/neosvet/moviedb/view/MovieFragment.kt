@@ -79,11 +79,13 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     }
 
     private fun showItem(item: Movie) {
-        binding.tvTitle.text = item.title
-        binding.tvYear.text = item.year.toString()
-        binding.tvCountry.text = item.country
-        binding.tvGenres.text = item.genres
-        binding.tvDescription.text = item.description
+        with(binding) {
+            tvTitle.text = item.title
+            tvYear.text = item.year.toString()
+            tvCountry.text = item.country
+            tvGenres.text = item.genres
+            tvDescription.text = item.description
+        }
     }
 
     companion object {
