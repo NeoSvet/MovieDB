@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentListBinding
 import ru.neosvet.moviedb.list.CatalogAdapter
@@ -25,7 +24,7 @@ private const val MAIN_STACK = "main"
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-    private var catalog = CatalogAdapter()
+    private val catalog = CatalogAdapter()
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }

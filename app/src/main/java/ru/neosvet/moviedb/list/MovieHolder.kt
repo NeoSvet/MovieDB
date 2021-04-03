@@ -7,15 +7,9 @@ import com.google.android.material.textview.MaterialTextView
 import ru.neosvet.moviedb.R
 
 class MovieHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    var ivPoster: ShapeableImageView
-    var tvTitle: MaterialTextView
-    var tvDescription: MaterialTextView
-
-    init {
-        ivPoster = itemView.findViewById(R.id.ivPoster)
-        tvTitle = itemView.findViewById(R.id.tvTitle)
-        tvDescription = itemView.findViewById(R.id.tvDescription)
-    }
+    private val ivPoster: ShapeableImageView = itemView.findViewById(R.id.ivPoster)
+    private val tvTitle: MaterialTextView = itemView.findViewById(R.id.tvTitle)
+    private val tvDescription: MaterialTextView = itemView.findViewById(R.id.tvDescription)
 
     fun setItem(item: MovieItem, callbacks: ListCallbacks) {
         tvTitle.text = item.title

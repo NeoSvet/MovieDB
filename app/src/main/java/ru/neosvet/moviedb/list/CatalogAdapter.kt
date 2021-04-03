@@ -10,8 +10,8 @@ import java.util.ArrayList
 
 
 class CatalogAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    val TYPE_TITLE = 0
-    val TYPE_CATALOG = 1
+    private val TYPE_TITLE = 0
+    private val TYPE_CATALOG = 1
     private val adapters = ArrayList<MoviesAdapter>()
     private val titles = ArrayList<String>()
 
