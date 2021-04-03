@@ -28,8 +28,8 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }
-    private val finalId = 2
-    private var lastId = -1
+    private val finalId = 3
+    private var lastId = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -81,7 +81,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCatalog.adapter = catalog
 
-        lastId = catalog.itemCount - 1
+        lastId = catalog.itemCount
         if (lastId < finalId)
             model.loadList(++lastId)
         else
