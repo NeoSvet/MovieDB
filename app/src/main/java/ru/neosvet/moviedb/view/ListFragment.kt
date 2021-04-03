@@ -94,8 +94,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             adapter.addItem(
                 MovieItem(
                     id = movie.id, title = movie.title,
-                    description = movie.year.toString() + "\n" +
-                            movie.country + "\n" + movie.genres,
+                    description = movie.date,
                     poster = movie.poster
                 )
             )

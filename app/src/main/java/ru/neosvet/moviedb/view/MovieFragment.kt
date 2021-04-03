@@ -7,8 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.snackbar.Snackbar
-import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
@@ -77,9 +75,9 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     private fun showItem(item: Movie) {
         with(binding) {
             tvTitle.text = item.title
-            tvYear.text = item.year.toString()
-            tvCountry.text = item.country
-            tvGenres.text = item.genres
+            tvDate.text = item.date
+            tvOriginal.text = item.original
+            tvGenres.text = item.genres.toString()
             tvDescription.text = item.description
         }
     }

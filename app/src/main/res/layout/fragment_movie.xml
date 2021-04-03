@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/default_margin"
-    tools:context=".MovieFragment">
+    android:padding="@dimen/default_margin">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivPoster"
@@ -21,33 +20,33 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/default_margin"
         android:layout_marginBottom="@dimen/default_margin"
-        android:textSize="20sp"
+        android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@id/ivPoster"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvYear"
+        android:id="@+id/tvOriginal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="@id/tvTitle"
         app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvCountry"
+        android:id="@+id/tvDate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="@id/tvYear"
-        app:layout_constraintTop_toBottomOf="@id/tvYear" />
+        app:layout_constraintStart_toStartOf="@id/tvOriginal"
+        app:layout_constraintTop_toBottomOf="@id/tvOriginal" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvGenres"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="@id/tvCountry"
-        app:layout_constraintTop_toBottomOf="@id/tvCountry" />
+        app:layout_constraintStart_toStartOf="@id/tvDate"
+        app:layout_constraintTop_toBottomOf="@id/tvDate" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvDescription"
