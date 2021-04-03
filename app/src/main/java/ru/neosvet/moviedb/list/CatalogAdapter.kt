@@ -1,12 +1,10 @@
 package ru.neosvet.moviedb.list
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.neosvet.moviedb.R
-import java.lang.Exception
-import java.util.ArrayList
+import java.util.*
 
 
 class CatalogAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -25,19 +23,21 @@ class CatalogAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        when (viewType) {
+        return when (viewType) {
             TYPE_TITLE -> {
-                val view: View = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.title_item, parent, false)
-                return TitleHolder(view)
+                TitleHolder(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.title_item, parent, false)
+                )
             }
             TYPE_CATALOG -> {
-                val view: View = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.catalog_item, parent, false)
-                return CatalogHolder(view)
+                CatalogHolder(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.catalog_item, parent, false)
+                )
             }
+            else -> throw Exception("Unknown view type")
         }
-        throw Exception("Unknown view type")
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
