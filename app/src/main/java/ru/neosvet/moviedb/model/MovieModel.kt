@@ -10,7 +10,6 @@ import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.lang.StringBuilder
 import java.net.URL
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
@@ -28,10 +27,16 @@ class MovieModel(
         Thread {
             try {
                 launchLoadList(category_id)
-                val list = repository.getList(category_id)
-                list?.let {
-                    state.postValue(MovieState.SuccessList(it.title, it.movies))
+                val catalog = repository.getCatalog(category_id)
+                    ?: throw Exception("No list")
+                val list = ArrayList<Movie>()
+                catalog.movie_ids.forEach {
+                    val movie = repository.getMovie(it)
+                    movie?.let {
+                        list.add(it)
+                    }
                 }
+                state.postValue(MovieState.SuccessList(catalog.title, list))
             } catch (e: Exception) {
                 e.printStackTrace()
                 state.postValue(MovieState.Error(e))
@@ -117,7 +122,7 @@ class MovieModel(
         state.value = MovieState.Loading
         Thread {
             try {
-                val item = repository.getItem(id)
+                val item = repository.getMovie(id)
                 if (item == null)
                     state.postValue(MovieState.Error(Exception("Item no found")))
                 else
