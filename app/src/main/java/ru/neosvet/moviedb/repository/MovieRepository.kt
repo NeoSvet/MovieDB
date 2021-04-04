@@ -3,7 +3,6 @@ package ru.neosvet.moviedb.repository
 import java.util.ArrayList
 
 private val catalog = HashMap<Int, MoviesList>()
-private var lastId = -1
 
 class MovieRepository {
 
