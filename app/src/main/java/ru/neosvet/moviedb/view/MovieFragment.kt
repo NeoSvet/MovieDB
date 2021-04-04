@@ -1,6 +1,7 @@
 package ru.neosvet.moviedb.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -77,7 +78,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
             tvTitle.text = item.title
             tvDate.text = item.date
             tvOriginal.text = item.original
-            tvGenres.text = item.genres.toString()
+            tvGenres.text = model.genresToString(item.genres)
             tvDescription.text = item.description
         }
     }

@@ -25,3 +25,8 @@ data class Item(
     val vote_average: Float?,
     val vote_count: Int?
 )
+
+data class Genre(
+    val id: Int?,
+    val name: String?
+)

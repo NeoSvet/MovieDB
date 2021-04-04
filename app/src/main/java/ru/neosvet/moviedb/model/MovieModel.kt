@@ -5,10 +5,12 @@ import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import ru.neosvet.moviedb.model.api.API_KEY
 import ru.neosvet.moviedb.model.api.Catalog
+import ru.neosvet.moviedb.model.api.Genre
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.lang.StringBuilder
 import java.net.URL
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
@@ -41,6 +43,7 @@ class MovieModel(
         //API_KEY = "?api_key={key}"
         val uri = URL(BASE_URL + "list/" + category_id + API_KEY + LANG)
 
+        val genres_for_load = ArrayList<Int>()
         lateinit var urlConnection: HttpsURLConnection
         try {
             urlConnection = uri.openConnection() as HttpsURLConnection
@@ -51,13 +54,18 @@ class MovieModel(
             val catalog: Catalog = Gson().fromJson(reader.readLine(), Catalog::class.java)
             val movies = ArrayList<Movie>()
             catalog.items.forEach {
+                val genres = it.genre_ids ?: ArrayList<Int>()
+                genres.forEach {
+                    if (!repository.containsGenre(it) && !genres_for_load.contains(it))
+                        genres_for_load.add(it)
+                }
                 movies.add(
                     Movie(
                         it.id ?: -1,
                         it.title ?: "",
                         getOriginal(it.original_title, it.original_language),
                         it.overview ?: "",
-                        it.genre_ids ?: ArrayList<Int>(),
+                        genres,
                         it.release_date ?: "",
                         it.poster_path ?: "",
                         it.vote_average ?: 0f
@@ -68,8 +76,31 @@ class MovieModel(
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(MovieState.Error(e))
+            genres_for_load.clear()
         } finally {
             urlConnection.disconnect()
+        }
+        if (genres_for_load.size > 0)
+            loadGenres(genres_for_load)
+    }
+
+    private fun loadGenres(list: ArrayList<Int>) {
+        lateinit var urlConnection: HttpsURLConnection
+        try {
+            list.forEach {
+                val uri = URL(BASE_URL + "genre/" + it + API_KEY + LANG)
+                urlConnection = uri.openConnection() as HttpsURLConnection
+                urlConnection.requestMethod = "GET"
+                urlConnection.readTimeout = 10000
+                val reader = BufferedReader(InputStreamReader(urlConnection.inputStream))
+                val genre: Genre = Gson().fromJson(reader.readLine(), Genre::class.java)
+                repository.addGenre(genre)
+                urlConnection.disconnect()
+            }
+        } catch (e: Exception) {
+            urlConnection.disconnect()
+            e.printStackTrace()
+            state.postValue(MovieState.Error(e))
         }
     }
 
@@ -96,5 +127,19 @@ class MovieModel(
                 state.postValue(MovieState.Error(e))
             }
         }.start()
+    }
+
+    fun genresToString(genres: List<Int>): String {
+        val s = StringBuilder()
+        var name: String?
+        for (i in genres.indices) {
+            name = repository.getGenre(genres[i])
+            name?.let {
+                s.append(it)
+                if (i < genres.size - 1)
+                    s.append(", ")
+            }
+        }
+        return s.toString()
     }
 }
