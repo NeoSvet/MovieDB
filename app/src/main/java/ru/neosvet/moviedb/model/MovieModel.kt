@@ -71,7 +71,7 @@ class MovieModel(
                         getOriginal(it.original_title, it.original_language),
                         it.overview ?: "",
                         genres,
-                        it.release_date ?: "",
+                        formatDate(it.release_date),
                         it.poster_path ?: "",
                         it.vote_average ?: 0f
                     )
@@ -87,6 +87,14 @@ class MovieModel(
         }
         if (genres_for_load.size > 0)
             loadGenres(genres_for_load)
+    }
+
+    private fun formatDate(date: String?): String {
+        date?.let {
+            val m = it.split("-")
+            return "${m[2]}.${m[1]}.${m[0]}"
+        }
+        return ""
     }
 
     private fun loadGenres(list: ArrayList<Int>) {
