@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
@@ -78,7 +79,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     private fun showItem(item: Movie) {
         with(binding) {
             tvTitle.text = item.title
-            tvDate.text = item.date
+            tvDate.text = getString(R.string.release_date) + item.date
             tvOriginal.text = item.original
             tvGenres.text = model.genresToString(item.genres)
             tvDescription.text = item.description
