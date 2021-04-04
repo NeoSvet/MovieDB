@@ -1,7 +1,7 @@
 package ru.neosvet.moviedb.view
 
 import android.os.Bundle
-import android.util.Log
+import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +12,7 @@ import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.Movie
+
 
 private const val ARG_ID = "movie_id"
 
@@ -35,6 +36,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentMovieBinding.inflate(inflater, container, false)
+        binding.tvDescription.setMovementMethod(ScrollingMovementMethod())
         return binding.getRoot()
     }
 
