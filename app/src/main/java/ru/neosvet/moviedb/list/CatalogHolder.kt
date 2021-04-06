@@ -6,10 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.neosvet.moviedb.R
 
 class CatalogHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    var rvMovies: RecyclerView
+    private val rvMovies: RecyclerView = itemView.findViewById(R.id.rvMovies)
 
     init {
-        rvMovies = itemView.findViewById(R.id.rvMovies)
         rvMovies.layoutManager = LinearLayoutManager(
             rvMovies.context,
             RecyclerView.HORIZONTAL, false

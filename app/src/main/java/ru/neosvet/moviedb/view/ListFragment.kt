@@ -8,8 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
-import ru.neosvet.moviedb.MovieFragment
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentListBinding
 import ru.neosvet.moviedb.list.CatalogAdapter
@@ -26,8 +24,10 @@ private const val MAIN_STACK = "main"
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-    private var catalog = CatalogAdapter()
-    private lateinit var model: MovieModel
+    private val catalog = CatalogAdapter()
+    private val model: MovieModel by lazy {
+        ViewModelProvider(this).get(MovieModel::class.java)
+    }
     private val finalId = 2
     private var lastId = -1
 
@@ -81,7 +81,6 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCatalog.adapter = catalog
 
-        model = ViewModelProvider(this).get(MovieModel::class.java)
         lastId = catalog.itemCount - 1
         if (lastId < finalId)
             model.loadList(++lastId)
@@ -106,9 +105,8 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     override fun onItemClicked(id: Int) {
-        val manager = activity?.supportFragmentManager
-        if (manager != null) {
-            manager.beginTransaction()
+        activity?.supportFragmentManager?.let {
+            it.beginTransaction()
                 .replace(R.id.container, MovieFragment.newInstance(id))
                 .addToBackStack(MAIN_STACK)
                 .commit()
@@ -130,11 +128,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             }
             is MovieState.Error -> {
                 binding.tvStatus.visibility = View.GONE
-                Snackbar.make(
-                    binding.rvCatalog, getString(R.string.error)
-                            + ": " + state.error.message,
-                    Snackbar.LENGTH_INDEFINITE
-                ).show()
+                binding.rvCatalog.showError(state.error.message)
             }
         }
     }

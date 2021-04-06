@@ -20,7 +20,9 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     private var movieId: Int? = null
     private var _binding: FragmentMovieBinding? = null
     private val binding get() = _binding!!
-    private lateinit var model: MovieModel
+    private val model: MovieModel by lazy {
+        ViewModelProvider(this).get(MovieModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,10 +60,6 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     }
 
     private fun loadDetails() {
-        model = ViewModelProvider(
-            this,
-            ViewModelProvider.NewInstanceFactory()
-        ).get(MovieModel::class.java)
         model.loadDetails(movieId)
     }
 
@@ -71,21 +69,19 @@ class MovieFragment : Fragment(), Observer<MovieState> {
                 showItem(state.item)
             }
             is MovieState.Error -> {
-                Snackbar.make(
-                    binding.tvTitle, getString(R.string.error)
-                            + ": " + state.error.message,
-                    Snackbar.LENGTH_INDEFINITE
-                ).show()
+                binding.tvTitle.showError(state.error.message)
             }
         }
     }
 
     private fun showItem(item: Movie) {
-        binding.tvTitle.text = item.title
-        binding.tvYear.text = item.year.toString()
-        binding.tvCountry.text = item.country
-        binding.tvGenres.text = item.genres
-        binding.tvDescription.text = item.description
+        with(binding) {
+            tvTitle.text = item.title
+            tvYear.text = item.year.toString()
+            tvCountry.text = item.country
+            tvGenres.text = item.genres
+            tvDescription.text = item.description
+        }
     }
 
     companion object {
