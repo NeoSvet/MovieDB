@@ -2,44 +2,65 @@ package ru.neosvet.moviedb.repository
 
 import java.util.ArrayList
 
+private val catalog = HashMap<Int, MoviesList>()
+private var lastId = -1
+
 class MovieRepository {
-    fun getList(): ArrayList<Movie> {
-        var list: ArrayList<Movie> = ArrayList<Movie>()
-        list.add(
+
+    fun getList(category_id: Int): MoviesList {
+        if (catalog.containsKey(category_id))
+            return catalog[category_id] ?: MoviesList("", ArrayList<Movie>())
+
+        val movies = ArrayList<Movie>()
+        movies.add(
             Movie(
-                0, "title0", "des0",
-                "genres0", 2000,
-                "country0", "poster0"
+                ++lastId, "title" + lastId, "des",
+                "genres" + category_id, 2000,
+                "country", "poster"
             )
         )
-        list.add(
+        movies.add(
             Movie(
-                1, "title1", "des1",
-                "genres1", 2001,
+                ++lastId, "title" + lastId, "des1",
+                "genres" + category_id, 2001,
                 "country1", "poster1"
             )
         )
-        list.add(
+        movies.add(
             Movie(
-                2, "title2", "des2",
-                "genres2", 2002,
+                ++lastId, "title" + lastId, "des2",
+                "genres" + category_id, 2002,
                 "country2", "poster2"
             )
         )
-        list.add(
+        movies.add(
             Movie(
-                3, "title3", "des3",
-                "genres3", 2003,
+                ++lastId, "title" + lastId, "des3",
+                "genres" + category_id, 2003,
                 "country3", "poster3"
             )
         )
-        list.add(
+        movies.add(
             Movie(
-                4, "title4", "des4",
-                "genres4", 2004,
+                ++lastId, "title" + lastId, "des4",
+                "genres" + category_id, 2004,
                 "country4", "poster4"
             )
         )
+
+        val list = MoviesList("category" + category_id, movies)
+        catalog.put(category_id, list)
+
         return list
+    }
+
+    fun getItem(id: Int): Movie? {
+        for (list in catalog.values) {
+            for (item in list.movies) {
+                if (item.id == id)
+                    return item
+            }
+        }
+        return null
     }
 }

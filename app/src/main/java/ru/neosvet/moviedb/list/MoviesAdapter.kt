@@ -8,7 +8,7 @@ import ru.neosvet.moviedb.R
 import java.util.*
 
 class MoviesAdapter(val callbacks: ListCallbacks) : RecyclerView.Adapter<MovieHolder>() {
-    private val data: ArrayList<MovieItem> = ArrayList<MovieItem>()
+    private val data = ArrayList<MovieItem>()
 
     fun addItem(item: MovieItem) {
         data.add(item)
@@ -21,11 +21,7 @@ class MoviesAdapter(val callbacks: ListCallbacks) : RecyclerView.Adapter<MovieHo
     }
 
     override fun onBindViewHolder(holder: MovieHolder, position: Int) {
-        holder.tvTitle?.text = data[position].title
-        holder.tvDescription?.text = data[position].description
-        holder.itemView.setOnClickListener {
-            callbacks.onItemClicked(data[position].id)
-        }
+        holder.setItem(data[position], callbacks)
     }
 
     override fun getItemCount(): Int {
