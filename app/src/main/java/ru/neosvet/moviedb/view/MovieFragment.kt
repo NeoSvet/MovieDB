@@ -71,7 +71,8 @@ class MovieFragment : Fragment(), Observer<MovieState> {
                 showItem(state.item)
             }
             is MovieState.Error -> {
-                binding.tvTitle.showError(state.error.message)
+                binding.tvTitle.showError(state.error.message,
+                    getString(R.string.repeat), { loadDetails() })
             }
         }
     }

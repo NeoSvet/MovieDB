@@ -127,7 +127,8 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             }
             is MovieState.Error -> {
                 binding.tvStatus.visibility = View.GONE
-                binding.rvCatalog.showError(state.error.message)
+                binding.rvCatalog.showError(state.error.message,
+                getString(R.string.repeat), { model.loadList(lastId) })
             }
         }
     }
