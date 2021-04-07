@@ -5,10 +5,10 @@ import android.net.ConnectivityManager.CONNECTIVITY_ACTION
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import ru.neosvet.moviedb.R
-import ru.neosvet.moviedb.utils.RecConnect
+import ru.neosvet.moviedb.utils.ConnectRec
 
 class MainActivity : AppCompatActivity() {
-    private val recConnect = RecConnect()
+    private val recConnect = ConnectRec()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

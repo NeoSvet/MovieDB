@@ -8,7 +8,7 @@ import ru.neosvet.moviedb.model.api.Catalog
 import ru.neosvet.moviedb.model.api.Genre
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
-import ru.neosvet.moviedb.utils.RecConnect
+import ru.neosvet.moviedb.utils.ConnectRec
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.URL
@@ -48,7 +48,7 @@ class MovieModel(
     }
 
     private fun isNoConnect(): Boolean {
-        if (RecConnect.CONNECTED)
+        if (ConnectRec.CONNECTED)
             return false
         state.postValue(MovieState.Error(Exception("No connection")))
         return true

@@ -6,7 +6,7 @@ import android.content.Intent
 import android.widget.Toast
 import ru.neosvet.moviedb.R
 
-class RecConnect : BroadcastReceiver() {
+class ConnectRec : BroadcastReceiver() {
     companion object {
         var CONNECTED: Boolean = false
     }
