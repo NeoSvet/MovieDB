@@ -6,8 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.neosvet.moviedb.R
 import java.util.*
 
-
-class CatalogAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CatalogAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val TYPE_TITLE = 0
     private val TYPE_CATALOG = 1
     private val adapters = ArrayList<MoviesAdapter>()
@@ -53,5 +52,10 @@ class CatalogAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun getItemCount(): Int {
         return titles.size + adapters.size
+    }
+
+    fun clear() {
+        adapters.clear()
+        titles.clear()
     }
 }

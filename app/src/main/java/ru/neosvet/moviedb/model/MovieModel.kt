@@ -1,12 +1,10 @@
 package ru.neosvet.moviedb.model
 
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
-import ru.neosvet.moviedb.model.api.API_KEY
-import ru.neosvet.moviedb.model.api.Genre
-import ru.neosvet.moviedb.model.api.Item
-import ru.neosvet.moviedb.model.api.Playlist
+import ru.neosvet.moviedb.model.api.*
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
 import ru.neosvet.moviedb.utils.ConnectRec
@@ -24,32 +22,53 @@ class MovieModel(
     val LANG = "&language=ru-RU"
     fun getState() = state
 
-    fun loadList(list_id: Int) {
-        loadUrl(BASE_URL + "list/" + list_id)
+    companion object {
+        val UPCOMING = "upcoming"
+        val POPULAR = "popular"
+        val TOP_RATED = "top_rated"
     }
 
-    private fun loadUrl(url: String) {
+    fun loadList(list_id: Int) {
         Thread {
             if (isConnect()) {
                 state.postValue(MovieState.Loading)
-                try {
-                    val name = launchLoadList(url)
-                    val catalog = repository.getCatalog(name)
-                        ?: throw Exception("No list")
-                    val list = ArrayList<Movie>()
-                    catalog.movie_ids.forEach {
-                        val movie = repository.getMovie(it)
-                        movie?.let {
-                            list.add(it)
-                        }
-                    }
-                    state.postValue(MovieState.SuccessList(catalog.title, list))
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    state.postValue(MovieState.Error(e))
-                }
+                loadUrl(BASE_URL + "list/" + list_id)
             }
         }.start()
+    }
+
+    fun loadMainLists() {
+        Thread {
+            if (isConnect()) {
+                state.postValue(MovieState.Loading)
+                loadUrl(BASE_URL + "movie/" + UPCOMING)
+                loadUrl(BASE_URL + "movie/" + POPULAR)
+                loadUrl(BASE_URL + "movie/" + TOP_RATED)
+            }
+        }.start()
+    }
+
+    private fun loadUrl(url: String) {
+        try {
+            val name = launchLoadList(url)
+            val catalog = repository.getCatalog(name)
+                ?: throw Exception("No list")
+            val list = ArrayList<Movie>()
+            catalog.movie_ids.forEach {
+                val movie = repository.getMovie(it)
+                movie?.let {
+                    list.add(it)
+                }
+            }
+            state.postValue(
+                MovieState.SuccessList(
+                    catalog.desc ?: name, list
+                )
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            state.postValue(MovieState.Error(e))
+        }
     }
 
     private fun isConnect(): Boolean {
@@ -74,9 +93,15 @@ class MovieModel(
             urlConnection.readTimeout = 10000
             val reader = BufferedReader(InputStreamReader(urlConnection.inputStream))
 
-            val playlist: Playlist = Gson().fromJson(reader.readLine(), Playlist::class.java)
-            val movies = parseList(playlist.items)
-            repository.addCatalog(name, playlist.description ?: "no title", movies)
+            if (name.isDigitsOnly()) {
+                val playlist: Playlist = Gson().fromJson(reader.readLine(), Playlist::class.java)
+                val movies = parseList(playlist.items)
+                repository.addCatalog(name, playlist.description ?: "no title", movies)
+            } else {
+                val catalog: Catalog = Gson().fromJson(reader.readLine(), Catalog::class.java)
+                val movies = parseList(catalog.results)
+                repository.addCatalog(name, null, movies)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(MovieState.Error(e))

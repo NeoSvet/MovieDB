@@ -13,13 +13,13 @@ class MovieRepository {
     fun getGenre(id: Int) = genres[id]
     fun containsGenre(id: Int) = genres.containsKey(id)
 
-    fun addCatalog(name: String, title: String, list: ArrayList<Movie>) {
+    fun addCatalog(name: String, desc: String?, list: ArrayList<Movie>) {
         val ids = ArrayList<Int>()
         list.forEach {
             movies.put(it.id, it)
             ids.add(it.id)
         }
-        catalogs.put(name, Catalog(title, ids))
+        catalogs.put(name, Catalog(desc, ids))
     }
 
     fun addGenre(genre: Genre) {

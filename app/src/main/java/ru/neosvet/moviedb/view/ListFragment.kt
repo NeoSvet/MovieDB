@@ -22,14 +22,13 @@ import java.util.*
 private const val MAIN_STACK = "main"
 
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
+    val COUNT_LIST = 6
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private val catalog = CatalogAdapter()
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }
-    private val finalId = 3
-    private var lastId = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -81,9 +80,8 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCatalog.adapter = catalog
 
-        lastId = catalog.itemCount
-        if (lastId < finalId)
-            model.loadList(++lastId)
+        if (catalog.itemCount < COUNT_LIST)
+            model.loadMainLists()
         else
             catalog.notifyDataSetChanged()
     }
@@ -99,8 +97,25 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 )
             )
         }
-        catalog.addItem(title, adapter)
+        catalog.addItem(getTranslate(title), adapter)
         catalog.notifyDataSetChanged()
+    }
+
+    private fun getTranslate(title: String): String {
+        when (title) {
+            MovieModel.UPCOMING -> {
+                return getString(R.string.upcoming)
+            }
+            MovieModel.POPULAR -> {
+                return getString(R.string.popular)
+            }
+            MovieModel.TOP_RATED -> {
+                return getString(R.string.top_rated)
+            }
+            else -> {
+                return title
+            }
+        }
     }
 
     override fun onItemClicked(id: Int) {
@@ -117,9 +132,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             is MovieState.SuccessList -> {
                 binding.tvStatus.visibility = View.GONE
                 showList(state.title, state.list)
-                if (lastId < finalId)
-                    model.loadList(++lastId)
-                else
+                if (catalog.itemCount == COUNT_LIST)
                     model.getState().value = MovieState.Finished
             }
             is MovieState.Loading -> {
@@ -128,7 +141,10 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             is MovieState.Error -> {
                 binding.tvStatus.visibility = View.GONE
                 binding.rvCatalog.showError(state.error.message,
-                getString(R.string.repeat), { model.loadList(lastId) })
+                    getString(R.string.repeat), {
+                        catalog.clear()
+                        model.loadMainLists()
+                    })
             }
         }
     }

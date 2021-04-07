@@ -8,6 +8,13 @@ data class Playlist(
     val items: List<Item>
 )
 
+data class Catalog(
+    val page: Int?,
+    val results: List<Item>,
+    val total_pages: Int?,
+    val total_results: Int?,
+)
+
 data class Item(
     val adult: Boolean,
     val backdrop_path: String?,
