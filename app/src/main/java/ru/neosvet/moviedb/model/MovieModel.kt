@@ -8,6 +8,7 @@ import ru.neosvet.moviedb.model.api.Catalog
 import ru.neosvet.moviedb.model.api.Genre
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
+import ru.neosvet.moviedb.utils.RecConnect
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.URL
@@ -23,6 +24,8 @@ class MovieModel(
     fun getState() = state
 
     fun loadList(category_id: Int) {
+        if (isNoConnect())
+            return
         state.value = MovieState.Loading
         Thread {
             try {
@@ -42,6 +45,13 @@ class MovieModel(
                 state.postValue(MovieState.Error(e))
             }
         }.start()
+    }
+
+    private fun isNoConnect(): Boolean {
+        if (RecConnect.CONNECTED)
+            return false
+        state.postValue(MovieState.Error(Exception("No connection")))
+        return true
     }
 
     private fun launchLoadList(category_id: Int) {
@@ -125,7 +135,7 @@ class MovieModel(
     }
 
     fun loadDetails(id: Int?) {
-        if (id == null)
+        if (id == null || isNoConnect())
             return
         state.value = MovieState.Loading
         Thread {
