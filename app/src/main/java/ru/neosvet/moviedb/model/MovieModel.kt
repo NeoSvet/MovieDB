@@ -4,8 +4,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import ru.neosvet.moviedb.model.api.API_KEY
-import ru.neosvet.moviedb.model.api.Catalog
 import ru.neosvet.moviedb.model.api.Genre
+import ru.neosvet.moviedb.model.api.Item
+import ru.neosvet.moviedb.model.api.Playlist
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
 import ru.neosvet.moviedb.utils.ConnectRec
@@ -23,13 +24,17 @@ class MovieModel(
     val LANG = "&language=ru-RU"
     fun getState() = state
 
-    fun loadList(category_id: Int) {
+    fun loadList(list_id: Int) {
+        loadUrl(BASE_URL + "list/" + list_id)
+    }
+
+    private fun loadUrl(url: String) {
         Thread {
             if (isConnect()) {
                 state.postValue(MovieState.Loading)
                 try {
-                    launchLoadList(category_id)
-                    val catalog = repository.getCatalog(category_id)
+                    val name = launchLoadList(url)
+                    val catalog = repository.getCatalog(name)
                         ?: throw Exception("No list")
                     val list = ArrayList<Movie>()
                     catalog.movie_ids.forEach {
@@ -56,9 +61,10 @@ class MovieModel(
         return false
     }
 
-    private fun launchLoadList(category_id: Int) {
+    private fun launchLoadList(url: String): String {
         //API_KEY = "?api_key={key}"
-        val uri = URL(BASE_URL + "list/" + category_id + API_KEY + LANG)
+        val name = url.substring(url.lastIndexOf("/") + 1)
+        val uri = URL(url + API_KEY + LANG)
 
         val genres_for_load = ArrayList<Int>()
         lateinit var urlConnection: HttpsURLConnection
@@ -68,28 +74,9 @@ class MovieModel(
             urlConnection.readTimeout = 10000
             val reader = BufferedReader(InputStreamReader(urlConnection.inputStream))
 
-            val catalog: Catalog = Gson().fromJson(reader.readLine(), Catalog::class.java)
-            val movies = ArrayList<Movie>()
-            catalog.items.forEach {
-                val genres = it.genre_ids ?: ArrayList<Int>()
-                genres.forEach {
-                    if (!repository.containsGenre(it) && !genres_for_load.contains(it))
-                        genres_for_load.add(it)
-                }
-                movies.add(
-                    Movie(
-                        it.id ?: -1,
-                        it.title ?: "",
-                        getOriginal(it.original_title, it.original_language),
-                        it.overview ?: "",
-                        genres,
-                        formatDate(it.release_date),
-                        it.poster_path ?: "",
-                        it.vote_average ?: 0f
-                    )
-                )
-            }
-            repository.addCatalog(category_id, catalog.description ?: "no title", movies)
+            val playlist: Playlist = Gson().fromJson(reader.readLine(), Playlist::class.java)
+            val movies = parseList(playlist.items)
+            repository.addCatalog(name, playlist.description ?: "no title", movies)
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(MovieState.Error(e))
@@ -99,6 +86,34 @@ class MovieModel(
         }
         if (genres_for_load.size > 0)
             loadGenres(genres_for_load)
+        return name
+    }
+
+    private fun parseList(list: List<Item>): ArrayList<Movie> {
+        val genres_for_load = ArrayList<Int>()
+        val movies = ArrayList<Movie>()
+        list.forEach {
+            val genres = it.genre_ids ?: ArrayList<Int>()
+            genres.forEach {
+                if (!repository.containsGenre(it) && !genres_for_load.contains(it))
+                    genres_for_load.add(it)
+            }
+            movies.add(
+                Movie(
+                    it.id ?: -1,
+                    it.title ?: "",
+                    getOriginal(it.original_title, it.original_language),
+                    it.overview ?: "",
+                    genres,
+                    formatDate(it.release_date),
+                    it.poster_path ?: "",
+                    it.vote_average ?: 0f
+                )
+            )
+        }
+        if (genres_for_load.size > 0)
+            loadGenres(genres_for_load)
+        return movies
     }
 
     private fun formatDate(date: String?): String {

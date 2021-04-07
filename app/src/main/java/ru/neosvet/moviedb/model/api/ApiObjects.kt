@@ -1,6 +1,6 @@
 package ru.neosvet.moviedb.model.api
 
-data class Catalog(
+data class Playlist(
     val created_by: String?,
     val description: String?,
     val favorite_count: Int?,
