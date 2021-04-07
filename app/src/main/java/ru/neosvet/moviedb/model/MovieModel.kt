@@ -24,34 +24,36 @@ class MovieModel(
     fun getState() = state
 
     fun loadList(category_id: Int) {
-        if (isNoConnect())
-            return
-        state.value = MovieState.Loading
         Thread {
-            try {
-                launchLoadList(category_id)
-                val catalog = repository.getCatalog(category_id)
-                    ?: throw Exception("No list")
-                val list = ArrayList<Movie>()
-                catalog.movie_ids.forEach {
-                    val movie = repository.getMovie(it)
-                    movie?.let {
-                        list.add(it)
+            if (isConnect()) {
+                state.postValue(MovieState.Loading)
+                try {
+                    launchLoadList(category_id)
+                    val catalog = repository.getCatalog(category_id)
+                        ?: throw Exception("No list")
+                    val list = ArrayList<Movie>()
+                    catalog.movie_ids.forEach {
+                        val movie = repository.getMovie(it)
+                        movie?.let {
+                            list.add(it)
+                        }
                     }
+                    state.postValue(MovieState.SuccessList(catalog.title, list))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    state.postValue(MovieState.Error(e))
                 }
-                state.postValue(MovieState.SuccessList(catalog.title, list))
-            } catch (e: Exception) {
-                e.printStackTrace()
-                state.postValue(MovieState.Error(e))
             }
         }.start()
     }
 
-    private fun isNoConnect(): Boolean {
-        if (ConnectRec.CONNECTED)
-            return false
+    private fun isConnect(): Boolean {
+        while (ConnectRec.CONNECTED == null)
+            Thread.sleep(15)
+        if (ConnectRec.CONNECTED ?: false)
+            return true
         state.postValue(MovieState.Error(Exception("No connection")))
-        return true
+        return false
     }
 
     private fun launchLoadList(category_id: Int) {
@@ -135,7 +137,7 @@ class MovieModel(
     }
 
     fun loadDetails(id: Int?) {
-        if (id == null || isNoConnect())
+        if (id == null || !isConnect())
             return
         state.value = MovieState.Loading
         Thread {

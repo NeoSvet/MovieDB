@@ -8,7 +8,7 @@ import ru.neosvet.moviedb.R
 
 class ConnectRec : BroadcastReceiver() {
     companion object {
-        var CONNECTED: Boolean = false
+        var CONNECTED: Boolean? = null
     }
 
     override fun onReceive(context: Context, intent: Intent) {
