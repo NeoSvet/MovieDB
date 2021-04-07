@@ -13,6 +13,7 @@ import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.Movie
+import ru.neosvet.moviedb.utils.Poster
 
 
 private const val ARG_ID = "movie_id"
@@ -21,6 +22,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     private var movieId: Int? = null
     private var _binding: FragmentMovieBinding? = null
     private val binding get() = _binding!!
+
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }
@@ -84,6 +86,12 @@ class MovieFragment : Fragment(), Observer<MovieState> {
             tvOriginal.text = item.original
             tvGenres.text = model.genresToString(item.genres)
             tvDescription.text = item.description
+            val poster = Poster(requireContext())
+            ivPoster.setImageURI(
+                android.net.Uri.parse(
+                    poster.getFile(item.poster).path
+                )
+            )
         }
     }
 
