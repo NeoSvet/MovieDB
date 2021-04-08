@@ -111,19 +111,11 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     private fun getTranslate(title: String): String {
-        when (title) {
-            MovieModel.UPCOMING -> {
-                return getString(R.string.upcoming)
-            }
-            MovieModel.POPULAR -> {
-                return getString(R.string.popular)
-            }
-            MovieModel.TOP_RATED -> {
-                return getString(R.string.top_rated)
-            }
-            else -> {
-                return title
-            }
+        return when (title) {
+            MovieModel.UPCOMING -> getString(R.string.upcoming)
+            MovieModel.POPULAR -> getString(R.string.popular)
+            MovieModel.TOP_RATED -> getString(R.string.top_rated)
+            else -> title
         }
     }
 
