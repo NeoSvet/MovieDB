@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import ru.neosvet.moviedb.model.api.*
+import ru.neosvet.moviedb.repository.Catalog
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
 import ru.neosvet.moviedb.utils.ConnectRec
@@ -29,46 +30,51 @@ class MovieModel(
     }
 
     fun loadList(list_id: Int) {
-        Thread {
-            if (isConnect()) {
-                state.postValue(MovieState.Loading)
-                loadUrl(BASE_URL + "list/" + list_id)
-            }
-        }.start()
+        loadUrl(BASE_URL + "list/" + list_id)
     }
 
-    fun loadMainLists() {
-        Thread {
-            if (isConnect()) {
-                state.postValue(MovieState.Loading)
-                loadUrl(BASE_URL + "movie/" + UPCOMING)
-                loadUrl(BASE_URL + "movie/" + POPULAR)
-                loadUrl(BASE_URL + "movie/" + TOP_RATED)
-            }
-        }.start()
+    fun loadUpcoming() {
+        loadUrl(BASE_URL + "movie/" + UPCOMING)
+    }
+
+    fun loadPopular() {
+        loadUrl(BASE_URL + "movie/" + POPULAR)
+    }
+
+    fun loadTopRated() {
+        loadUrl(BASE_URL + "movie/" + TOP_RATED)
     }
 
     private fun loadUrl(url: String) {
         try {
-            val name = launchLoadList(url)
+            val name = url.substring(url.lastIndexOf("/") + 1)
             val catalog = repository.getCatalog(name)
-                ?: throw Exception("No list")
-            val list = ArrayList<Movie>()
-            catalog.movie_ids.forEach {
-                val movie = repository.getMovie(it)
-                movie?.let {
-                    list.add(it)
-                }
-            }
-            state.postValue(
-                MovieState.SuccessList(
-                    catalog.desc ?: name, list
-                )
-            )
+            if (catalog == null) {
+                Thread {
+                    if (isConnect())
+                        launchLoadList(name, url)
+                }.start()
+            } else
+                pushCatalog(name, catalog)
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(MovieState.Error(e))
         }
+    }
+
+    private fun pushCatalog(name: String, catalog: Catalog) {
+        val list = ArrayList<Movie>()
+        catalog.movie_ids.forEach {
+            val movie = repository.getMovie(it)
+            movie?.let {
+                list.add(it)
+            }
+        }
+        state.postValue(
+            MovieState.SuccessList(
+                catalog.desc ?: name, list
+            )
+        )
     }
 
     private fun isConnect(): Boolean {
@@ -80,9 +86,9 @@ class MovieModel(
         return false
     }
 
-    private fun launchLoadList(url: String): String {
+    private fun launchLoadList(name: String, url: String) {
+        state.postValue(MovieState.Loading)
         //API_KEY = "?api_key={key}"
-        val name = url.substring(url.lastIndexOf("/") + 1)
         val uri = URL(url + API_KEY + LANG)
 
         val genres_for_load = ArrayList<Int>()
@@ -98,10 +104,14 @@ class MovieModel(
                 val movies = parseList(playlist.items)
                 repository.addCatalog(name, playlist.description ?: "no title", movies)
             } else {
-                val catalog: Catalog = Gson().fromJson(reader.readLine(), Catalog::class.java)
-                val movies = parseList(catalog.results)
+                val page: Page = Gson().fromJson(reader.readLine(), Page::class.java)
+                val movies = parseList(page.results)
                 repository.addCatalog(name, null, movies)
             }
+
+            val catalog = repository.getCatalog(name)
+                ?: throw Exception("No list")
+            pushCatalog(name, catalog)
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(MovieState.Error(e))
@@ -111,7 +121,6 @@ class MovieModel(
         }
         if (genres_for_load.size > 0)
             loadGenres(genres_for_load)
-        return name
     }
 
     private fun parseList(list: List<Item>): ArrayList<Movie> {

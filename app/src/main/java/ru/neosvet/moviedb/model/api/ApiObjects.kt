@@ -8,7 +8,7 @@ data class Playlist(
     val items: List<Item>
 )
 
-data class Catalog(
+data class Page(
     val page: Int?,
     val results: List<Item>,
     val total_pages: Int?,

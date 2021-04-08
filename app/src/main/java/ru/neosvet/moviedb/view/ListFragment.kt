@@ -81,11 +81,18 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private fun initList() {
         binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCatalog.adapter = catalog
-
         if (catalog.itemCount < COUNT_LIST)
-            model.loadMainLists()
+            loadNextList()
         else
             catalog.notifyDataSetChanged()
+    }
+
+    private fun loadNextList() {
+        when (catalog.itemCount) {
+            0 -> model.loadUpcoming()
+            2 -> model.loadPopular()
+            4 -> model.loadTopRated()
+        }
     }
 
     private fun showList(title: String, list: ArrayList<Movie>) {
@@ -132,10 +139,12 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     override fun onChanged(state: MovieState) {
         when (state) {
             is MovieState.SuccessList -> {
-                binding.tvStatus.visibility = View.GONE
                 showList(state.title, state.list)
-                if (catalog.itemCount == COUNT_LIST)
+                if (catalog.itemCount == COUNT_LIST) {
+                    binding.tvStatus.visibility = View.GONE
                     model.getState().value = MovieState.Finished
+                } else
+                    loadNextList()
             }
             is MovieState.Loading -> {
                 binding.tvStatus.visibility = View.VISIBLE
@@ -145,7 +154,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 binding.rvCatalog.showError(state.error.message,
                     getString(R.string.repeat), {
                         catalog.clear()
-                        model.loadMainLists()
+                        loadNextList()
                     })
             }
         }
