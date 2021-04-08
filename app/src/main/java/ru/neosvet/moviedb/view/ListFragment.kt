@@ -25,7 +25,9 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     val COUNT_LIST = 6
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-    private val catalog = CatalogAdapter()
+    private val catalog by lazy {
+        CatalogAdapter(requireContext())
+    }
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }
@@ -87,7 +89,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     private fun showList(title: String, list: ArrayList<Movie>) {
-        val adapter = MoviesAdapter(this)
+        val adapter = MoviesAdapter(catalog, this)
         for (movie in list) {
             adapter.addItem(
                 MovieItem(

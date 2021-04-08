@@ -34,6 +34,11 @@ class Poster(val context: Context) {
     }
 }
 
+interface PosterHelper {
+    fun getFile(url: String) : File
+    fun load(id: Int, url: String)
+}
+
 class PosterSrv : IntentService("Poster Loader") {
     val BASE_URL = "https://www.themoviedb.org/t/p/w220_and_h330_face"
     val queue = ArrayList<Int>()
