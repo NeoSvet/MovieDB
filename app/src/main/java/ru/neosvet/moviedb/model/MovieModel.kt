@@ -91,7 +91,6 @@ class MovieModel(
         //API_KEY = "?api_key={key}"
         val uri = URL(url + API_KEY + LANG)
 
-        val genres_for_load = ArrayList<Int>()
         lateinit var urlConnection: HttpsURLConnection
         try {
             urlConnection = uri.openConnection() as HttpsURLConnection
@@ -115,12 +114,9 @@ class MovieModel(
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(MovieState.Error(e))
-            genres_for_load.clear()
         } finally {
             urlConnection.disconnect()
         }
-        if (genres_for_load.size > 0)
-            loadGenres(genres_for_load)
     }
 
     private fun parseList(list: List<Item>): ArrayList<Movie> {
