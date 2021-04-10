@@ -43,12 +43,15 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initList()
+        binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvCatalog.adapter = catalog
     }
 
     override fun onResume() {
         super.onResume()
         model.getState().observe(this, this)
+        if (catalog.itemCount < COUNT_LIST)
+            loadNextList()
     }
 
     override fun onPause() {
@@ -76,15 +79,6 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             }
         })
         super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    private fun initList() {
-        binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvCatalog.adapter = catalog
-        if (catalog.itemCount < COUNT_LIST)
-            loadNextList()
-        else
-            catalog.notifyDataSetChanged()
     }
 
     private fun loadNextList() {
