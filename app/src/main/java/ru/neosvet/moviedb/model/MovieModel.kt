@@ -10,17 +10,15 @@ import ru.neosvet.moviedb.model.api.*
 import ru.neosvet.moviedb.repository.Catalog
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
-import ru.neosvet.moviedb.utils.IncorrectResponseExc
-import ru.neosvet.moviedb.utils.ItemNoFoundExc
-import ru.neosvet.moviedb.utils.ListNoFoundExc
+import ru.neosvet.moviedb.utils.*
 import java.util.*
 
 class MovieModel(
     private val state: MutableLiveData<MovieState> = MutableLiveData(),
     private val repository: MovieRepository = MovieRepository(),
     private val source: RemoteDataSource = RemoteDataSource()
-) : ViewModel() {
-    fun getState() = state
+) : ViewModel(), ConnectObserver {
+    var nameWaitLoad: String? = null
 
     companion object {
         val UPCOMING = "upcoming"
@@ -28,38 +26,93 @@ class MovieModel(
         val TOP_RATED = "top_rated"
     }
 
+    fun getState() = state
+
     fun loadList(list_id: Int) {
-        loadListByName(list_id.toString())
+        preLoadListByName(list_id.toString())
     }
 
     fun loadUpcoming() {
-        loadListByName(UPCOMING)
+        preLoadListByName(UPCOMING)
     }
 
     fun loadPopular() {
-        loadListByName(POPULAR)
+        preLoadListByName(POPULAR)
     }
 
     fun loadTopRated() {
-        loadListByName(TOP_RATED)
+        preLoadListByName(TOP_RATED)
+    }
+
+    override fun connectChanged(connected: Boolean) {
+        nameWaitLoad?.let {
+            if (connected)
+                loadListByName(it)
+            else
+                state.postValue(MovieState.Error(NoConnectionExc()))
+        }
+    }
+
+    fun onSuccess() {
+        ConnectUtils.unSubscribe(this)
+        nameWaitLoad = null
+    }
+
+    private fun preLoadListByName(name: String) {
+        val catalog = repository.getCatalog(name)
+        if (catalog == null) {
+            nameWaitLoad = name
+            ConnectUtils.subscribe(this)
+        } else
+            pushCatalog(name, catalog)
     }
 
     private fun loadListByName(name: String) {
         try {
-            val catalog = repository.getCatalog(name)
-            if (catalog == null) {
-                state.value = MovieState.Loading
-                if (name.isDigitsOnly())
-                    source.getList(name, callBackList)
-                else
-                    source.getPage(name, callBackPage)
-            } else
-                pushCatalog(name, catalog)
+            state.value = MovieState.Loading
+            if (name.isDigitsOnly())
+                source.getList(name, callBackList)
+            else
+                source.getPage(name, callBackPage)
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(MovieState.Error(e))
         }
     }
+
+    fun loadDetails(id: Int?) {
+        if (id == null)
+            return
+        state.value = MovieState.Loading
+        Thread {
+            try {
+                val item = repository.getMovie(id)
+                if (item == null)
+                    state.postValue(MovieState.Error(ItemNoFoundExc()))
+                else
+                    state.postValue(MovieState.SuccessItem(item))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                state.postValue(MovieState.Error(e))
+            }
+        }.start()
+    }
+
+    fun genresToString(genres: List<Int>): String {
+        val s = StringBuilder()
+        var name: String?
+        for (i in genres.indices) {
+            name = repository.getGenre(genres[i])
+            name?.let {
+                s.append(it)
+                if (i < genres.size - 1)
+                    s.append(", ")
+            }
+        }
+        return s.toString()
+    }
+
+//PRIVATE
 
     private fun pushCatalog(name: String, catalog: Catalog) {
         val list = ArrayList<Movie>()
@@ -137,39 +190,7 @@ class MovieModel(
         return ""
     }
 
-    fun loadDetails(id: Int?) {
-        if (id == null)
-            return
-        state.value = MovieState.Loading
-        Thread {
-            try {
-                val item = repository.getMovie(id)
-                if (item == null)
-                    state.postValue(MovieState.Error(ItemNoFoundExc()))
-                else
-                    state.postValue(MovieState.SuccessItem(item))
-            } catch (e: Exception) {
-                e.printStackTrace()
-                state.postValue(MovieState.Error(e))
-            }
-        }.start()
-    }
-
-    fun genresToString(genres: List<Int>): String {
-        val s = StringBuilder()
-        var name: String?
-        for (i in genres.indices) {
-            name = repository.getGenre(genres[i])
-            name?.let {
-                s.append(it)
-                if (i < genres.size - 1)
-                    s.append(", ")
-            }
-        }
-        return s.toString()
-    }
-
-    //CALLBACKS
+//CALLBACKS
 
     private val callBackPage = object : Callback<Page> {
 
@@ -183,6 +204,7 @@ class MovieModel(
                 val catalog = repository.getCatalog(name)
                     ?: throw ListNoFoundExc()
                 pushCatalog(name, catalog)
+                onSuccess()
             } else {
                 state.postValue(MovieState.Error(IncorrectResponseExc()))
             }
@@ -208,6 +230,7 @@ class MovieModel(
                 val catalog = repository.getCatalog(name)
                     ?: throw ListNoFoundExc()
                 pushCatalog(name, catalog)
+                onSuccess()
             } else {
                 state.postValue(MovieState.Error(IncorrectResponseExc()))
             }

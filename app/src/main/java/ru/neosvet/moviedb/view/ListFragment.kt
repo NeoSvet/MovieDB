@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentListBinding
 import ru.neosvet.moviedb.list.CatalogAdapter
@@ -25,6 +26,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private val COUNT_LIST = 6
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
+    private var snackbar: Snackbar? = null
     private val catalog by lazy {
         CatalogAdapter(requireContext())
     }
@@ -131,6 +133,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             }
             is MovieState.Loading -> {
                 binding.tvStatus.visibility = View.VISIBLE
+                snackbar?.dismiss()
             }
             is MovieState.Error -> {
                 binding.tvStatus.visibility = View.GONE
@@ -139,7 +142,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                     message = state.error.getTranslate(requireContext())
                 else
                     message = state.error.message
-                binding.rvCatalog.showError(message,
+                snackbar = binding.rvCatalog.showError(message,
                     getString(R.string.repeat), {
                         catalog.clear()
                         loadNextList()
