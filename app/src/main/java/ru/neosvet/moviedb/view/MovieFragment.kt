@@ -16,10 +16,8 @@ import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.Poster
 
-
-private const val ARG_ID = "movie_id"
-
 class MovieFragment : Fragment(), Observer<MovieState> {
+    private val ARG_ID = "movie_id"
     private var movieId: Int? = null
     private var _binding: FragmentMovieBinding? = null
     private val binding get() = _binding!!

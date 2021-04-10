@@ -20,10 +20,9 @@ import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.utils.MyException
 import java.util.*
 
-private const val MAIN_STACK = "main"
-
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
-    val COUNT_LIST = 6
+    private val MAIN_STACK = "main"
+    private val COUNT_LIST = 6
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private val catalog by lazy {
