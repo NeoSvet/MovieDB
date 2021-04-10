@@ -24,3 +24,9 @@ class IncorrectResponseExc : MyException() {
         return context.getString(R.string.incorrect_response)
     }
 }
+
+class NoConnectionExc : MyException() {
+    override fun getTranslate(context: Context): String {
+        return context.getString(R.string.no_connection)
+    }
+}
