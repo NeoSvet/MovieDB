@@ -13,9 +13,9 @@ import retrofit2.http.Path
 import java.io.IOException
 import java.lang.Exception
 
-val LANG = "&language=ru-RU"
-
 class RemoteDataSource {
+    val LANG = "&language=ru-RU"
+
     private val retrofitApi = Retrofit.Builder()
         .baseUrl("https://api.themoviedb.org/3/")
         .addConverterFactory(

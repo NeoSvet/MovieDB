@@ -36,7 +36,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMovieBinding.inflate(inflater, container, false)
         binding.tvDescription.setMovementMethod(ScrollingMovementMethod())
         return binding.getRoot()

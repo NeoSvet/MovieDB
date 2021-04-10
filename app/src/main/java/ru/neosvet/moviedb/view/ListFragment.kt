@@ -35,7 +35,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         setHasOptionsMenu(true)
         _binding = FragmentListBinding.inflate(inflater, container, false)
         return binding.getRoot()
@@ -114,12 +114,9 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     override fun onItemClicked(id: Int) {
-        activity?.supportFragmentManager?.let {
-            it.beginTransaction()
-                .replace(R.id.container, MovieFragment.newInstance(id))
-                .addToBackStack(MAIN_STACK)
-                .commit()
-        }
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.replace(R.id.container, MovieFragment.newInstance(id))
+            ?.addToBackStack(MAIN_STACK)?.commit()
     }
 
     override fun onChanged(state: MovieState) {
