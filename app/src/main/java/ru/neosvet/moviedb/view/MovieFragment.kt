@@ -14,7 +14,7 @@ import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.utils.MyException
-import ru.neosvet.moviedb.utils.Poster
+import ru.neosvet.moviedb.utils.PosterUtils
 
 class MovieFragment : Fragment(), Observer<MovieState> {
     private val ARG_ID = "movie_id"
@@ -90,12 +90,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
             tvOriginal.text = item.original
             tvGenres.text = model.genresToString(item.genres)
             tvDescription.text = item.description
-            val poster = Poster(requireContext())
-            ivPoster.setImageURI(
-                android.net.Uri.parse(
-                    poster.getFile(item.poster).path
-                )
-            )
+            PosterUtils.load(item.poster, ivPoster)
         }
     }
 

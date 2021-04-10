@@ -92,7 +92,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     private fun showList(title: String, list: ArrayList<Movie>) {
-        val adapter = MoviesAdapter(catalog, this)
+        val adapter = MoviesAdapter(this)
         for (movie in list) {
             adapter.addItem(
                 MovieItem(
