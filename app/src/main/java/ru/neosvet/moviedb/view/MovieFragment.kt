@@ -13,6 +13,7 @@ import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.Movie
+import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.Poster
 
 
@@ -73,7 +74,12 @@ class MovieFragment : Fragment(), Observer<MovieState> {
                 showItem(state.item)
             }
             is MovieState.Error -> {
-                binding.tvTitle.showError(state.error.message,
+                val message: String?
+                if (state.error is MyException)
+                    message = state.error.getTranslate(requireContext())
+                else
+                    message = state.error.message
+                binding.tvTitle.showError(message,
                     getString(R.string.repeat), { loadDetails() })
             }
         }

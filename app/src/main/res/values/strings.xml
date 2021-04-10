@@ -10,4 +10,7 @@
     <string name="upcoming">Новое</string>
     <string name="popular">Популярное</string>
     <string name="top_rated">Высшая оценка</string>
+    <string name="item_no_found">Элемент не найден</string>
+    <string name="list_no_found">Список не найден</string>
+    <string name="incorrect_response">Неправильный ответ от сервера</string>
 </resources>

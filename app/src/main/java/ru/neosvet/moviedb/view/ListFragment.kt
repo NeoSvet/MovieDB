@@ -17,6 +17,7 @@ import ru.neosvet.moviedb.list.MoviesAdapter
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.Movie
+import ru.neosvet.moviedb.utils.MyException
 import java.util.*
 
 private const val MAIN_STACK = "main"
@@ -137,7 +138,12 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             }
             is MovieState.Error -> {
                 binding.tvStatus.visibility = View.GONE
-                binding.rvCatalog.showError(state.error.message,
+                val message: String?
+                if (state.error is MyException)
+                    message = state.error.getTranslate(requireContext())
+                else
+                    message = state.error.message
+                binding.rvCatalog.showError(message,
                     getString(R.string.repeat), {
                         catalog.clear()
                         loadNextList()

@@ -10,6 +10,9 @@ import ru.neosvet.moviedb.model.api.*
 import ru.neosvet.moviedb.repository.Catalog
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
+import ru.neosvet.moviedb.utils.IncorrectResponseExc
+import ru.neosvet.moviedb.utils.ItemNoFoundExc
+import ru.neosvet.moviedb.utils.ListNoFoundExc
 import java.util.*
 
 class MovieModel(
@@ -142,7 +145,7 @@ class MovieModel(
             try {
                 val item = repository.getMovie(id)
                 if (item == null)
-                    state.postValue(MovieState.Error(Exception("Item no found")))
+                    state.postValue(MovieState.Error(ItemNoFoundExc()))
                 else
                     state.postValue(MovieState.SuccessItem(item))
             } catch (e: Exception) {
@@ -178,16 +181,18 @@ class MovieModel(
                 val movies = parseList(page.results)
                 repository.addCatalog(name, null, movies)
                 val catalog = repository.getCatalog(name)
-                    ?: throw Exception("No list")
+                    ?: throw ListNoFoundExc()
                 pushCatalog(name, catalog)
             } else {
-                state.postValue(MovieState.Error(Exception("Incorrect response")))
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
             }
         }
 
         override fun onFailure(call: Call<Page>, t: Throwable) {
-            state.postValue(MovieState.Error(t))
-            //state.postValue(MovieState.Error(Throwable(t.message ?: REQUEST_ERROR)))
+            if (t.message == null)
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
+            else
+                state.postValue(MovieState.Error(t))
         }
     }
 
@@ -201,16 +206,18 @@ class MovieModel(
                 val movies = parseList(list.items)
                 repository.addCatalog(name, null, movies)
                 val catalog = repository.getCatalog(name)
-                    ?: throw Exception("No list")
+                    ?: throw ListNoFoundExc()
                 pushCatalog(name, catalog)
             } else {
-                state.postValue(MovieState.Error(Exception("Incorrect response")))
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
             }
         }
 
         override fun onFailure(call: Call<Playlist>, t: Throwable) {
-            state.postValue(MovieState.Error(t))
-            //state.postValue(MovieState.Error(Throwable(t.message ?: REQUEST_ERROR)))
+            if (t.message == null)
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
+            else
+                state.postValue(MovieState.Error(t))
         }
     }
 
@@ -219,16 +226,17 @@ class MovieModel(
         override fun onResponse(call: Call<Genre>, response: Response<Genre>) {
             val genre: Genre? = response.body()
 
-            if (response.isSuccessful && genre != null) {
+            if (response.isSuccessful && genre != null)
                 repository.addGenre(genre)
-            } else {
-                state.postValue(MovieState.Error(Exception("Incorrect response")))
-            }
+            else
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
         }
 
         override fun onFailure(call: Call<Genre>, t: Throwable) {
-            state.postValue(MovieState.Error(t))
-            //state.postValue(MovieState.Error(Throwable(t.message ?: REQUEST_ERROR)))
+            if (t.message == null)
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
+            else
+                state.postValue(MovieState.Error(t))
         }
     }
 }
