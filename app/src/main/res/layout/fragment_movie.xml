@@ -54,6 +54,38 @@
         app:layout_constraintTop_toBottomOf="@id/tvDate" />
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:text="@string/rating"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="@id/tvGenres"
+        app:layout_constraintTop_toBottomOf="@id/tvGenres" />
+
+    <ProgressBar
+        android:id="@+id/barVote"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="100dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="5dp"
+        android:max="100"
+        android:progress="0"
+        android:progressDrawable="@drawable/vote_bar"
+        app:layout_constraintStart_toEndOf="@id/tvRating"
+        app:layout_constraintTop_toBottomOf="@id/tvGenres" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvVote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:textSize="15sp"
+        app:layout_constraintStart_toEndOf="@id/barVote"
+        app:layout_constraintTop_toBottomOf="@id/tvGenres" />
+
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvDescription"
         android:layout_width="match_parent"
         android:layout_height="0dp"

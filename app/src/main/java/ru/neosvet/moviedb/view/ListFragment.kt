@@ -98,7 +98,8 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 MovieItem(
                     id = movie.id, title = movie.title,
                     description = movie.date,
-                    poster = movie.poster
+                    poster = movie.poster,
+                    vote = (movie.vote * 10).toInt()
                 )
             )
         }

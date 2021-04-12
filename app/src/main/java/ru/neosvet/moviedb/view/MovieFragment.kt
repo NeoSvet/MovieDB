@@ -85,12 +85,14 @@ class MovieFragment : Fragment(), Observer<MovieState> {
 
     private fun showItem(item: Movie) {
         with(binding) {
+            PosterUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
             tvDate.text = getString(R.string.release_date) + item.date
             tvOriginal.text = item.original
             tvGenres.text = model.genresToString(item.genres)
             tvDescription.text = item.description
-            PosterUtils.load(item.poster, ivPoster)
+            barVote.progress = (item.vote * 10).toInt()
+            tvVote.text = "(${item.vote})"
         }
     }
 
