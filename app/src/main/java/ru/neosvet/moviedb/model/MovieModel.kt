@@ -238,9 +238,9 @@ class MovieModel(
             val list: Playlist? = response.body()
 
             if (response.isSuccessful && list != null) {
-                val name = list.description ?: "Unnamed"
+                val name = repository.getNewName(list.description)
                 val movies = parseList(list.items)
-                repository.addCatalog(name, null, movies)
+                repository.addCatalog(name, list.description, movies)
                 val catalog = repository.getCatalog(name)
                     ?: throw ListNoFoundExc()
                 pushCatalog(name, catalog)

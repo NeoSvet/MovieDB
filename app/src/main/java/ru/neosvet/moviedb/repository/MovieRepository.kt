@@ -13,13 +13,28 @@ class MovieRepository {
     fun getGenre(id: Int) = genres[id]
     fun containsGenre(id: Int) = genres.containsKey(id)
 
+    fun getNewName(name: String?): String {
+        val n = if (name == null || name.length == 0) "Unnamed" else name
+        if (catalogs.containsKey(n)) {
+            var i = 1
+            var t = n
+            do {
+                i++
+                t = n + " [" + i + "]"
+            } while (catalogs.containsKey(t))
+            return t
+        }
+        return n
+    }
+
     fun addCatalog(name: String, desc: String?, list: ArrayList<Movie>) {
         val ids = ArrayList<Int>()
         list.forEach {
             movies[it.id] = it
             ids.add(it.id)
         }
-        catalogs[name] = Catalog(desc, ids)
+        val d = if (desc?.length == 0) null else desc
+        catalogs[name] = Catalog(d, ids)
     }
 
     fun addGenre(genre: Genre) {
