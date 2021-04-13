@@ -22,7 +22,18 @@ import ru.neosvet.moviedb.utils.MyException
 import java.util.*
 
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
+    companion object {
+        private val ARG_SEARCH = "search"
+        fun newInstance(withSearch: Boolean) =
+            ListFragment().apply {
+                arguments = Bundle().apply {
+                    putBoolean(ARG_SEARCH, withSearch)
+                }
+            }
+    }
+
     private val COUNT_LIST = 6
+    private lateinit var searcher: SearchView
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private var snackbar: Snackbar? = null
@@ -68,8 +79,8 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.list, menu)
         val search = menu.findItem(R.id.search)
-        val searchText = search.actionView as SearchView
-        searchText.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        searcher = search.actionView as SearchView
+        searcher.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 Toast.makeText(requireContext(), query, Toast.LENGTH_SHORT).show()
                 return true
@@ -79,6 +90,10 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 return true
             }
         })
+        arguments?.let {
+            if (it.getBoolean(ARG_SEARCH))
+                openSearch()
+        }
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -149,5 +164,15 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                     })
             }
         }
+    }
+
+    fun openSearch() {
+        arguments?.putBoolean(ARG_SEARCH, true)
+        searcher.setIconified(false)
+    }
+
+    fun closeSearch() {
+        arguments?.putBoolean(ARG_SEARCH, false)
+        searcher.setIconified(true)
     }
 }
