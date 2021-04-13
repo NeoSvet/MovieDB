@@ -15,4 +15,6 @@
     <string name="incorrect_response">Неправильный ответ от сервера</string>
     <string name="no_connection">Нет подключения к интернету</string>
     <string name="rating">Рейтинг</string>
+    <string name="main">Главная</string>
+    <string name="settings">Настройки</string>
 </resources>
