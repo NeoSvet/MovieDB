@@ -102,6 +102,12 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 return true
             }
         })
+        searcher.setOnCloseListener(object : SearchView.OnCloseListener {
+            override fun onClose(): Boolean {
+                query = null
+                return false
+            }
+        })
         query?.let {
             searcher.setQuery(it, false)
         }
@@ -197,9 +203,17 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     fun openSearch() {
         arguments?.putBoolean(ARG_SEARCH, true)
         searcher.setIconified(false)
+        searcher.clearFocus()
     }
 
     fun closeSearch() {
+        if (query != null) {
+            query = null
+            searcher.setQuery(query, false)
+            searcher.clearFocus()
+            catalog.clear()
+            loadNextList()
+        }
         arguments?.putBoolean(ARG_SEARCH, false)
         searcher.setIconified(true)
     }
