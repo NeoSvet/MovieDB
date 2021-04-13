@@ -61,6 +61,9 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         super.onViewCreated(view, savedInstanceState)
         binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCatalog.adapter = catalog
+        savedInstanceState?.let {
+            query = it.getString(ARG_SEARCH)
+        }
     }
 
     override fun onResume() {
@@ -80,6 +83,11 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         _binding = null
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(ARG_SEARCH, query)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.list, menu)
         val search = menu.findItem(R.id.search)
@@ -94,6 +102,9 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 return true
             }
         })
+        query?.let {
+            searcher.setQuery(it, false)
+        }
         arguments?.let {
             if (it.getBoolean(ARG_SEARCH))
                 openSearch()
