@@ -1,20 +1,17 @@
 package ru.neosvet.moviedb.model.api
 
 import com.google.gson.GsonBuilder
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
-import java.io.IOException
-import java.lang.Exception
+import retrofit2.http.Query
 
 class RemoteDataSource {
-    val LANG = "&language=ru-RU"
+    val LANG = "ru-RU"
 
     private val retrofitApi = Retrofit.Builder()
         .baseUrl("https://api.themoviedb.org/3/")
@@ -27,15 +24,15 @@ class RemoteDataSource {
         .build().create(ApiRetrofit::class.java)
 
     fun getPage(url: String, callback: Callback<Page>) {
-        retrofitApi.getPage(url).enqueue(callback)
+        retrofitApi.getPage(url, API_KEY, LANG).enqueue(callback)
     }
 
     fun getList(id: String, callback: Callback<Playlist>) {
-        retrofitApi.getList(id).enqueue(callback)
+        retrofitApi.getList(id, API_KEY, LANG).enqueue(callback)
     }
 
     fun getGenre(id: Int, callback: Callback<Genre>) {
-        val call: Call<Genre> = retrofitApi.getGenre(id)
+        val call: Call<Genre> = retrofitApi.getGenre(id, API_KEY, LANG)
         try {
             callback.onResponse(call, call.execute())
         } catch (e: Exception) {
@@ -43,37 +40,47 @@ class RemoteDataSource {
         }
     }
 
-    private fun createOkHttpClient(): OkHttpClient {
-        val httpClient = OkHttpClient.Builder()
-        httpClient.addInterceptor(MoviesApiInterceptor())
-        return httpClient.build()
+    fun search(query: String, page: Int, adult: Boolean, callback: Callback<Page>) {
+        retrofitApi.search(
+            API_KEY, LANG, page, adult, query
+        ).enqueue(callback)
     }
 
-    inner class MoviesApiInterceptor : Interceptor {
-        @Throws(IOException::class)
-        override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
-            val requestBuilder: Request.Builder = chain.request().newBuilder()
-            //API_KEY = "?api_key={key}"
-            requestBuilder.url(chain.request().url().toString() + API_KEY + LANG)
-            return chain.proceed(requestBuilder.build());
-        }
+    private fun createOkHttpClient(): OkHttpClient {
+        val httpClient = OkHttpClient.Builder()
+        return httpClient.build()
     }
 }
 
 
 interface ApiRetrofit {
+    @GET("search/movie")
+    fun search(
+        @Query("api_key") api_key: String,
+        @Query("language") lang: String,
+        @Query("page") page: Int,
+        @Query("include_adult") adult: Boolean,
+        @Query("query") query: String
+    ): Call<Page>
+
     @GET("movie/{URL}")
     fun getPage(
-        @Path("URL") url: String
+        @Path("URL") url: String,
+        @Query("api_key") api_key: String,
+        @Query("language") lang: String
     ): Call<Page>
 
     @GET("list/{ID}")
     fun getList(
-        @Path("ID") id: String
+        @Path("ID") id: String,
+        @Query("api_key") api_key: String,
+        @Query("language") lang: String
     ): Call<Playlist>
 
     @GET("genre/{ID}")
     fun getGenre(
-        @Path("ID") id: Int
+        @Path("ID") id: Int,
+        @Query("api_key") api_key: String,
+        @Query("language") lang: String
     ): Call<Genre>
 }

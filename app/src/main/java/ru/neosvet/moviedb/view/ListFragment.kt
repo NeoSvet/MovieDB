@@ -2,7 +2,6 @@ package ru.neosvet.moviedb.view
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -47,6 +46,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private val settings: SettingsUtils by lazy {
         SettingsUtils(requireContext())
     }
+    private var query: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -86,7 +86,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         searcher = search.actionView as SearchView
         searcher.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
-                Toast.makeText(requireContext(), query, Toast.LENGTH_SHORT).show()
+                startSearch(query)
                 return true
             }
 
@@ -101,11 +101,23 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    private fun startSearch(query: String) {
+        this.query = query
+        catalog.clear()
+        loadNextList()
+    }
+
     private fun loadNextList() {
-        when (catalog.itemCount) {
-            0 -> model.loadUpcoming(settings.getAdult())
-            2 -> model.loadPopular(settings.getAdult())
-            4 -> model.loadTopRated(settings.getAdult())
+        if (query == null) {
+            when (catalog.itemCount) {
+                0 -> model.loadUpcoming(settings.getAdult())
+                2 -> model.loadPopular(settings.getAdult())
+                4 -> model.loadTopRated(settings.getAdult())
+            }
+            return
+        }
+        query?.let {
+            model.search(it, catalog.itemCount / 2 + 1, settings.getAdult())
         }
     }
 
@@ -130,6 +142,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             MovieModel.UPCOMING -> getString(R.string.upcoming)
             MovieModel.POPULAR -> getString(R.string.popular)
             MovieModel.TOP_RATED -> getString(R.string.top_rated)
+            MovieModel.SEARCH -> getString(R.string.search_result)
             else -> title
         }
     }

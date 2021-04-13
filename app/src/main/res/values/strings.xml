@@ -18,4 +18,5 @@
     <string name="main">Главная</string>
     <string name="settings">Настройки</string>
     <string name="content_for_adult">Контент для взрослых</string>
+    <string name="search_result">Результаты поиска</string>
 </resources>

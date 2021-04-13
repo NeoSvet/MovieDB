@@ -1,13 +1,12 @@
 package ru.neosvet.moviedb.repository
 
+import android.util.Log
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.model.api.Genre
 import ru.neosvet.moviedb.model.api.Item
 import ru.neosvet.moviedb.model.api.RemoteDataSource
-import ru.neosvet.moviedb.utils.IncorrectResponseExc
 import java.util.ArrayList
 
 private val catalogs = HashMap<String, Catalog>()
@@ -54,6 +53,8 @@ class MovieRepository {
                 if (!containsGenre(it) && !genres_for_load.contains(it))
                     genres_for_load.add(it)
             }
+            if (it.adult)
+                Log.d("mylog", it.title)
             movies.add(
                 Movie(
                     it.id ?: -1,
@@ -102,6 +103,10 @@ class MovieRepository {
         genre.id?.let {
             genres[it] = genre.name ?: ""
         }
+    }
+
+    fun clearCatalog(name: String) {
+        catalogs.remove(name)
     }
 
     private val callBackGenre = object : Callback<Genre> {

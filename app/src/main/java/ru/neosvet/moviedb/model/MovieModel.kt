@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import ru.neosvet.moviedb.model.api.*
+import ru.neosvet.moviedb.model.api.Page
+import ru.neosvet.moviedb.model.api.Playlist
+import ru.neosvet.moviedb.model.api.RemoteDataSource
 import ru.neosvet.moviedb.repository.Catalog
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
@@ -25,6 +27,7 @@ class MovieModel(
         val UPCOMING = "upcoming"
         val POPULAR = "popular"
         val TOP_RATED = "top_rated"
+        val SEARCH = "query"
     }
 
     fun getState() = state
@@ -47,6 +50,18 @@ class MovieModel(
     fun loadTopRated(adult: Boolean) {
         this.adult = adult
         preLoadListByName(TOP_RATED)
+    }
+
+    fun search(query: String, page: Int, adult: Boolean) {
+        this.adult = adult
+        try {
+            state.value = MovieState.Loading
+            repository.clearCatalog(SEARCH + page)
+            source.search(query, page, adult, callBackPage)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            state.postValue(MovieState.Error(e))
+        }
     }
 
     override fun connectChanged(connected: Boolean) {
@@ -149,6 +164,8 @@ class MovieModel(
             POPULAR
         else if (url.contains(TOP_RATED))
             TOP_RATED
+        else if (url.contains(SEARCH))
+            SEARCH
         else
             url.substring(url.lastIndexOf("/") + 1)
     }
