@@ -8,6 +8,9 @@ import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.utils.ConnectUtils
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        val MAIN_STACK = "main"
+    }
     private val recConnect = ConnectUtils()
 
     override fun onCreate(savedInstanceState: Bundle?) {

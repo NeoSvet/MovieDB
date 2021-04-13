@@ -22,7 +22,6 @@ import ru.neosvet.moviedb.utils.MyException
 import java.util.*
 
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
-    private val MAIN_STACK = "main"
     private val COUNT_LIST = 6
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
@@ -119,7 +118,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     override fun onItemClicked(id: Int) {
         activity?.supportFragmentManager?.beginTransaction()
             ?.replace(R.id.container, MovieFragment.newInstance(id))
-            ?.addToBackStack(MAIN_STACK)?.commit()
+            ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
     }
 
     override fun onChanged(state: MovieState) {
