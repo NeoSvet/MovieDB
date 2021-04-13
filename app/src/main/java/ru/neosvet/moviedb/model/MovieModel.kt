@@ -19,6 +19,7 @@ class MovieModel(
     private val source: RemoteDataSource = RemoteDataSource()
 ) : ViewModel(), ConnectObserver {
     var nameWaitLoad: String? = null
+    var adult: Boolean = false
 
     companion object {
         val UPCOMING = "upcoming"
@@ -28,19 +29,23 @@ class MovieModel(
 
     fun getState() = state
 
-    fun loadList(list_id: Int) {
+    fun loadList(list_id: Int, adult: Boolean) {
+        this.adult = adult
         preLoadListByName(list_id.toString())
     }
 
-    fun loadUpcoming() {
+    fun loadUpcoming(adult: Boolean) {
+        this.adult = adult
         preLoadListByName(UPCOMING)
     }
 
-    fun loadPopular() {
+    fun loadPopular(adult: Boolean) {
+        this.adult = adult
         preLoadListByName(POPULAR)
     }
 
-    fun loadTopRated() {
+    fun loadTopRated(adult: Boolean) {
+        this.adult = adult
         preLoadListByName(TOP_RATED)
     }
 
@@ -119,7 +124,8 @@ class MovieModel(
         catalog.movie_ids.forEach {
             val movie = repository.getMovie(it)
             movie?.let {
-                list.add(it)
+                if (checkAdult(it.isAdult))
+                    list.add(it)
             }
         }
         state.postValue(
@@ -127,6 +133,13 @@ class MovieModel(
                 catalog.desc ?: name, list
             )
         )
+    }
+
+    private fun checkAdult(itIsAdult: Boolean): Boolean {
+        if (adult)
+            return !itIsAdult
+        else
+            return true
     }
 
     private fun getNamePage(url: String): String {
@@ -158,7 +171,8 @@ class MovieModel(
                     genres,
                     formatDate(it.release_date),
                     it.poster_path ?: "",
-                    it.vote_average ?: 0f
+                    it.vote_average ?: 0f,
+                    it.adult
                 )
             )
         }

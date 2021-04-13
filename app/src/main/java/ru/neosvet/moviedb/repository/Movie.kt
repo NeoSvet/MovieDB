@@ -8,7 +8,8 @@ data class Movie(
     val genres: List<Int>,
     val date: String,
     val poster: String,
-    val vote: Float
+    val vote: Float,
+    val isAdult: Boolean
 )
 
 data class Catalog(val desc: String?, val movie_ids: ArrayList<Int>)

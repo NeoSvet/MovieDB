@@ -19,6 +19,7 @@ import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.utils.MyException
+import ru.neosvet.moviedb.utils.SettingsUtils
 import java.util.*
 
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
@@ -42,6 +43,9 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
+    }
+    private val settings: SettingsUtils by lazy {
+        SettingsUtils(requireContext())
     }
 
     override fun onCreateView(
@@ -99,9 +103,9 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
 
     private fun loadNextList() {
         when (catalog.itemCount) {
-            0 -> model.loadUpcoming()
-            2 -> model.loadPopular()
-            4 -> model.loadTopRated()
+            0 -> model.loadUpcoming(settings.getAdult())
+            2 -> model.loadPopular(settings.getAdult())
+            4 -> model.loadTopRated(settings.getAdult())
         }
     }
 
