@@ -153,57 +153,6 @@ class MovieModel(
             url.substring(url.lastIndexOf("/") + 1)
     }
 
-    private fun parseList(list: List<Item>): ArrayList<Movie> {
-        val genres_for_load = ArrayList<Int>()
-        val movies = ArrayList<Movie>()
-        list.forEach {
-            val genres = it.genre_ids ?: ArrayList<Int>()
-            genres.forEach {
-                if (!repository.containsGenre(it) && !genres_for_load.contains(it))
-                    genres_for_load.add(it)
-            }
-            movies.add(
-                Movie(
-                    it.id ?: -1,
-                    it.title ?: "",
-                    getOriginal(it.original_title, it.original_language),
-                    it.overview ?: "",
-                    genres,
-                    formatDate(it.release_date),
-                    it.poster_path ?: "",
-                    it.vote_average ?: 0f,
-                    it.adult
-                )
-            )
-        }
-        if (genres_for_load.size > 0)
-            loadGenres(genres_for_load)
-        return movies
-    }
-
-    private fun formatDate(date: String?): String {
-        date?.let {
-            val m = it.split("-")
-            return "${m[2]}.${m[1]}.${m[0]}"
-        }
-        return ""
-    }
-
-    private fun loadGenres(list: ArrayList<Int>) {
-        Thread {
-            list.forEach {
-                source.getGenre(it, callBackGenre)
-            }
-        }.start()
-    }
-
-    private fun getOriginal(title: String?, language: String?): String {
-        title?.let {
-            return it + language?.let { " [${it.toUpperCase()}]" }
-        }
-        return ""
-    }
-
 //CALLBACKS
 
     private val callBackPage = object : Callback<Page> {
@@ -213,8 +162,7 @@ class MovieModel(
 
             if (response.isSuccessful && page != null) {
                 val name = getNamePage(call.request().url().toString())
-                val movies = parseList(page.results)
-                repository.addCatalog(name, null, movies)
+                repository.addCatalog(name, null, page.results)
                 val catalog = repository.getCatalog(name)
                     ?: throw ListNoFoundExc()
                 pushCatalog(name, catalog)
@@ -239,8 +187,7 @@ class MovieModel(
 
             if (response.isSuccessful && list != null) {
                 val name = repository.getNewName(list.description)
-                val movies = parseList(list.items)
-                repository.addCatalog(name, list.description, movies)
+                repository.addCatalog(name, list.description, list.items)
                 val catalog = repository.getCatalog(name)
                     ?: throw ListNoFoundExc()
                 pushCatalog(name, catalog)
@@ -251,25 +198,6 @@ class MovieModel(
         }
 
         override fun onFailure(call: Call<Playlist>, t: Throwable) {
-            if (t.message == null)
-                state.postValue(MovieState.Error(IncorrectResponseExc()))
-            else
-                state.postValue(MovieState.Error(t))
-        }
-    }
-
-    private val callBackGenre = object : Callback<Genre> {
-
-        override fun onResponse(call: Call<Genre>, response: Response<Genre>) {
-            val genre: Genre? = response.body()
-
-            if (response.isSuccessful && genre != null)
-                repository.addGenre(genre)
-            else
-                state.postValue(MovieState.Error(IncorrectResponseExc()))
-        }
-
-        override fun onFailure(call: Call<Genre>, t: Throwable) {
             if (t.message == null)
                 state.postValue(MovieState.Error(IncorrectResponseExc()))
             else
