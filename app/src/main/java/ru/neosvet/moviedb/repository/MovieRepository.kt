@@ -78,6 +78,8 @@ class MovieRepository {
     private fun formatDate(date: String?): String {
         date?.let {
             val m = it.split("-")
+            if (m.size != 3)
+                return it
             return "${m[2]}.${m[1]}.${m[0]}"
         }
         return ""
