@@ -17,11 +17,19 @@ import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.PosterUtils
 
 class MovieFragment : Fragment(), Observer<MovieState> {
-    private val ARG_ID = "movie_id"
+    companion object {
+        private val ARG_ID = "movie_id"
+        fun newInstance(movieId: Int) =
+            MovieFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(ARG_ID, movieId)
+                }
+            }
+    }
+
     private var movieId: Int? = null
     private var _binding: FragmentMovieBinding? = null
     private val binding get() = _binding!!
-
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }
@@ -94,15 +102,5 @@ class MovieFragment : Fragment(), Observer<MovieState> {
             barVote.progress = (item.vote * 10).toInt()
             tvVote.text = "(${item.vote})"
         }
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(movieId: Int) =
-            MovieFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(ARG_ID, movieId)
-                }
-            }
     }
 }
