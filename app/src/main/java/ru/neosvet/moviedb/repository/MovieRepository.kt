@@ -1,6 +1,5 @@
 package ru.neosvet.moviedb.repository
 
-import android.util.Log
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -53,8 +52,6 @@ class MovieRepository {
                 if (!containsGenre(it) && !genres_for_load.contains(it))
                     genres_for_load.add(it)
             }
-            if (it.adult)
-                Log.d("mylog", it.title)
             movies.add(
                 Movie(
                     it.id ?: -1,
