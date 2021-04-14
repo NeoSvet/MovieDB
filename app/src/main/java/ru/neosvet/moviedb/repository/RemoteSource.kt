@@ -1,4 +1,4 @@
-package ru.neosvet.moviedb.model.api
+package ru.neosvet.moviedb.repository
 
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
@@ -9,8 +9,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import ru.neosvet.moviedb.model.api.API_KEY
 
-class RemoteDataSource {
+class RemoteSource {
     val LANG = "ru-RU"
 
     private val retrofitApi = Retrofit.Builder()
@@ -51,7 +52,6 @@ class RemoteDataSource {
         return httpClient.build()
     }
 }
-
 
 interface ApiRetrofit {
     @GET("search/movie")

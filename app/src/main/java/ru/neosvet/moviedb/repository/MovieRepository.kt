@@ -3,16 +3,17 @@ package ru.neosvet.moviedb.repository
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import ru.neosvet.moviedb.model.api.Genre
-import ru.neosvet.moviedb.model.api.Item
-import ru.neosvet.moviedb.model.api.RemoteDataSource
+import ru.neosvet.moviedb.model.MovieModel
 import java.util.ArrayList
 
-private val catalogs = HashMap<String, Catalog>()
-private val movies = HashMap<Int, Movie>()
-private val genres = HashMap<Int, String>()
+class MovieRepository(val model: MovieModel) {
+    companion object {
+        private val catalogs = HashMap<String, Catalog>()
+        private val movies = HashMap<Int, Movie>()
+        private val genres = HashMap<Int, String>()
+    }
 
-class MovieRepository {
+    private val source: RemoteSource = RemoteSource()
     fun getCatalog(name: String) = catalogs[name]
     fun getMovie(id: Int) = movies[id]
     fun getGenre(id: Int) = genres[id]
@@ -71,7 +72,6 @@ class MovieRepository {
         return movies
     }
 
-
     private fun formatDate(date: String?): String {
         date?.let {
             val m = it.split("-")
@@ -84,7 +84,6 @@ class MovieRepository {
 
     private fun loadGenres(list: ArrayList<Int>) {
         Thread {
-            val source: RemoteDataSource = RemoteDataSource()
             list.forEach {
                 source.getGenre(it, callBackGenre)
             }
@@ -106,6 +105,18 @@ class MovieRepository {
 
     fun clearCatalog(name: String) {
         catalogs.remove(name)
+    }
+
+    fun search(query: String, page: Int, adult: Boolean) {
+        source.search(query, page, adult, model.callBackPage)
+    }
+
+    fun getList(name: String) {
+        source.getList(name, model.callBackList)
+    }
+
+    fun getPage(name: String) {
+        source.getPage(name, model.callBackPage)
     }
 
     private val callBackGenre = object : Callback<Genre> {

@@ -6,29 +6,23 @@ import androidx.lifecycle.ViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import ru.neosvet.moviedb.model.api.Page
-import ru.neosvet.moviedb.model.api.Playlist
-import ru.neosvet.moviedb.model.api.RemoteDataSource
-import ru.neosvet.moviedb.repository.Catalog
-import ru.neosvet.moviedb.repository.Movie
-import ru.neosvet.moviedb.repository.MovieRepository
+import ru.neosvet.moviedb.repository.*
 import ru.neosvet.moviedb.utils.*
 import java.util.*
 
-class MovieModel(
-    private val state: MutableLiveData<MovieState> = MutableLiveData(),
-    private val repository: MovieRepository = MovieRepository(),
-    private val source: RemoteDataSource = RemoteDataSource()
-) : ViewModel(), ConnectObserver {
-    var nameWaitLoad: String? = null
-    var adult: Boolean = false
-
+class MovieModel : ViewModel(), ConnectObserver {
     companion object {
         val UPCOMING = "upcoming"
         val POPULAR = "popular"
         val TOP_RATED = "top_rated"
         val SEARCH = "query"
     }
+
+    private val state: MutableLiveData<MovieState> = MutableLiveData()
+    private val repository: MovieRepository = MovieRepository(this)
+    var nameWaitLoad: String? = null
+    var adult: Boolean = false
+
 
     fun getState() = state
 
@@ -57,7 +51,7 @@ class MovieModel(
         try {
             state.value = MovieState.Loading
             repository.clearCatalog(SEARCH + page)
-            source.search(query, page, adult, callBackPage)
+            repository.search(query, page, adult)
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(MovieState.Error(e))
@@ -98,9 +92,9 @@ class MovieModel(
         try {
             state.value = MovieState.Loading
             if (name.isDigitsOnly())
-                source.getList(name, callBackList)
+                repository.getList(name)
             else
-                source.getPage(name, callBackPage)
+                repository.getPage(name)
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(MovieState.Error(e))
@@ -184,7 +178,7 @@ class MovieModel(
 
 //CALLBACKS
 
-    private val callBackPage = object : Callback<Page> {
+    val callBackPage = object : Callback<Page> {
 
         override fun onResponse(call: Call<Page>, response: Response<Page>) {
             val page: Page? = response.body()
@@ -192,8 +186,7 @@ class MovieModel(
             if (response.isSuccessful && page != null) {
                 val name = getNamePage(call.request().url().toString())
                 repository.addCatalog(name, null, page.results)
-                val catalog = repository.getCatalog(name)
-                    ?: throw ListNoFoundExc()
+                val catalog = repository.getCatalog(name) ?: throw ListNoFoundExc()
                 pushCatalog(name, catalog)
                 onSuccess()
             } else {
@@ -209,7 +202,7 @@ class MovieModel(
         }
     }
 
-    private val callBackList = object : Callback<Playlist> {
+    val callBackList = object : Callback<Playlist> {
 
         override fun onResponse(call: Call<Playlist>, response: Response<Playlist>) {
             val list: Playlist? = response.body()
@@ -217,8 +210,7 @@ class MovieModel(
             if (response.isSuccessful && list != null) {
                 val name = repository.getNewName(list.description)
                 repository.addCatalog(name, list.description, list.items)
-                val catalog = repository.getCatalog(name)
-                    ?: throw ListNoFoundExc()
+                val catalog = repository.getCatalog(name) ?: throw ListNoFoundExc()
                 pushCatalog(name, catalog)
                 onSuccess()
             } else {
