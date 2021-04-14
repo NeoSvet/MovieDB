@@ -120,7 +120,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         searcher.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 startSearch(query)
-                return true
+                return false
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
@@ -140,7 +140,6 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     private fun startSearch(query: String) {
-        requireActivity().hideKeyboard(searcher)
         isLastSearch = false
         this.query = query
         catalog.clear()
