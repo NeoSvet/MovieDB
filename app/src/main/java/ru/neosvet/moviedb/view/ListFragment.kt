@@ -160,9 +160,19 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             MovieModel.UPCOMING -> getString(R.string.upcoming)
             MovieModel.POPULAR -> getString(R.string.popular)
             MovieModel.TOP_RATED -> getString(R.string.top_rated)
-            MovieModel.SEARCH -> getString(R.string.search_result)
-            else -> title
+            else -> if (title.contains(MovieModel.SEARCH))
+                getResultSearchTitle(title)
+            else
+                title
         }
+    }
+
+    private fun getResultSearchTitle(title: String): String {
+        return getString(R.string.search_result) +
+                title.substring(
+                    title.indexOf(MovieModel.SEARCH) +
+                            MovieModel.SEARCH.length
+                )
     }
 
     override fun onItemClicked(id: Int) {

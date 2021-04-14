@@ -164,10 +164,15 @@ class MovieModel(
             POPULAR
         else if (url.contains(TOP_RATED))
             TOP_RATED
-        else if (url.contains(SEARCH))
-            SEARCH
-        else
+        else if (url.contains(SEARCH)) {
+            SEARCH + getNumberPage(url)
+        } else
             url.substring(url.lastIndexOf("/") + 1)
+    }
+
+    private fun getNumberPage(url: String): String {
+        val i = url.indexOf("page")
+        return url.substring(i + 5, url.indexOf("&", i))
     }
 
 //CALLBACKS
