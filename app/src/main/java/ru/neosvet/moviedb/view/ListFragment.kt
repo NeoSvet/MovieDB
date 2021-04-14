@@ -1,5 +1,7 @@
 package ru.neosvet.moviedb.view
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
@@ -46,7 +48,14 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private val settings: SettingsUtils by lazy {
         SettingsUtils(requireContext())
     }
+    private val pref: SharedPreferences by lazy {
+        requireContext().getSharedPreferences(
+            ListFragment.javaClass.simpleName,
+            Context.MODE_PRIVATE
+        )
+    }
     private var query: String? = null
+    private var isLastSearch = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -80,6 +89,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        pref.edit().putString(ARG_SEARCH, query).apply()
         _binding = null
     }
 
@@ -120,6 +130,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
 
     private fun startSearch(query: String) {
         requireActivity().hideKeyboard(searcher)
+        isLastSearch = false
         this.query = query
         catalog.clear()
         loadNextList()
@@ -135,7 +146,10 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             return
         }
         query?.let {
-            model.search(it, catalog.itemCount / 2 + 1, settings.getAdult())
+            if (isLastSearch)
+                model.lastSearch(catalog.itemCount / 2 + 1)
+            else
+                model.search(it, catalog.itemCount / 2 + 1, settings.getAdult())
         }
     }
 
@@ -215,6 +229,16 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         arguments?.putBoolean(ARG_SEARCH, true)
         searcher.setIconified(false)
         searcher.clearFocus()
+        if (query == null)
+            query = pref.getString(ARG_SEARCH, null)
+        if (query != null) {
+            searcher.setQuery(query, false)
+            searcher.clearFocus()
+            catalog.clear()
+            catalog.notifyDataSetChanged()
+            isLastSearch = true
+            model.lastSearch(1)
+        }
     }
 
     fun closeSearch() {

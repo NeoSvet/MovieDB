@@ -64,6 +64,13 @@ class MovieModel(
         }
     }
 
+    fun lastSearch(page: Int) {
+        val name = SEARCH + page
+        repository.getCatalog(name)?.let {
+            pushCatalog(name, it)
+        }
+    }
+
     override fun connectChanged(connected: Boolean) {
         nameWaitLoad?.let {
             if (connected)
