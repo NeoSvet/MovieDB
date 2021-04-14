@@ -4,62 +4,72 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import ru.neosvet.moviedb.model.MovieModel
+import ru.neosvet.moviedb.repository.room.CatalogEntity
+import ru.neosvet.moviedb.repository.room.GenreEntity
+import ru.neosvet.moviedb.repository.room.MovieEntity
+import java.lang.StringBuilder
 import java.util.ArrayList
 
 class MovieRepository(val model: MovieModel) {
-    companion object {
-        private val catalogs = HashMap<String, Catalog>()
-        private val movies = HashMap<Int, Movie>()
-        private val genres = HashMap<Int, String>()
-    }
-
-    private val source: RemoteSource = RemoteSource()
-    fun getCatalog(name: String) = catalogs[name]
-    fun getMovie(id: Int) = movies[id]
-    fun getGenre(id: Int) = genres[id]
-    fun containsGenre(id: Int) = genres.containsKey(id)
+    private val source = RemoteSource()
+    private val cache = LocalSource()
+    fun getCatalog(name: String) = cache.getCatalog(name)
+    fun getMovie(id: Int) = cache.getMovie(id)
+    fun getGenre(id: Int) = cache.getGenre(id)
+    fun containsGenre(id: Int) = cache.containsGenre(id)
 
     fun getNewName(name: String?): String {
         val n = if (name == null || name.length == 0) "Unnamed" else name
-        if (catalogs.containsKey(n)) {
+        if (cache.containsCatalog(n)) {
             var i = 1
             var t = n
             do {
                 i++
                 t = n + " [" + i + "]"
-            } while (catalogs.containsKey(t))
+            } while (cache.containsCatalog(t))
             return t
         }
         return n
     }
 
-    fun addCatalog(name: String, desc: String?, list: List<Item>) {
+    fun addCatalog(name: String, desc: String?, list: List<Item>): CatalogEntity? {
+        if (list.size == 0)
+            return null
         val new_list = parseList(list)
-        val ids = ArrayList<Int>()
+        val ids = StringBuilder()
         new_list.forEach {
-            movies[it.id] = it
-            ids.add(it.id)
+            cache.addMovie(it)
+            ids.append(",")
+            ids.append(it.id)
         }
+        ids.delete(0, 1)
         val d = if (desc?.length == 0) null else desc
-        catalogs[name] = Catalog(d, ids)
+        val catalog = CatalogEntity(name, d ?: name, ids.toString())
+        cache.addCatalog(catalog)
+        return catalog
     }
 
-    private fun parseList(list: List<Item>): ArrayList<Movie> {
+    private fun parseList(list: List<Item>): ArrayList<MovieEntity> {
         val genres_for_load = ArrayList<Int>()
-        val movies = ArrayList<Movie>()
+        val movies = ArrayList<MovieEntity>()
         list.forEach {
             val genres = it.genre_ids ?: ArrayList<Int>()
+            val genre_ids = StringBuilder()
             genres.forEach {
+                genre_ids.append(",")
+                genre_ids.append(it)
                 if (!containsGenre(it) && !genres_for_load.contains(it))
                     genres_for_load.add(it)
             }
+            genre_ids.delete(0, 1)
             movies.add(
-                Movie(
+                MovieEntity(
                     it.id ?: -1,
                     it.title ?: "",
                     getOriginal(it.original_title, it.original_language),
                     it.overview ?: "",
-                    genres,
+                    "",
+                    genre_ids.toString(),
                     formatDate(it.release_date),
                     it.poster_path ?: "",
                     it.vote_average ?: 0f,
@@ -99,12 +109,14 @@ class MovieRepository(val model: MovieModel) {
 
     private fun addGenre(genre: Genre) {
         genre.id?.let {
-            genres[it] = genre.name ?: ""
+            genre.name?.run {
+                cache.addGenre(it, this)
+            }
         }
     }
 
     fun clearCatalog(name: String) {
-        catalogs.remove(name)
+        cache.clearCatalog(name)
     }
 
     fun search(query: String, page: Int, adult: Boolean) {
@@ -117,6 +129,14 @@ class MovieRepository(val model: MovieModel) {
 
     fun getPage(name: String) {
         source.getPage(name, model.callBackPage)
+    }
+
+    fun getMoviesList(movie_ids: String, adult: Boolean): List<MovieEntity> {
+        return cache.getMoviesList(movie_ids, adult)
+    }
+
+    fun getGenreList(genre_ids: String): List<GenreEntity> {
+        return cache.getGenreList(genre_ids)
     }
 
     private val callBackGenre = object : Callback<Genre> {

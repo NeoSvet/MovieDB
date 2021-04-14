@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -36,6 +37,9 @@ android {
 }
 
 dependencies {
+    //Room
+    implementation 'androidx.room:room-runtime:2.2.6'
+    kapt 'androidx.room:room-compiler:2.2.6'
     //Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
     //Retrofit

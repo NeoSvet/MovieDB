@@ -18,10 +18,9 @@ import ru.neosvet.moviedb.list.MovieItem
 import ru.neosvet.moviedb.list.MoviesAdapter
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
-import ru.neosvet.moviedb.repository.Movie
+import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
-import java.util.*
 
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     companion object {
@@ -163,7 +162,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         }
     }
 
-    private fun showList(title: String, list: ArrayList<Movie>) {
+    private fun showList(title: String, list: List<MovieEntity>) {
         val adapter = MoviesAdapter(this)
         for (movie in list) {
             adapter.addItem(

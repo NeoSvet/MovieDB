@@ -6,9 +6,11 @@ import androidx.lifecycle.ViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import ru.neosvet.moviedb.repository.*
+import ru.neosvet.moviedb.repository.MovieRepository
+import ru.neosvet.moviedb.repository.Page
+import ru.neosvet.moviedb.repository.Playlist
+import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.utils.*
-import java.util.*
 
 class MovieModel : ViewModel(), ConnectObserver {
     companion object {
@@ -60,9 +62,9 @@ class MovieModel : ViewModel(), ConnectObserver {
 
     fun lastSearch(page: Int) {
         val name = SEARCH + page
-        repository.getCatalog(name)?.let {
-            pushCatalog(name, it)
-        }
+        val catalog = repository.getCatalog(name)
+        if (catalog != null)
+            pushCatalog(catalog)
     }
 
     override fun connectChanged(connected: Boolean) {
@@ -82,10 +84,14 @@ class MovieModel : ViewModel(), ConnectObserver {
     private fun preLoadListByName(name: String) {
         val catalog = repository.getCatalog(name)
         if (catalog == null) {
-            nameWaitLoad = name
-            ConnectUtils.subscribe(this)
+            if (ConnectUtils.CONNECTED == true)
+                loadListByName(name)
+            else {
+                nameWaitLoad = name
+                ConnectUtils.subscribe(this)
+            }
         } else
-            pushCatalog(name, catalog)
+            pushCatalog(catalog)
     }
 
     private fun loadListByName(name: String) {
@@ -119,43 +125,22 @@ class MovieModel : ViewModel(), ConnectObserver {
         }.start()
     }
 
-    fun genresToString(genres: List<Int>): String {
+    fun genresToString(genre_ids: String): String {
+        val list = repository.getGenreList(genre_ids)
         val s = StringBuilder()
-        var name: String?
-        for (i in genres.indices) {
-            name = repository.getGenre(genres[i])
-            name?.let {
-                s.append(it)
-                if (i < genres.size - 1)
-                    s.append(", ")
-            }
+        list.forEach {
+            s.append(", ")
+            s.append(it.title)
         }
+        s.delete(0, 2)
         return s.toString()
     }
 
 //PRIVATE
 
-    private fun pushCatalog(name: String, catalog: Catalog) {
-        val list = ArrayList<Movie>()
-        catalog.movie_ids.forEach {
-            val movie = repository.getMovie(it)
-            movie?.let {
-                if (checkAdult(it.isAdult))
-                    list.add(it)
-            }
-        }
-        state.postValue(
-            MovieState.SuccessList(
-                catalog.desc ?: name, list
-            )
-        )
-    }
-
-    private fun checkAdult(itIsAdult: Boolean): Boolean {
-        if (adult)
-            return !itIsAdult
-        else
-            return true
+    private fun pushCatalog(catalog: CatalogEntity) {
+        val list = repository.getMoviesList(catalog.movie_ids, adult)
+        state.postValue(MovieState.SuccessList(catalog.title, list))
     }
 
     private fun getNamePage(url: String): String {
@@ -185,9 +170,12 @@ class MovieModel : ViewModel(), ConnectObserver {
 
             if (response.isSuccessful && page != null) {
                 val name = getNamePage(call.request().url().toString())
-                repository.addCatalog(name, null, page.results)
-                val catalog = repository.getCatalog(name) ?: throw ListNoFoundExc()
-                pushCatalog(name, catalog)
+                val catalog = repository.addCatalog(name, null, page.results)
+                if (catalog == null) {
+                    state.postValue(MovieState.Error(ListNoFoundExc()))
+                    return
+                }
+                pushCatalog(catalog)
                 onSuccess()
             } else {
                 state.postValue(MovieState.Error(IncorrectResponseExc()))
@@ -209,9 +197,12 @@ class MovieModel : ViewModel(), ConnectObserver {
 
             if (response.isSuccessful && list != null) {
                 val name = repository.getNewName(list.description)
-                repository.addCatalog(name, list.description, list.items)
-                val catalog = repository.getCatalog(name) ?: throw ListNoFoundExc()
-                pushCatalog(name, catalog)
+                val catalog = repository.addCatalog(name, list.description, list.items)
+                if (catalog == null) {
+                    state.postValue(MovieState.Error(ListNoFoundExc()))
+                    return
+                }
+                pushCatalog(catalog)
                 onSuccess()
             } else {
                 state.postValue(MovieState.Error(IncorrectResponseExc()))

@@ -12,7 +12,7 @@ import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
-import ru.neosvet.moviedb.repository.Movie
+import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.PosterUtils
 
@@ -91,13 +91,13 @@ class MovieFragment : Fragment(), Observer<MovieState> {
         }
     }
 
-    private fun showItem(item: Movie) {
+    private fun showItem(item: MovieEntity) {
         with(binding) {
             PosterUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
             tvDate.text = getString(R.string.release_date) + item.date
             tvOriginal.text = item.original
-            tvGenres.text = model.genresToString(item.genres)
+            tvGenres.text = model.genresToString(item.genre_ids)
             tvDescription.text = item.description
             barVote.progress = (item.vote * 10).toInt()
             tvVote.text = "(${item.vote})"
