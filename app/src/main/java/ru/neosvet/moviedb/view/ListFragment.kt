@@ -119,6 +119,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     private fun startSearch(query: String) {
+        requireActivity().hideKeyboard(searcher)
         this.query = query
         catalog.clear()
         loadNextList()
