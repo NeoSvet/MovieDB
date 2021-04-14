@@ -36,6 +36,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
 
     private val COUNT_LIST = 6
     private lateinit var searcher: SearchView
+    private var statusView: View? = null
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private var snackbar: Snackbar? = null
@@ -73,6 +74,12 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         savedInstanceState?.let {
             query = it.getString(ARG_SEARCH)
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        val main = requireActivity() as MainActivity
+        statusView = main.getStatusView()
     }
 
     override fun onResume() {
@@ -204,17 +211,17 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             is MovieState.SuccessList -> {
                 showList(state.title, state.list)
                 if (catalog.itemCount == COUNT_LIST) {
-                    binding.tvStatus.visibility = View.GONE
+                    statusView?.visibility = View.GONE
                     model.getState().value = MovieState.Finished
                 } else
                     loadNextList()
             }
             is MovieState.Loading -> {
-                binding.tvStatus.visibility = View.VISIBLE
+                statusView?.visibility = View.VISIBLE
                 snackbar?.dismiss()
             }
             is MovieState.Error -> {
-                binding.tvStatus.visibility = View.GONE
+                statusView?.visibility = View.GONE
                 val message: String?
                 if (state.error is MyException)
                     message = state.error.getTranslate(requireContext())

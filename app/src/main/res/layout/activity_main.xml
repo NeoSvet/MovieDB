@@ -48,4 +48,15 @@
             android:drawableTop="@drawable/ic_baseline_settings_24"
             android:text="@string/settings" />
     </LinearLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvStatus"
+        style="@style/StatusPanel"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="@string/load"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/panelButtons" />
 </androidx.constraintlayout.widget.ConstraintLayout>

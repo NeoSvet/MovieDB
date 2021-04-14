@@ -3,6 +3,7 @@ package ru.neosvet.moviedb.view
 import android.content.IntentFilter
 import android.net.ConnectivityManager.CONNECTIVITY_ACTION
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import ru.neosvet.moviedb.R
@@ -17,6 +18,8 @@ class MainActivity : AppCompatActivity() {
     private val TAG_LIST = "list"
     private lateinit var binding: ActivityMainBinding
     private val recConnect = ConnectUtils()
+
+    fun getStatusView() = binding.tvStatus
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
