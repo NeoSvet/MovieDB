@@ -91,7 +91,11 @@ class MovieFragment : Fragment(), Observer<MovieState> {
                 etNote.visibility = View.VISIBLE
                 itemEdit.setVisible(false)
                 itemSave.setVisible(true)
+                etNote.requestFocus()
+                etNote.setSelection(note.length)
+                requireActivity().showKeyboard(etNote)
             } else {
+                requireActivity().hideKeyboard(etNote)
                 note = etNote.text.toString()
                 movieId?.let {
                     model.addNote(it, note)
