@@ -70,7 +70,6 @@ class MovieRepository(val model: MovieModel) {
                     title = it.title ?: "",
                     original = getOriginal(it.original_title, it.original_language),
                     description = it.overview ?: "",
-                    note = getMovieNote(it.id),
                     genre_ids = genre_ids.toString(),
                     date = formatDate(it.release_date),
                     poster = it.poster_path ?: "",
@@ -82,14 +81,6 @@ class MovieRepository(val model: MovieModel) {
         if (genres_for_load.size > 0)
             loadGenres(genres_for_load)
         return movies
-    }
-
-    private fun getMovieNote(id: Int?): String {
-        if (id == null) return ""
-        cache.getMovie(id)?.let {
-            return it.note
-        }
-        return ""
     }
 
     private fun formatDate(date: String?): String {
@@ -149,8 +140,16 @@ class MovieRepository(val model: MovieModel) {
         return cache.getGenreList(genre_ids)
     }
 
-    fun updateMovie(movie: MovieEntity) {
-        cache.updateMovie(movie)
+    fun addNote(id: Int, content: String) {
+        cache.addNote(id, content)
+    }
+
+    fun getNote(id: Int): String {
+        val note = cache.getNote(id)
+        note?.let {
+            return it.content
+        }
+        return ""
     }
 
     private val callBackGenre = object : Callback<Genre> {

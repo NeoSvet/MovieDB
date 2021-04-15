@@ -168,9 +168,11 @@ class MovieModel : ViewModel(), ConnectObserver {
         return url.substring(i + 5, url.indexOf("&", i))
     }
 
-    fun updateMovie(movie: MovieEntity) {
-        repository.updateMovie(movie)
+    fun addNote(id: Int, content: String) {
+        repository.addNote(id, content)
     }
+
+    fun getNote(id: Int) = repository.getNote(id)
 
 //CALLBACKS
 

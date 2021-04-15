@@ -28,9 +28,10 @@ class MovieFragment : Fragment(), Observer<MovieState> {
 
     private var movieId: Int? = null
     private var _binding: FragmentMovieBinding? = null
-    private var movie: MovieEntity? = null
     private lateinit var itemEdit: MenuItem
     private lateinit var itemSave: MenuItem
+    private lateinit var des: String
+    private lateinit var note: String
     private val binding get() = _binding!!
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
@@ -82,21 +83,18 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (movie == null)
+        if (movieId == null)
             return super.onOptionsItemSelected(item)
         with(binding) {
             if (itemEdit.isVisible) {
-                movie?.let {
-                    etNote.setText(it.note)
-                }
                 tvDescription.visibility = View.GONE
                 etNote.visibility = View.VISIBLE
                 itemEdit.setVisible(false)
                 itemSave.setVisible(true)
             } else {
-                movie?.let {
-                    it.note = etNote.text.toString()
-                    model.updateMovie(it)
+                note = etNote.text.toString()
+                movieId?.let {
+                    model.addNote(it, note)
                 }
                 showDes()
                 tvDescription.visibility = View.VISIBLE
@@ -130,29 +128,32 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     }
 
     private fun showItem(item: MovieEntity) {
-        movie = item
         with(binding) {
             PosterUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
             tvDate.text = getString(R.string.release_date) + item.date
             tvOriginal.text = item.original
             tvGenres.text = model.genresToString(item.genre_ids)
+            des = item.description
+            note = model.getNote(item.id)
             showDes()
             barVote.progress = (item.vote * 10).toInt()
             tvVote.text = "(${item.vote})"
+            movieId?.let {
+                etNote.setText(model.getNote(it))
+            }
         }
     }
 
     private fun showDes() {
-        val item = movie ?: return
-        if (item.note.length == 0)
-            binding.tvDescription.text = item.description
+        if (note.length == 0)
+            binding.tvDescription.text = des
         else {
-            val s = StringBuilder(item.description)
+            val s = StringBuilder(des)
             s.appendLine()
             s.appendLine()
             s.appendLine(getString(R.string.my_note))
-            s.append(item.note)
+            s.append(note)
             binding.tvDescription.text = s.toString()
         }
     }

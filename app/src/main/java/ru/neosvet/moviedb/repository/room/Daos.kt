@@ -31,11 +31,20 @@ interface GenreDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(entity: GenreEntity)
 
-    @Update
-    fun update(entity: GenreEntity)
-
     @Delete
     fun delete(entity: GenreEntity)
+}
+
+@Dao
+interface NoteDao {
+    @Query("SELECT * FROM NoteEntity WHERE id=:id")
+    fun get(id: Int): NoteEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun add(entity: NoteEntity)
+
+    @Delete
+    fun delete(entity: NoteEntity)
 }
 
 @Dao
@@ -45,9 +54,6 @@ interface CatalogDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(entity: CatalogEntity)
-
-    @Update
-    fun update(entity: CatalogEntity)
 
     @Query("DELETE FROM CatalogEntity WHERE name=:name")
     fun delete(name: String)

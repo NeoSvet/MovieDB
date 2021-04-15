@@ -4,6 +4,7 @@ import ru.neosvet.moviedb.App
 import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.repository.room.GenreEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
+import ru.neosvet.moviedb.repository.room.NoteEntity
 
 class LocalSource {
     private val base = App.getBase()
@@ -11,11 +12,16 @@ class LocalSource {
     fun getCatalog(name: String) = base.catalogeDao().get(name)
     fun containsCatalog(name: String) = getCatalog(name) != null
     fun getMovie(id: Int) = base.movieDao().get(id)
+    fun getNote(id: Int) = base.noteDao().get(id)
     fun getGenre(id: Int) = base.genreDao().get(id)
     fun containsGenre(id: Int) = getGenre(id) != null
 
     fun addMovie(item: MovieEntity) {
         base.movieDao().add(item)
+    }
+
+    fun addNote(id: Int, content: String) {
+        base.noteDao().add(NoteEntity(id, content))
     }
 
     fun addCatalog(catalog: CatalogEntity) {
