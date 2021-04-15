@@ -46,7 +46,6 @@ class MovieFragment : Fragment(), Observer<MovieState> {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMovieBinding.inflate(inflater, container, false)
-        binding.tvDescription.setMovementMethod(ScrollingMovementMethod())
         return binding.getRoot()
     }
 
