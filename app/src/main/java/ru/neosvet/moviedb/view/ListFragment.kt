@@ -34,7 +34,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
 
     private val COUNT_LIST = 6
-    private lateinit var searcher: SearchView
+    private var searcher: SearchView? = null
     private val statusView: View by lazy {
         val main = requireActivity() as MainActivity
         main.getStatusView()
@@ -113,7 +113,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         inflater.inflate(R.menu.list, menu)
         val search = menu.findItem(R.id.search)
         searcher = search.actionView as SearchView
-        searcher.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        searcher?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 startSearch(query)
                 return false
@@ -123,14 +123,14 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 return true
             }
         })
-        searcher.setOnCloseListener(object : SearchView.OnCloseListener {
+        searcher?.setOnCloseListener(object : SearchView.OnCloseListener {
             override fun onClose(): Boolean {
                 query = null
                 return false
             }
         })
         query?.let {
-            searcher.setQuery(it, false)
+            searcher?.setQuery(it, false)
         }
         super.onCreateOptionsMenu(menu, inflater)
     }
@@ -239,23 +239,23 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             catalog.notifyDataSetChanged()
             isLastSearch = true
             model.lastSearch(1)
-            searcher.setQuery(query, false)
+            searcher?.setQuery(query, false)
         }
-        searcher.setIconified(false)
+        searcher?.setIconified(false)
     }
 
     fun closeSearch() {
         if (query != null) {
             saveQuery()
             query = null
-            searcher.setQuery(query, false)
-            searcher.clearFocus()
+            searcher?.setQuery(query, false)
+            searcher?.clearFocus()
             catalog.clear()
             catalog.notifyDataSetChanged()
             loadNextList()
         }
         arguments?.putBoolean(ARG_SEARCH, false)
-        searcher.setIconified(true)
+        searcher?.setIconified(true)
     }
 
     private fun saveQuery() {
