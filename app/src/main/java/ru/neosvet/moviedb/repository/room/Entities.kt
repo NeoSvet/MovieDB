@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class MovieEntity(
     @PrimaryKey
     val id: Int = -1,
+    val updated: Long = 0,
     val title: String = "",
     val original: String = "",
     val description: String = "",
@@ -29,6 +30,7 @@ data class GenreEntity(
 data class CatalogEntity(
     @PrimaryKey
     val name: String = "",
+    val updated: Long = 0,
     val title: String = "",
     val movie_ids: String = ""
 )

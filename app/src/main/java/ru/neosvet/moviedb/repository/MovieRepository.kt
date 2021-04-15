@@ -7,6 +7,7 @@ import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.repository.room.GenreEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
+import ru.neosvet.moviedb.utils.DateUtils
 import java.lang.StringBuilder
 import java.util.ArrayList
 
@@ -44,7 +45,7 @@ class MovieRepository(val model: MovieModel) {
         }
         ids.delete(0, 1)
         val d = if (desc?.length == 0) null else desc
-        val catalog = CatalogEntity(name, d ?: name, ids.toString())
+        val catalog = CatalogEntity(name, DateUtils.getNow(), d ?: name, ids.toString())
         cache.addCatalog(catalog)
         return catalog
     }
@@ -65,6 +66,7 @@ class MovieRepository(val model: MovieModel) {
             movies.add(
                 MovieEntity(
                     it.id ?: -1,
+                    DateUtils.getNow(),
                     it.title ?: "",
                     getOriginal(it.original_title, it.original_language),
                     it.overview ?: "",

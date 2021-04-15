@@ -83,15 +83,21 @@ class MovieModel : ViewModel(), ConnectObserver {
 
     private fun preLoadListByName(name: String) {
         val catalog = repository.getCatalog(name)
-        if (catalog == null) {
+        val needLoad: Boolean
+        if (catalog != null) {
+            needLoad = DateUtils.olderThenDay(catalog.updated)
+            if (!needLoad || ConnectUtils.CONNECTED != true)
+                pushCatalog(catalog)
+        } else
+            needLoad = true
+        if (needLoad) {
             if (ConnectUtils.CONNECTED == true)
                 loadListByName(name)
             else {
                 nameWaitLoad = name
                 ConnectUtils.subscribe(this)
             }
-        } else
-            pushCatalog(catalog)
+        }
     }
 
     private fun loadListByName(name: String) {
