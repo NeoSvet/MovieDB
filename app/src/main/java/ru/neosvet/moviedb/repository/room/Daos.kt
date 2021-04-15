@@ -10,7 +10,7 @@ interface MovieDao {
     @Query("SELECT * FROM MovieEntity WHERE id IN (:ids)")
     fun getList(ids: List<Int>): List<MovieEntity>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(entity: MovieEntity)
 
     @Update
@@ -28,7 +28,7 @@ interface GenreDao {
     @Query("SELECT * FROM GenreEntity WHERE id IN (:ids)")
     fun getList(ids: List<Int>): List<GenreEntity>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(entity: GenreEntity)
 
     @Update
@@ -43,7 +43,7 @@ interface CatalogDao {
     @Query("SELECT * FROM CatalogEntity WHERE name=:name")
     fun get(name: String): CatalogEntity?
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(entity: CatalogEntity)
 
     @Update

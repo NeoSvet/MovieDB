@@ -65,23 +65,31 @@ class MovieRepository(val model: MovieModel) {
             genre_ids.delete(0, 1)
             movies.add(
                 MovieEntity(
-                    it.id ?: -1,
-                    DateUtils.getNow(),
-                    it.title ?: "",
-                    getOriginal(it.original_title, it.original_language),
-                    it.overview ?: "",
-                    "",
-                    genre_ids.toString(),
-                    formatDate(it.release_date),
-                    it.poster_path ?: "",
-                    it.vote_average ?: 0f,
-                    it.adult
+                    id = it.id ?: -1,
+                    updated = DateUtils.getNow(),
+                    title = it.title ?: "",
+                    original = getOriginal(it.original_title, it.original_language),
+                    description = it.overview ?: "",
+                    note = getMovieNote(it.id),
+                    genre_ids = genre_ids.toString(),
+                    date = formatDate(it.release_date),
+                    poster = it.poster_path ?: "",
+                    vote = it.vote_average ?: 0f,
+                    adult = it.adult
                 )
             )
         }
         if (genres_for_load.size > 0)
             loadGenres(genres_for_load)
         return movies
+    }
+
+    private fun getMovieNote(id: Int?): String {
+        if (id == null) return ""
+        cache.getMovie(id)?.let {
+            return it.note
+        }
+        return ""
     }
 
     private fun formatDate(date: String?): String {
