@@ -10,6 +10,7 @@ import ru.neosvet.moviedb.repository.MovieRepository
 import ru.neosvet.moviedb.repository.Page
 import ru.neosvet.moviedb.repository.Playlist
 import ru.neosvet.moviedb.repository.room.CatalogEntity
+import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.*
 
 class MovieModel : ViewModel(), ConnectObserver {
@@ -165,6 +166,10 @@ class MovieModel : ViewModel(), ConnectObserver {
     private fun getNumberPage(url: String): String {
         val i = url.indexOf("page")
         return url.substring(i + 5, url.indexOf("&", i))
+    }
+
+    fun updateMovie(movie: MovieEntity) {
+        repository.updateMovie(movie)
     }
 
 //CALLBACKS

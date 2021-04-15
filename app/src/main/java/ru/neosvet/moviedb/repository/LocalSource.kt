@@ -44,4 +44,8 @@ class LocalSource {
         m.forEach { list.add(it.toInt()) }
         return list
     }
+
+    fun updateMovie(movie: MovieEntity) {
+        base.movieDao().update(movie)
+    }
 }

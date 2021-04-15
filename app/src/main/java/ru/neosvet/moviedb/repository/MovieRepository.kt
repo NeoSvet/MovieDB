@@ -141,6 +141,10 @@ class MovieRepository(val model: MovieModel) {
         return cache.getGenreList(genre_ids)
     }
 
+    fun updateMovie(movie: MovieEntity) {
+        cache.updateMovie(movie)
+    }
+
     private val callBackGenre = object : Callback<Genre> {
 
         override fun onResponse(call: Call<Genre>, response: Response<Genre>) {

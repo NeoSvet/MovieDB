@@ -11,7 +11,7 @@ data class MovieEntity(
     val title: String = "",
     val original: String = "",
     val description: String = "",
-    val note: String = "",
+    var note: String = "",
     val genre_ids: String = "",
     val date: String = "",
     val poster: String = "",
