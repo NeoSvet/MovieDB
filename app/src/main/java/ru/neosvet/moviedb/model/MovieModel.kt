@@ -28,24 +28,24 @@ class MovieModel : ViewModel(), ConnectObserver {
 
     fun getState() = state
 
-    fun loadList(list_id: Int, adult: Boolean) {
+    fun loadList(list_id: Int, fromCache: Boolean, adult: Boolean) {
         this.adult = adult
-        preLoadListByName(list_id.toString())
+        preLoadListByName(list_id.toString(), fromCache)
     }
 
-    fun loadUpcoming(adult: Boolean) {
+    fun loadUpcoming(fromCache: Boolean, adult: Boolean) {
         this.adult = adult
-        preLoadListByName(UPCOMING)
+        preLoadListByName(UPCOMING, fromCache)
     }
 
-    fun loadPopular(adult: Boolean) {
+    fun loadPopular(fromCache: Boolean, adult: Boolean) {
         this.adult = adult
-        preLoadListByName(POPULAR)
+        preLoadListByName(POPULAR, fromCache)
     }
 
-    fun loadTopRated(adult: Boolean) {
+    fun loadTopRated(fromCache: Boolean, adult: Boolean) {
         this.adult = adult
-        preLoadListByName(TOP_RATED)
+        preLoadListByName(TOP_RATED, fromCache)
     }
 
     fun search(query: String, page: Int, adult: Boolean) {
@@ -81,15 +81,16 @@ class MovieModel : ViewModel(), ConnectObserver {
         nameWaitLoad = null
     }
 
-    private fun preLoadListByName(name: String) {
-        val catalog = repository.getCatalog(name)
-        val needLoad: Boolean
-        if (catalog != null) {
-            needLoad = DateUtils.olderThenDay(catalog.updated)
-            if (!needLoad || ConnectUtils.CONNECTED != true)
-                pushCatalog(catalog)
-        } else
-            needLoad = true
+    private fun preLoadListByName(name: String, fromCache: Boolean) {
+        var needLoad = true
+        if (fromCache) {
+            val catalog = repository.getCatalog(name)
+            if (catalog != null) {
+                needLoad = DateUtils.olderThenDay(catalog.updated)
+                if (!needLoad || ConnectUtils.CONNECTED != true)
+                    pushCatalog(catalog)
+            }
+        }
         if (needLoad) {
             if (ConnectUtils.CONNECTED == true)
                 loadListByName(name)

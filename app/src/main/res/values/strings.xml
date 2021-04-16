@@ -22,4 +22,5 @@
     <string name="my_note">Моя заметка</string>
     <string name="edit_note">Редактировать заметку</string>
     <string name="save">Сохранить</string>
+    <string name="refresh">Обновить</string>
 </resources>

@@ -60,6 +60,7 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
     }
     private var query: String? = null
     private var isLastSearch = false
+    private var isRefresh = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -144,6 +145,16 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.refresh) {
+            isRefresh = true
+            catalog.clear()
+            catalog.notifyDataSetChanged()
+            loadNextList()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun startSearch(query: String) {
         isLastSearch = false
         this.query = query
@@ -154,9 +165,9 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
     private fun loadNextList() {
         if (query == null) {
             when (catalog.itemCount) {
-                0 -> model.loadUpcoming(settings.getAdult())
-                2 -> model.loadPopular(settings.getAdult())
-                4 -> model.loadTopRated(settings.getAdult())
+                0 -> model.loadUpcoming(settings.getAdult(), !isRefresh)
+                2 -> model.loadPopular(settings.getAdult(), !isRefresh)
+                4 -> model.loadTopRated(settings.getAdult(), !isRefresh)
             }
             return
         }
@@ -214,10 +225,9 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
         when (state) {
             is MovieState.SuccessList -> {
                 showList(state.title, state.list)
-                if (catalog.itemCount == COUNT_LIST) {
-                    statusView.visibility = View.GONE
-                    model.getState().value = MovieState.Finished
-                } else
+                if (catalog.itemCount == COUNT_LIST)
+                    finishLoad()
+                else
                     loadNextList()
             }
             is MovieState.Loading -> {
@@ -226,7 +236,7 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
                 snackbar = null
             }
             is MovieState.Error -> {
-                statusView.visibility = View.GONE
+                finishLoad()
                 val message: String?
                 if (state.error is MyException)
                     message = state.error.getTranslate(requireContext())
@@ -239,6 +249,12 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
                     })
             }
         }
+    }
+
+    private fun finishLoad() {
+        statusView.visibility = View.GONE
+        model.getState().value = MovieState.Finished
+        isRefresh = false
     }
 
     fun openSearch() {
