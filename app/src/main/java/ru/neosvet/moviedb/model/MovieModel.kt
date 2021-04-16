@@ -10,7 +10,6 @@ import ru.neosvet.moviedb.repository.MovieRepository
 import ru.neosvet.moviedb.repository.Page
 import ru.neosvet.moviedb.repository.Playlist
 import ru.neosvet.moviedb.repository.room.CatalogEntity
-import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.*
 
 class MovieModel : ViewModel(), ConnectObserver {
@@ -191,13 +190,13 @@ class MovieModel : ViewModel(), ConnectObserver {
                 pushCatalog(catalog)
                 onSuccess()
             } else {
-                state.postValue(MovieState.Error(IncorrectResponseExc()))
+                state.postValue(MovieState.Error(IncorrectResponseExc(response.message())))
             }
         }
 
         override fun onFailure(call: Call<Page>, t: Throwable) {
             if (t.message == null)
-                state.postValue(MovieState.Error(IncorrectResponseExc()))
+                state.postValue(MovieState.Error(IncorrectResponseExc("")))
             else
                 state.postValue(MovieState.Error(t))
         }
@@ -218,13 +217,13 @@ class MovieModel : ViewModel(), ConnectObserver {
                 pushCatalog(catalog)
                 onSuccess()
             } else {
-                state.postValue(MovieState.Error(IncorrectResponseExc()))
+                state.postValue(MovieState.Error(IncorrectResponseExc(response.message())))
             }
         }
 
         override fun onFailure(call: Call<Playlist>, t: Throwable) {
             if (t.message == null)
-                state.postValue(MovieState.Error(IncorrectResponseExc()))
+                state.postValue(MovieState.Error(IncorrectResponseExc("")))
             else
                 state.postValue(MovieState.Error(t))
         }
