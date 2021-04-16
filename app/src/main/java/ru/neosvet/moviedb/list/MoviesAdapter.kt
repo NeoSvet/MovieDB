@@ -5,21 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.neosvet.moviedb.R
-import ru.neosvet.moviedb.utils.PosterHelper
+import ru.neosvet.moviedb.utils.PosterUtils
 import java.util.*
 
-class MoviesAdapter(val poster: PosterHelper, val callbacks: ListCallbacks) :
-    RecyclerView.Adapter<MovieHolder>() {
+class MoviesAdapter(val callbacks: ListCallbacks) : RecyclerView.Adapter<MovieHolder>() {
     private val data = ArrayList<MovieItem>()
-
-    fun notifyItemById(id: Int) {
-        for (i in data.indices) {
-            if (data[i].id == id) {
-                notifyItemChanged(i)
-                return
-            }
-        }
-    }
 
     fun addItem(item: MovieItem) {
         data.add(item)
@@ -31,15 +21,14 @@ class MoviesAdapter(val poster: PosterHelper, val callbacks: ListCallbacks) :
         return MovieHolder(view)
     }
 
+    override fun onViewRecycled(holder: MovieHolder) {
+        PosterUtils.cancel(holder.poster)
+        super.onViewRecycled(holder)
+    }
+
     override fun onBindViewHolder(holder: MovieHolder, position: Int) {
-        val url = data[position].poster
-        val pic = poster.getFile(url)
-        if (pic.exists())
-            holder.setItem(data[position], pic.path, callbacks)
-        else {
-            poster.load(data[position].id, url)
-            holder.setItem(data[position], null, callbacks)
-        }
+        holder.setItem(data[position], callbacks)
+        PosterUtils.load(data[position].poster, holder.poster)
     }
 
     override fun getItemCount(): Int {

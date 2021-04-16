@@ -16,15 +16,15 @@ class MovieRepository {
     fun addCatalog(name: String, desc: String?, list: ArrayList<Movie>) {
         val ids = ArrayList<Int>()
         list.forEach {
-            movies.put(it.id, it)
+            movies[it.id] = it
             ids.add(it.id)
         }
-        catalogs.put(name, Catalog(desc, ids))
+        catalogs[name] = Catalog(desc, ids)
     }
 
     fun addGenre(genre: Genre) {
         genre.id?.let {
-            genres.put(it, genre.name ?: "")
+            genres[it] = genre.name ?: ""
         }
     }
 }

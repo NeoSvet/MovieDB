@@ -13,12 +13,11 @@ import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.Movie
-import ru.neosvet.moviedb.utils.Poster
-
-
-private const val ARG_ID = "movie_id"
+import ru.neosvet.moviedb.utils.MyException
+import ru.neosvet.moviedb.utils.PosterUtils
 
 class MovieFragment : Fragment(), Observer<MovieState> {
+    private val ARG_ID = "movie_id"
     private var movieId: Int? = null
     private var _binding: FragmentMovieBinding? = null
     private val binding get() = _binding!!
@@ -37,7 +36,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMovieBinding.inflate(inflater, container, false)
         binding.tvDescription.setMovementMethod(ScrollingMovementMethod())
         return binding.getRoot()
@@ -73,7 +72,12 @@ class MovieFragment : Fragment(), Observer<MovieState> {
                 showItem(state.item)
             }
             is MovieState.Error -> {
-                binding.tvTitle.showError(state.error.message,
+                val message: String?
+                if (state.error is MyException)
+                    message = state.error.getTranslate(requireContext())
+                else
+                    message = state.error.message
+                binding.tvTitle.showError(message,
                     getString(R.string.repeat), { loadDetails() })
             }
         }
@@ -81,17 +85,14 @@ class MovieFragment : Fragment(), Observer<MovieState> {
 
     private fun showItem(item: Movie) {
         with(binding) {
+            PosterUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
             tvDate.text = getString(R.string.release_date) + item.date
             tvOriginal.text = item.original
             tvGenres.text = model.genresToString(item.genres)
             tvDescription.text = item.description
-            val poster = Poster(requireContext())
-            ivPoster.setImageURI(
-                android.net.Uri.parse(
-                    poster.getFile(item.poster).path
-                )
-            )
+            barVote.progress = (item.vote * 10).toInt()
+            tvVote.text = "(${item.vote})"
         }
     }
 

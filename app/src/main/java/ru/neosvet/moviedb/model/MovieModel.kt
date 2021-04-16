@@ -3,25 +3,22 @@ package ru.neosvet.moviedb.model
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.gson.Gson
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import ru.neosvet.moviedb.model.api.*
 import ru.neosvet.moviedb.repository.Catalog
 import ru.neosvet.moviedb.repository.Movie
 import ru.neosvet.moviedb.repository.MovieRepository
-import ru.neosvet.moviedb.utils.ConnectRec
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.URL
+import ru.neosvet.moviedb.utils.*
 import java.util.*
-import javax.net.ssl.HttpsURLConnection
 
 class MovieModel(
     private val state: MutableLiveData<MovieState> = MutableLiveData(),
-    private val repository: MovieRepository = MovieRepository()
-) : ViewModel() {
-    val BASE_URL = "https://api.themoviedb.org/3/"
-    val LANG = "&language=ru-RU"
-    fun getState() = state
+    private val repository: MovieRepository = MovieRepository(),
+    private val source: RemoteDataSource = RemoteDataSource()
+) : ViewModel(), ConnectObserver {
+    var nameWaitLoad: String? = null
 
     companion object {
         val UPCOMING = "upcoming"
@@ -29,38 +26,93 @@ class MovieModel(
         val TOP_RATED = "top_rated"
     }
 
+    fun getState() = state
+
     fun loadList(list_id: Int) {
-        loadUrl(BASE_URL + "list/" + list_id)
+        preLoadListByName(list_id.toString())
     }
 
     fun loadUpcoming() {
-        loadUrl(BASE_URL + "movie/" + UPCOMING)
+        preLoadListByName(UPCOMING)
     }
 
     fun loadPopular() {
-        loadUrl(BASE_URL + "movie/" + POPULAR)
+        preLoadListByName(POPULAR)
     }
 
     fun loadTopRated() {
-        loadUrl(BASE_URL + "movie/" + TOP_RATED)
+        preLoadListByName(TOP_RATED)
     }
 
-    private fun loadUrl(url: String) {
+    override fun connectChanged(connected: Boolean) {
+        nameWaitLoad?.let {
+            if (connected)
+                loadListByName(it)
+            else
+                state.postValue(MovieState.Error(NoConnectionExc()))
+        }
+    }
+
+    fun onSuccess() {
+        ConnectUtils.unSubscribe(this)
+        nameWaitLoad = null
+    }
+
+    private fun preLoadListByName(name: String) {
+        val catalog = repository.getCatalog(name)
+        if (catalog == null) {
+            nameWaitLoad = name
+            ConnectUtils.subscribe(this)
+        } else
+            pushCatalog(name, catalog)
+    }
+
+    private fun loadListByName(name: String) {
         try {
-            val name = url.substring(url.lastIndexOf("/") + 1)
-            val catalog = repository.getCatalog(name)
-            if (catalog == null) {
-                Thread {
-                    if (isConnect())
-                        launchLoadList(name, url)
-                }.start()
-            } else
-                pushCatalog(name, catalog)
+            state.value = MovieState.Loading
+            if (name.isDigitsOnly())
+                source.getList(name, callBackList)
+            else
+                source.getPage(name, callBackPage)
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(MovieState.Error(e))
         }
     }
+
+    fun loadDetails(id: Int?) {
+        if (id == null)
+            return
+        state.value = MovieState.Loading
+        Thread {
+            try {
+                val item = repository.getMovie(id)
+                if (item == null)
+                    state.postValue(MovieState.Error(ItemNoFoundExc()))
+                else
+                    state.postValue(MovieState.SuccessItem(item))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                state.postValue(MovieState.Error(e))
+            }
+        }.start()
+    }
+
+    fun genresToString(genres: List<Int>): String {
+        val s = StringBuilder()
+        var name: String?
+        for (i in genres.indices) {
+            name = repository.getGenre(genres[i])
+            name?.let {
+                s.append(it)
+                if (i < genres.size - 1)
+                    s.append(", ")
+            }
+        }
+        return s.toString()
+    }
+
+//PRIVATE
 
     private fun pushCatalog(name: String, catalog: Catalog) {
         val list = ArrayList<Movie>()
@@ -77,46 +129,15 @@ class MovieModel(
         )
     }
 
-    private fun isConnect(): Boolean {
-        while (ConnectRec.CONNECTED == null)
-            Thread.sleep(15)
-        if (ConnectRec.CONNECTED ?: false)
-            return true
-        state.postValue(MovieState.Error(Exception("No connection")))
-        return false
-    }
-
-    private fun launchLoadList(name: String, url: String) {
-        state.postValue(MovieState.Loading)
-        //API_KEY = "?api_key={key}"
-        val uri = URL(url + API_KEY + LANG)
-
-        lateinit var urlConnection: HttpsURLConnection
-        try {
-            urlConnection = uri.openConnection() as HttpsURLConnection
-            urlConnection.requestMethod = "GET"
-            urlConnection.readTimeout = 10000
-            val reader = BufferedReader(InputStreamReader(urlConnection.inputStream))
-
-            if (name.isDigitsOnly()) {
-                val playlist: Playlist = Gson().fromJson(reader.readLine(), Playlist::class.java)
-                val movies = parseList(playlist.items)
-                repository.addCatalog(name, playlist.description ?: "no title", movies)
-            } else {
-                val page: Page = Gson().fromJson(reader.readLine(), Page::class.java)
-                val movies = parseList(page.results)
-                repository.addCatalog(name, null, movies)
-            }
-
-            val catalog = repository.getCatalog(name)
-                ?: throw Exception("No list")
-            pushCatalog(name, catalog)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            state.postValue(MovieState.Error(e))
-        } finally {
-            urlConnection.disconnect()
-        }
+    private fun getNamePage(url: String): String {
+        return if (url.contains(UPCOMING))
+            UPCOMING
+        else if (url.contains(POPULAR))
+            POPULAR
+        else if (url.contains(TOP_RATED))
+            TOP_RATED
+        else
+            url.substring(url.lastIndexOf("/") + 1)
     }
 
     private fun parseList(list: List<Item>): ArrayList<Movie> {
@@ -155,23 +176,11 @@ class MovieModel(
     }
 
     private fun loadGenres(list: ArrayList<Int>) {
-        lateinit var urlConnection: HttpsURLConnection
-        try {
+        Thread {
             list.forEach {
-                val uri = URL(BASE_URL + "genre/" + it + API_KEY + LANG)
-                urlConnection = uri.openConnection() as HttpsURLConnection
-                urlConnection.requestMethod = "GET"
-                urlConnection.readTimeout = 10000
-                val reader = BufferedReader(InputStreamReader(urlConnection.inputStream))
-                val genre: Genre = Gson().fromJson(reader.readLine(), Genre::class.java)
-                repository.addGenre(genre)
-                urlConnection.disconnect()
+                source.getGenre(it, callBackGenre)
             }
-        } catch (e: Exception) {
-            urlConnection.disconnect()
-            e.printStackTrace()
-            state.postValue(MovieState.Error(e))
-        }
+        }.start()
     }
 
     private fun getOriginal(title: String?, language: String?): String {
@@ -181,35 +190,76 @@ class MovieModel(
         return ""
     }
 
-    fun loadDetails(id: Int?) {
-        if (id == null || !isConnect())
-            return
-        state.value = MovieState.Loading
-        Thread {
-            try {
-                val item = repository.getMovie(id)
-                if (item == null)
-                    state.postValue(MovieState.Error(Exception("Item no found")))
-                else
-                    state.postValue(MovieState.SuccessItem(item))
-            } catch (e: Exception) {
-                e.printStackTrace()
-                state.postValue(MovieState.Error(e))
-            }
-        }.start()
-    }
+//CALLBACKS
 
-    fun genresToString(genres: List<Int>): String {
-        val s = StringBuilder()
-        var name: String?
-        for (i in genres.indices) {
-            name = repository.getGenre(genres[i])
-            name?.let {
-                s.append(it)
-                if (i < genres.size - 1)
-                    s.append(", ")
+    private val callBackPage = object : Callback<Page> {
+
+        override fun onResponse(call: Call<Page>, response: Response<Page>) {
+            val page: Page? = response.body()
+
+            if (response.isSuccessful && page != null) {
+                val name = getNamePage(call.request().url().toString())
+                val movies = parseList(page.results)
+                repository.addCatalog(name, null, movies)
+                val catalog = repository.getCatalog(name)
+                    ?: throw ListNoFoundExc()
+                pushCatalog(name, catalog)
+                onSuccess()
+            } else {
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
             }
         }
-        return s.toString()
+
+        override fun onFailure(call: Call<Page>, t: Throwable) {
+            if (t.message == null)
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
+            else
+                state.postValue(MovieState.Error(t))
+        }
+    }
+
+    private val callBackList = object : Callback<Playlist> {
+
+        override fun onResponse(call: Call<Playlist>, response: Response<Playlist>) {
+            val list: Playlist? = response.body()
+
+            if (response.isSuccessful && list != null) {
+                val name = list.description ?: "Unnamed"
+                val movies = parseList(list.items)
+                repository.addCatalog(name, null, movies)
+                val catalog = repository.getCatalog(name)
+                    ?: throw ListNoFoundExc()
+                pushCatalog(name, catalog)
+                onSuccess()
+            } else {
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
+            }
+        }
+
+        override fun onFailure(call: Call<Playlist>, t: Throwable) {
+            if (t.message == null)
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
+            else
+                state.postValue(MovieState.Error(t))
+        }
+    }
+
+    private val callBackGenre = object : Callback<Genre> {
+
+        override fun onResponse(call: Call<Genre>, response: Response<Genre>) {
+            val genre: Genre? = response.body()
+
+            if (response.isSuccessful && genre != null)
+                repository.addGenre(genre)
+            else
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
+        }
+
+        override fun onFailure(call: Call<Genre>, t: Throwable) {
+            if (t.message == null)
+                state.postValue(MovieState.Error(IncorrectResponseExc()))
+            else
+                state.postValue(MovieState.Error(t))
+        }
     }
 }
