@@ -25,9 +25,7 @@ class CatalogAdapter : RecyclerView.Adapter<CatalogHolder>() {
         holder.setItem(titles[position], adapters[position])
     }
 
-    override fun getItemCount(): Int {
-        return titles.size
-    }
+    override fun getItemCount() = titles.size
 
     fun clear() {
         adapters.clear()
