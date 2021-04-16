@@ -43,9 +43,7 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private var snackbar: Snackbar? = null
-    private val catalog by lazy {
-        CatalogAdapter(requireContext())
-    }
+    private val catalog = CatalogAdapter()
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }

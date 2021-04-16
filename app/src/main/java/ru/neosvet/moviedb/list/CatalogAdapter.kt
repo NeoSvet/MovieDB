@@ -1,13 +1,12 @@
 package ru.neosvet.moviedb.list
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.neosvet.moviedb.R
 import java.util.*
 
-class CatalogAdapter(val context: Context) : RecyclerView.Adapter<CatalogHolder>() {
+class CatalogAdapter : RecyclerView.Adapter<CatalogHolder>() {
     private val adapters = ArrayList<MoviesAdapter>()
     private val titles = ArrayList<String>()
 
@@ -18,7 +17,7 @@ class CatalogAdapter(val context: Context) : RecyclerView.Adapter<CatalogHolder>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CatalogHolder {
         return CatalogHolder(
-            LayoutInflater.from(context).inflate(R.layout.catalog_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.catalog_item, parent, false)
         )
     }
 
