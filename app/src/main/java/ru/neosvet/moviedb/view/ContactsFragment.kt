@@ -8,9 +8,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -47,6 +45,7 @@ class ContactsFragment : Fragment(), ContactCallbacks {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.fragment_contacts, container, false)
     }
 
@@ -60,6 +59,20 @@ class ContactsFragment : Fragment(), ContactCallbacks {
     override fun onDestroyView() {
         adapter.onDestory()
         super.onDestroyView()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        val item = menu.add(R.string.share)
+        item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_share_24)
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val share = Intent(Intent.ACTION_SEND)
+        share.type = "text/plain"
+        share.putExtra(Intent.EXTRA_TEXT, message);
+        startActivity(share)
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onRequestPermissionsResult(
