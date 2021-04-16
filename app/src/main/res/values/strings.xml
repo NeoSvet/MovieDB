@@ -3,4 +3,5 @@
     <string name="search">Поиск</string>
     <string name="load">Загрузка</string>
     <string name="error">Ошибка</string>
+    <string name="release_date">Дата выхода:&#160;</string>
 </resources>

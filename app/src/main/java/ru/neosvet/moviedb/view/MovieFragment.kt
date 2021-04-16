@@ -1,18 +1,19 @@
 package ru.neosvet.moviedb.view
 
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.snackbar.Snackbar
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.Movie
+
 
 private const val ARG_ID = "movie_id"
 
@@ -36,6 +37,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentMovieBinding.inflate(inflater, container, false)
+        binding.tvDescription.setMovementMethod(ScrollingMovementMethod())
         return binding.getRoot()
     }
 
@@ -77,9 +79,9 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     private fun showItem(item: Movie) {
         with(binding) {
             tvTitle.text = item.title
-            tvYear.text = item.year.toString()
-            tvCountry.text = item.country
-            tvGenres.text = item.genres
+            tvDate.text = getString(R.string.release_date) + item.date
+            tvOriginal.text = item.original
+            tvGenres.text = model.genresToString(item.genres)
             tvDescription.text = item.description
         }
     }
