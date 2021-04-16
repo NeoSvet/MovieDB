@@ -29,6 +29,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     }
 
     private var movieId: Int? = null
+    private var movie: MovieEntity? = null
     private var _binding: FragmentMovieBinding? = null
     private lateinit var itemEdit: MenuItem
     private lateinit var itemSave: MenuItem
@@ -83,17 +84,20 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        itemEdit = menu.add(R.string.edit_note)
-        itemEdit.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_edit_24)
-        itemEdit.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        itemSave = menu.add(R.string.save)
-        itemSave.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        itemSave.setVisible(false)
+        inflater.inflate(R.menu.movie, menu)
+        itemEdit = menu.findItem(R.id.edit)
+        itemSave = menu.findItem(R.id.save)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (movieId == null)
             return super.onOptionsItemSelected(item)
+        if (item.itemId == R.id.message) {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, ContactsFragment.newInstance(initMessage()))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+            return super.onOptionsItemSelected(item)
+        }
         with(binding) {
             if (itemEdit.isVisible) {
                 etNote.setText(note)
@@ -115,6 +119,14 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun initMessage(): String {
+        movie?.let {
+            return getString(R.string.recommend_movie) + it.title +
+                    "\nhttps://www.themoviedb.org/movie/" + it.id
+        }
+        return ""
     }
 
     private fun closeEditNote() {
@@ -146,6 +158,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     }
 
     private fun showItem(item: MovieEntity) {
+        movie = item
         with(binding) {
             PosterUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
