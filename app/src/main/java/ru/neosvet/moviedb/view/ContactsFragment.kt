@@ -8,7 +8,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.provider.ContactsContract.CommonDataKinds.Phone
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.list.ContactCallbacks
 import ru.neosvet.moviedb.list.ContactsAdapter
-
 
 class ContactsFragment : Fragment(), ContactCallbacks {
     companion object {
@@ -34,7 +32,9 @@ class ContactsFragment : Fragment(), ContactCallbacks {
 
     private val REQUEST_CODE = 472
     private var message: String? = null
-    private val adapter = ContactsAdapter(this)
+    private val adapter: ContactsAdapter by lazy {
+        ContactsAdapter(requireContext(), this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +55,11 @@ class ContactsFragment : Fragment(), ContactCallbacks {
         val rvContacts = view.findViewById<RecyclerView>(R.id.rvContacts)
         rvContacts.adapter = adapter
         checkPermission()
+    }
+
+    override fun onDestroyView() {
+        adapter.onDestory()
+        super.onDestroyView()
     }
 
     override fun onRequestPermissionsResult(
@@ -128,36 +133,13 @@ class ContactsFragment : Fragment(), ContactCallbacks {
             do {
                 if (cursor.getInt(iHasPhone) == 0)
                     continue
-                val phone = getPhone(contentResolver, cursor.getInt(iId))
-                if (phone == null || phone.contains("#") || phone.length < 11)
-                    continue
                 val name = cursor.getString(iName)
-                adapter.addConctact(name, phone)
+                val id = cursor.getInt(iId)
+                adapter.addConctact(id, name)
             } while (cursor.moveToNext())
             adapter.notifyDataSetChanged()
         }
         cursorWithContacts?.close()
-    }
-
-    private fun getPhone(contentResolver: ContentResolver, id: Int): String? {
-        val cursor = contentResolver.query(
-            Phone.CONTENT_URI, null,
-            Phone.CONTACT_ID + " = " + id, null, null
-        )
-        if (cursor == null)
-            return null
-        var phone: String? = null
-        var type = -1
-        while (cursor.moveToNext()) {
-            phone = cursor.getString(cursor.getColumnIndex(Phone.NUMBER))
-            type = cursor.getInt(cursor.getColumnIndex(Phone.TYPE))
-            if (type == Phone.TYPE_MOBILE)
-                break;
-        }
-        cursor.close()
-        if (type == Phone.TYPE_MOBILE)
-            return phone
-        return null
     }
 
     private fun requestPermission() {
