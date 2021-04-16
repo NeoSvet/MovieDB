@@ -206,17 +206,17 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             is MovieState.SuccessList -> {
                 showList(state.title, state.list)
                 if (catalog.itemCount == COUNT_LIST) {
-                    statusView?.visibility = View.GONE
+                    statusView.visibility = View.GONE
                     model.getState().value = MovieState.Finished
                 } else
                     loadNextList()
             }
             is MovieState.Loading -> {
-                statusView?.visibility = View.VISIBLE
+                statusView.visibility = View.VISIBLE
                 snackbar?.dismiss()
             }
             is MovieState.Error -> {
-                statusView?.visibility = View.GONE
+                statusView.visibility = View.GONE
                 val message: String?
                 if (state.error is MyException)
                     message = state.error.getTranslate(requireContext())
