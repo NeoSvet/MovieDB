@@ -34,7 +34,7 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
             }
     }
 
-    private val COUNT_LIST = 6
+    private val COUNT_LIST = 3
     private var searcher: SearchView? = null
     private val statusView: View by lazy {
         val main = requireActivity() as MainActivity
@@ -166,16 +166,16 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
         if (query == null) {
             when (catalog.itemCount) {
                 0 -> model.loadUpcoming(settings.getAdult(), !isRefresh)
-                2 -> model.loadPopular(settings.getAdult(), !isRefresh)
-                4 -> model.loadTopRated(settings.getAdult(), !isRefresh)
+                1 -> model.loadPopular(settings.getAdult(), !isRefresh)
+                2 -> model.loadTopRated(settings.getAdult(), !isRefresh)
             }
             return
         }
         query?.let {
             if (isLastSearch)
-                model.lastSearch(catalog.itemCount / 2 + 1)
+                model.lastSearch(catalog.itemCount + 1)
             else
-                model.search(it, catalog.itemCount / 2 + 1, settings.getAdult())
+                model.search(it, catalog.itemCount + 1, settings.getAdult())
         }
     }
 
