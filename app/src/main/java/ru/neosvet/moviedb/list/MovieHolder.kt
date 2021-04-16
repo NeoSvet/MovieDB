@@ -11,9 +11,14 @@ class MovieHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val tvTitle: MaterialTextView = itemView.findViewById(R.id.tvTitle)
     private val tvDescription: MaterialTextView = itemView.findViewById(R.id.tvDescription)
 
-    fun setItem(item: MovieItem, callbacks: ListCallbacks) {
+    fun setItem(item: MovieItem, picPath: String?, callbacks: ListCallbacks) {
         tvTitle.text = item.title
         tvDescription.text = item.description
+        if (picPath == null)
+            ivPoster.setImageResource(R.drawable.no_poster)
+        else
+            ivPoster.setImageURI(android.net.Uri.parse(picPath))
+
         itemView.setOnClickListener {
             callbacks.onItemClicked(item.id)
         }

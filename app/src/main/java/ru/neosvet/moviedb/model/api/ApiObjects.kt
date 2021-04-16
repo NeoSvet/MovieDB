@@ -1,11 +1,18 @@
 package ru.neosvet.moviedb.model.api
 
-data class Catalog(
+data class Playlist(
     val created_by: String?,
     val description: String?,
     val favorite_count: Int?,
     val id: Int?,
     val items: List<Item>
+)
+
+data class Page(
+    val page: Int?,
+    val results: List<Item>,
+    val total_pages: Int?,
+    val total_results: Int?,
 )
 
 data class Item(

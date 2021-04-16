@@ -55,12 +55,13 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvDescription"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="5dp"
         android:scrollbars="vertical"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ivPoster" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ivPoster"
+        app:layout_constraintTop_toBottomOf="@id/tvGenres" />
 </androidx.constraintlayout.widget.ConstraintLayout>

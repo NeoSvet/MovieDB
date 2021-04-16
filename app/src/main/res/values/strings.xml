@@ -4,4 +4,10 @@
     <string name="load">Загрузка</string>
     <string name="error">Ошибка</string>
     <string name="release_date">Дата выхода:&#160;</string>
+    <string name="no_connected">Подключение к интернету разорвано</string>
+    <string name="connected">Подключение к интернету установленно</string>
+    <string name="repeat">Повторить</string>
+    <string name="upcoming">Новое</string>
+    <string name="popular">Популярное</string>
+    <string name="top_rated">Высшая оценка</string>
 </resources>

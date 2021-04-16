@@ -11,4 +11,4 @@ data class Movie(
     val vote: Float
 )
 
-data class Catalog(val title: String, val movie_ids: ArrayList<Int>)
+data class Catalog(val desc: String?, val movie_ids: ArrayList<Int>)

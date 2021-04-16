@@ -22,14 +22,15 @@ import java.util.*
 private const val MAIN_STACK = "main"
 
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
+    val COUNT_LIST = 6
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-    private val catalog = CatalogAdapter()
+    private val catalog by lazy {
+        CatalogAdapter(requireContext())
+    }
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }
-    private val finalId = 3
-    private var lastId = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -80,16 +81,22 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private fun initList() {
         binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCatalog.adapter = catalog
-
-        lastId = catalog.itemCount
-        if (lastId < finalId)
-            model.loadList(++lastId)
+        if (catalog.itemCount < COUNT_LIST)
+            loadNextList()
         else
             catalog.notifyDataSetChanged()
     }
 
+    private fun loadNextList() {
+        when (catalog.itemCount) {
+            0 -> model.loadUpcoming()
+            2 -> model.loadPopular()
+            4 -> model.loadTopRated()
+        }
+    }
+
     private fun showList(title: String, list: ArrayList<Movie>) {
-        val adapter = MoviesAdapter(this)
+        val adapter = MoviesAdapter(catalog, this)
         for (movie in list) {
             adapter.addItem(
                 MovieItem(
@@ -99,8 +106,17 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                 )
             )
         }
-        catalog.addItem(title, adapter)
+        catalog.addItem(getTranslate(title), adapter)
         catalog.notifyDataSetChanged()
+    }
+
+    private fun getTranslate(title: String): String {
+        return when (title) {
+            MovieModel.UPCOMING -> getString(R.string.upcoming)
+            MovieModel.POPULAR -> getString(R.string.popular)
+            MovieModel.TOP_RATED -> getString(R.string.top_rated)
+            else -> title
+        }
     }
 
     override fun onItemClicked(id: Int) {
@@ -115,19 +131,23 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     override fun onChanged(state: MovieState) {
         when (state) {
             is MovieState.SuccessList -> {
-                binding.tvStatus.visibility = View.GONE
                 showList(state.title, state.list)
-                if (lastId < finalId)
-                    model.loadList(++lastId)
-                else
+                if (catalog.itemCount == COUNT_LIST) {
+                    binding.tvStatus.visibility = View.GONE
                     model.getState().value = MovieState.Finished
+                } else
+                    loadNextList()
             }
             is MovieState.Loading -> {
                 binding.tvStatus.visibility = View.VISIBLE
             }
             is MovieState.Error -> {
                 binding.tvStatus.visibility = View.GONE
-                binding.rvCatalog.showError(state.error.message)
+                binding.rvCatalog.showError(state.error.message,
+                    getString(R.string.repeat), {
+                        catalog.clear()
+                        loadNextList()
+                    })
             }
         }
     }
