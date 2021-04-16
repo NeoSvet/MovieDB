@@ -3,7 +3,6 @@ package ru.neosvet.moviedb.view
 import android.os.Bundle
 import android.view.*
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ru.neosvet.moviedb.R
@@ -13,12 +12,12 @@ import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.PosterUtils
+import ru.neosvet.moviedb.view.extension.OnBackFragment
 import ru.neosvet.moviedb.view.extension.hideKeyboard
 import ru.neosvet.moviedb.view.extension.showError
 import ru.neosvet.moviedb.view.extension.showKeyboard
-import java.lang.StringBuilder
 
-class MovieFragment : Fragment(), Observer<MovieState> {
+class MovieFragment : OnBackFragment(), Observer<MovieState> {
     companion object {
         private val ARG_ID = "movie_id"
         fun newInstance(movieId: Int) =
@@ -61,6 +60,13 @@ class MovieFragment : Fragment(), Observer<MovieState> {
         loadDetails();
     }
 
+    override fun onBackPressed(): Boolean {
+        if (itemEdit.isVisible)
+            return true
+        closeEditNote()
+        return false
+    }
+
     override fun onResume() {
         super.onResume()
         model.getState().observe(this, this)
@@ -90,6 +96,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
             return super.onOptionsItemSelected(item)
         with(binding) {
             if (itemEdit.isVisible) {
+                etNote.setText(note)
                 tvDescription.visibility = View.GONE
                 etNote.visibility = View.VISIBLE
                 itemEdit.setVisible(false)
@@ -104,13 +111,17 @@ class MovieFragment : Fragment(), Observer<MovieState> {
                     model.addNote(it, note)
                 }
                 showDes()
-                tvDescription.visibility = View.VISIBLE
-                etNote.visibility = View.GONE
-                itemEdit.setVisible(true)
-                itemSave.setVisible(false)
+                closeEditNote()
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun closeEditNote() {
+        binding.tvDescription.visibility = View.VISIBLE
+        binding.etNote.visibility = View.GONE
+        itemEdit.setVisible(true)
+        itemSave.setVisible(false)
     }
 
     private fun loadDetails() {
@@ -146,9 +157,6 @@ class MovieFragment : Fragment(), Observer<MovieState> {
             showDes()
             barVote.progress = (item.vote * 10).toInt()
             tvVote.text = "(${item.vote})"
-            movieId?.let {
-                etNote.setText(model.getNote(it))
-            }
         }
     }
 

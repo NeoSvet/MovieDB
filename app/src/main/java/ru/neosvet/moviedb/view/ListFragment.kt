@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,9 +20,10 @@ import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
+import ru.neosvet.moviedb.view.extension.OnBackFragment
 import ru.neosvet.moviedb.view.extension.showError
 
-class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
+class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
     companion object {
         private val ARG_SEARCH = "search"
         fun newInstance(withSearch: Boolean) =
@@ -77,6 +77,14 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         savedInstanceState?.let {
             query = it.getString(ARG_SEARCH)
         }
+    }
+
+    override fun onBackPressed(): Boolean {
+        if (snackbar == null)
+            return true
+        snackbar?.dismiss()
+        snackbar = null
+        return false
     }
 
     override fun onResume() {
@@ -215,6 +223,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             is MovieState.Loading -> {
                 statusView.visibility = View.VISIBLE
                 snackbar?.dismiss()
+                snackbar = null
             }
             is MovieState.Error -> {
                 statusView.visibility = View.GONE

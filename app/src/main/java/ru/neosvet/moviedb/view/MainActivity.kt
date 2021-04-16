@@ -3,12 +3,12 @@ package ru.neosvet.moviedb.view
 import android.content.IntentFilter
 import android.net.ConnectivityManager.CONNECTIVITY_ACTION
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.ActivityMainBinding
 import ru.neosvet.moviedb.utils.ConnectUtils
+import ru.neosvet.moviedb.view.extension.OnBackFragment
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -31,6 +31,16 @@ class MainActivity : AppCompatActivity() {
             openList(false)
         }
         initButtons()
+    }
+
+    override fun onBackPressed() {
+        supportFragmentManager.fragments.forEach {
+            if (it.isVisible && it is OnBackFragment) {
+                if (!it.onBackPressed())
+                    return
+            }
+        }
+        super.onBackPressed()
     }
 
     private fun initButtons() {
