@@ -45,8 +45,10 @@ class LocalSource {
     }
 
     private fun convertStrToList(ids: String): List<Int> {
-        val m = ids.split(",")
         val list = ArrayList<Int>()
+        if (ids.length == 0)
+            return list
+        val m = ids.split(",")
         m.forEach { list.add(it.toInt()) }
         return list
     }
