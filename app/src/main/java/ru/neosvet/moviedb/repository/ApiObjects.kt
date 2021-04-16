@@ -1,4 +1,4 @@
-package ru.neosvet.moviedb.model.api
+package ru.neosvet.moviedb.repository
 
 data class Playlist(
     val created_by: String?,

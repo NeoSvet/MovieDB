@@ -19,8 +19,10 @@ class ListNoFoundExc : MyException() {
     }
 }
 
-class IncorrectResponseExc : MyException() {
+class IncorrectResponseExc(override val message: String) : MyException() {
     override fun getTranslate(context: Context): String {
+        if (message.length > 0)
+            return message
         return context.getString(R.string.incorrect_response)
     }
 }
