@@ -1,8 +1,7 @@
-package ru.neosvet.moviedb
+package ru.neosvet.moviedb.app
 
 import android.app.Application
 import androidx.room.Room
-import ru.neosvet.moviedb.repository.room.MovieDao
 import ru.neosvet.moviedb.repository.room.MoviesDataBase
 
 class App : Application() {

@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
-import ru.neosvet.moviedb.model.api.API_KEY
+import ru.neosvet.moviedb.app.API_KEY
 
 class RemoteSource {
     val LANG = "ru-RU"
