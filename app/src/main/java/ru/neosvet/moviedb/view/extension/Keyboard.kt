@@ -1,4 +1,4 @@
-package ru.neosvet.moviedb.view
+package ru.neosvet.moviedb.view.extension
 
 import android.app.Activity
 import android.content.Context

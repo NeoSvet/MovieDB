@@ -21,6 +21,7 @@ import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
+import ru.neosvet.moviedb.view.extension.showError
 
 class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     companion object {

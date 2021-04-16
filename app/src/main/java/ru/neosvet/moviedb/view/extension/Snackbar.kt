@@ -1,4 +1,4 @@
-package ru.neosvet.moviedb.view
+package ru.neosvet.moviedb.view.extension
 
 import android.view.View
 import com.google.android.material.snackbar.Snackbar

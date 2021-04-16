@@ -13,6 +13,9 @@ import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.PosterUtils
+import ru.neosvet.moviedb.view.extension.hideKeyboard
+import ru.neosvet.moviedb.view.extension.showError
+import ru.neosvet.moviedb.view.extension.showKeyboard
 import java.lang.StringBuilder
 
 class MovieFragment : Fragment(), Observer<MovieState> {
