@@ -11,7 +11,7 @@ import ru.neosvet.moviedb.utils.DateUtils
 import java.lang.StringBuilder
 import java.util.ArrayList
 
-class MovieRepository(val model: MovieModel) {
+class MovieRepository {
     private val source = RemoteSource()
     private val cache = LocalSource()
     fun getCatalog(name: String) = cache.getCatalog(name)
@@ -120,16 +120,16 @@ class MovieRepository(val model: MovieModel) {
         cache.clearCatalog(name)
     }
 
-    fun search(query: String, page: Int, adult: Boolean) {
-        source.search(query, page, adult, model.callBackPage)
+    fun search(query: String, page: Int, adult: Boolean, callback: Callback<Page>) {
+        source.search(query, page, adult, callback)
     }
 
-    fun getList(name: String) {
-        source.getList(name, model.callBackList)
+    fun getList(name: String, callback: Callback<Playlist>) {
+        source.getList(name, callback)
     }
 
-    fun getPage(name: String) {
-        source.getPage(name, model.callBackPage)
+    fun getPage(name: String, callback: Callback<Page>) {
+        source.getPage(name,callback)
     }
 
     fun getMoviesList(movie_ids: String, adult: Boolean): List<MovieEntity> {

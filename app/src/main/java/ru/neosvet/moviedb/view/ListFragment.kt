@@ -15,7 +15,7 @@ import ru.neosvet.moviedb.list.CatalogAdapter
 import ru.neosvet.moviedb.list.ListCallbacks
 import ru.neosvet.moviedb.list.MovieItem
 import ru.neosvet.moviedb.list.MoviesAdapter
-import ru.neosvet.moviedb.model.MovieModel
+import ru.neosvet.moviedb.model.ListModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
@@ -44,8 +44,8 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
     private val binding get() = _binding!!
     private var snackbar: Snackbar? = null
     private val catalog = CatalogAdapter()
-    private val model: MovieModel by lazy {
-        ViewModelProvider(this).get(MovieModel::class.java)
+    private val model: ListModel by lazy {
+        ViewModelProvider(this).get(ListModel::class.java)
     }
     private val settings: SettingsUtils by lazy {
         SettingsUtils(requireContext())
@@ -195,10 +195,10 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
 
     private fun getTranslate(title: String): String {
         return when (title) {
-            MovieModel.UPCOMING -> getString(R.string.upcoming)
-            MovieModel.POPULAR -> getString(R.string.popular)
-            MovieModel.TOP_RATED -> getString(R.string.top_rated)
-            else -> if (title.contains(MovieModel.SEARCH))
+            ListModel.UPCOMING -> getString(R.string.upcoming)
+            ListModel.POPULAR -> getString(R.string.popular)
+            ListModel.TOP_RATED -> getString(R.string.top_rated)
+            else -> if (title.contains(ListModel.SEARCH))
                 getResultSearchTitle(title)
             else
                 title
@@ -208,8 +208,8 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
     private fun getResultSearchTitle(title: String): String {
         return getString(R.string.search_result) +
                 title.substring(
-                    title.indexOf(MovieModel.SEARCH) +
-                            MovieModel.SEARCH.length
+                    title.indexOf(ListModel.SEARCH) +
+                            ListModel.SEARCH.length
                 )
     }
 
