@@ -3,6 +3,7 @@ package ru.neosvet.moviedb.view
 import android.content.IntentFilter
 import android.net.ConnectivityManager.CONNECTIVITY_ACTION
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import ru.neosvet.moviedb.R
@@ -31,9 +32,16 @@ class MainActivity : AppCompatActivity() {
             openList(false)
         }
         initButtons()
+        binding.ivBigPoster.setOnClickListener {
+            binding.ivBigPoster.visibility = View.GONE
+        }
     }
 
     override fun onBackPressed() {
+        if (binding.ivBigPoster.visibility == View.VISIBLE) {
+            binding.ivBigPoster.visibility = View.GONE
+            return
+        }
         supportFragmentManager.fragments.forEach {
             if (it.isVisible && it is OnBackFragment) {
                 if (!it.onBackPressed())
@@ -42,6 +50,8 @@ class MainActivity : AppCompatActivity() {
         }
         super.onBackPressed()
     }
+
+    fun getBitPoster() = binding.ivBigPoster
 
     private fun initButtons() {
         binding.btnMain.setOnClickListener {
