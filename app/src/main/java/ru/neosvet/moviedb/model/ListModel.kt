@@ -20,7 +20,7 @@ class ListModel : ViewModel(), ConnectObserver {
         val SEARCH = "query"
     }
 
-    private val state: MutableLiveData<MovieState> = MutableLiveData()
+    private val state: MutableLiveData<ListState> = MutableLiveData()
     private val repository = MovieRepository()
     var nameWaitLoad: String? = null
     var adult: Boolean = false
@@ -50,12 +50,12 @@ class ListModel : ViewModel(), ConnectObserver {
     fun search(query: String, page: Int, adult: Boolean) {
         this.adult = adult
         try {
-            state.value = MovieState.Loading
+            state.value = ListState.Loading
             repository.clearCatalog(SEARCH + page)
             repository.search(query, page, adult, callBackPage)
         } catch (e: Exception) {
             e.printStackTrace()
-            state.postValue(MovieState.Error(e))
+            state.postValue(ListState.Error(e))
         }
     }
 
@@ -71,7 +71,7 @@ class ListModel : ViewModel(), ConnectObserver {
             if (connected)
                 loadListByName(it)
             else
-                state.postValue(MovieState.Error(NoConnectionExc()))
+                state.postValue(ListState.Error(NoConnectionExc()))
         }
     }
 
@@ -102,14 +102,14 @@ class ListModel : ViewModel(), ConnectObserver {
 
     private fun loadListByName(name: String) {
         try {
-            state.value = MovieState.Loading
+            state.value = ListState.Loading
             if (name.isDigitsOnly())
                 repository.getList(name, callBackList)
             else
                 repository.getPage(name, callBackPage)
         } catch (e: Exception) {
             e.printStackTrace()
-            state.postValue(MovieState.Error(e))
+            state.postValue(ListState.Error(e))
         }
     }
 
@@ -117,7 +117,7 @@ class ListModel : ViewModel(), ConnectObserver {
 
     private fun pushCatalog(catalog: CatalogEntity) {
         val list = repository.getMoviesList(catalog.movie_ids, adult)
-        state.postValue(MovieState.SuccessList(catalog.title, list))
+        state.postValue(ListState.Success(catalog.title, list))
     }
 
     private fun getNamePage(url: String): String {
@@ -149,21 +149,21 @@ class ListModel : ViewModel(), ConnectObserver {
                 val name = getNamePage(call.request().url().toString())
                 val catalog = repository.addCatalog(name, null, page.results)
                 if (catalog == null) {
-                    state.postValue(MovieState.Error(ListNoFoundExc()))
+                    state.postValue(ListState.Error(ListNoFoundExc()))
                     return
                 }
                 pushCatalog(catalog)
                 onSuccess()
             } else {
-                state.postValue(MovieState.Error(IncorrectResponseExc(response.message())))
+                state.postValue(ListState.Error(IncorrectResponseExc(response.message())))
             }
         }
 
         override fun onFailure(call: Call<Page>, t: Throwable) {
             if (t.message == null)
-                state.postValue(MovieState.Error(IncorrectResponseExc("")))
+                state.postValue(ListState.Error(IncorrectResponseExc("")))
             else
-                state.postValue(MovieState.Error(t))
+                state.postValue(ListState.Error(t))
         }
     }
 
@@ -176,21 +176,21 @@ class ListModel : ViewModel(), ConnectObserver {
                 val name = repository.getNewName(list.description)
                 val catalog = repository.addCatalog(name, list.description, list.items)
                 if (catalog == null) {
-                    state.postValue(MovieState.Error(ListNoFoundExc()))
+                    state.postValue(ListState.Error(ListNoFoundExc()))
                     return
                 }
                 pushCatalog(catalog)
                 onSuccess()
             } else {
-                state.postValue(MovieState.Error(IncorrectResponseExc(response.message())))
+                state.postValue(ListState.Error(IncorrectResponseExc(response.message())))
             }
         }
 
         override fun onFailure(call: Call<Playlist>, t: Throwable) {
             if (t.message == null)
-                state.postValue(MovieState.Error(IncorrectResponseExc("")))
+                state.postValue(ListState.Error(IncorrectResponseExc("")))
             else
-                state.postValue(MovieState.Error(t))
+                state.postValue(ListState.Error(t))
         }
     }
 }

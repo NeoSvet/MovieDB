@@ -16,14 +16,14 @@ import ru.neosvet.moviedb.list.ListCallbacks
 import ru.neosvet.moviedb.list.MovieItem
 import ru.neosvet.moviedb.list.MoviesAdapter
 import ru.neosvet.moviedb.model.ListModel
-import ru.neosvet.moviedb.model.MovieState
+import ru.neosvet.moviedb.model.ListState
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
 import ru.neosvet.moviedb.view.extension.OnBackFragment
 import ru.neosvet.moviedb.view.extension.showError
 
-class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
+class ListFragment : OnBackFragment(), ListCallbacks, Observer<ListState> {
     companion object {
         private val ARG_SEARCH = "search"
         fun newInstance(withSearch: Boolean) =
@@ -219,21 +219,21 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
             ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
     }
 
-    override fun onChanged(state: MovieState) {
+    override fun onChanged(state: ListState) {
         when (state) {
-            is MovieState.SuccessList -> {
+            is ListState.Success -> {
                 showList(state.title, state.list)
                 if (catalog.itemCount == COUNT_LIST)
                     finishLoad()
                 else
                     loadNextList()
             }
-            is MovieState.Loading -> {
+            is ListState.Loading -> {
                 statusView.visibility = View.VISIBLE
                 snackbar?.dismiss()
                 snackbar = null
             }
-            is MovieState.Error -> {
+            is ListState.Error -> {
                 finishLoad()
                 val message: String?
                 if (state.error is MyException)
@@ -251,7 +251,7 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<MovieState> {
 
     private fun finishLoad() {
         statusView.visibility = View.GONE
-        model.getState().value = MovieState.Finished
+        model.getState().value = ListState.Finished
         isRefresh = false
     }
 

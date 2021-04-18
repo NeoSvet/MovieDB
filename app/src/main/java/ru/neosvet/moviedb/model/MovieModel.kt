@@ -21,7 +21,7 @@ class MovieModel : ViewModel() {
                 if (item == null)
                     state.postValue(MovieState.Error(ItemNoFoundExc()))
                 else
-                    state.postValue(MovieState.SuccessItem(item))
+                    state.postValue(MovieState.Success(item))
             } catch (e: Exception) {
                 e.printStackTrace()
                 state.postValue(MovieState.Error(e))

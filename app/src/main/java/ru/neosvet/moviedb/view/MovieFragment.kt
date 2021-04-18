@@ -2,7 +2,6 @@ package ru.neosvet.moviedb.view
 
 import android.os.Bundle
 import android.view.*
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ru.neosvet.moviedb.R
@@ -142,7 +141,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
 
     override fun onChanged(state: MovieState) {
         when (state) {
-            is MovieState.SuccessItem -> {
+            is MovieState.Success -> {
                 showItem(state.item)
             }
             is MovieState.Error -> {
