@@ -2,6 +2,7 @@ package ru.neosvet.moviedb.view
 
 import android.os.Bundle
 import android.view.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ru.neosvet.moviedb.R
@@ -58,6 +59,15 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadDetails();
+        binding.ivPoster.setOnClickListener {
+            movie?.let {
+                PosterUtils.loadBig(it.poster, binding.ivPoster)
+                binding.ivPoster.layoutParams = ConstraintLayout.LayoutParams(
+                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+                    ConstraintLayout.LayoutParams.MATCH_PARENT
+                )
+            }
+        }
     }
 
     override fun onBackPressed(): Boolean {
