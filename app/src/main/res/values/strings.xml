@@ -28,7 +28,7 @@
     <string name="about_access_contacts">Доступ к контактам нужен для того, чтобы выбрать кому отправить ссылку на фильм.</string>
     <string name="give_access">Предоставить доступ</string>
     <string name="do_not">Не надо</string>
-    <string name="share_with">Поделиться с фильмом с…</string>
+    <string name="share_with">Поделиться фильмом с…</string>
     <string name="share">Поделиться</string>
     <string name="recommend_movie">Рекомендую фильм&#160;</string>
 </resources>
