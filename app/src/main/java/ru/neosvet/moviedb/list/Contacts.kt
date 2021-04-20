@@ -22,7 +22,9 @@ data class Contact(
 
 class ContactsAdapter(val context: Context, val callbacks: ContactCallbacks) :
     RecyclerView.Adapter<ContactsAdapter.Holder>() {
-    //BASE:
+
+//BASE:
+
     private val contacts = ArrayList<Contact>()
 
     fun addConctact(id: Int, name: String) {
@@ -41,7 +43,8 @@ class ContactsAdapter(val context: Context, val callbacks: ContactCallbacks) :
 
     override fun getItemCount() = contacts.size
 
-    //GETTER PHONES:
+//GETTER PHONES:
+
     private val getterPhones = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val id = intent.getIntExtra(GetterPhones.ID, -1)
@@ -82,7 +85,8 @@ class ContactsAdapter(val context: Context, val callbacks: ContactCallbacks) :
         LocalBroadcastManager.getInstance(context).unregisterReceiver(getterPhones)
     }
 
-    //HOLDER:
+//HOLDER:
+
     inner class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvName: MaterialTextView = itemView.findViewById(R.id.tvName)
         private val tvPhone: MaterialTextView = itemView.findViewById(R.id.tvPhone)
