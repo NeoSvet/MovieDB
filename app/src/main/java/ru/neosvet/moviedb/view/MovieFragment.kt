@@ -37,6 +37,8 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private lateinit var itemSave: MenuItem
     private lateinit var des: String
     private lateinit var note: String
+    private lateinit var cast: List<String>
+    private lateinit var crew: List<String>
     private val binding get() = _binding!!
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
@@ -64,7 +66,8 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadDetails();
+        loadDetails()
+        initLink()
         binding.ivPoster.setOnClickListener {
             movie?.let {
                 val main = requireActivity() as MainActivity
@@ -72,6 +75,19 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 ivBigPoster.visibility = View.VISIBLE
                 model.loadBigPoster(it.poster, ivBigPoster)
             }
+        }
+    }
+
+    private fun initLink() {
+        binding.tvCrew.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, PeopleFragment.newInstance(crew))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+        }
+        binding.tvCast.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, PeopleFragment.newInstance(cast))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
     }
 
@@ -200,27 +216,28 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private fun showDetails(details: DetailsEntity) {
         with(binding) {
             tvCountries.text = getString(R.string.countries) + details.countries
-            tvCast.text = getString(R.string.cast) + limitedArray(details.cast)
-            tvCrew.text = getString(R.string.crew) + limitedArray(details.crew)
+            cast = details.cast.split(MovieRepository.SEPARATOR)
+            tvCast.text = getString(R.string.cast) + limitedArray(cast)
+            crew = details.crew.split(MovieRepository.SEPARATOR)
+            tvCrew.text = getString(R.string.crew) + limitedArray(crew)
         }
         statusView.visibility = View.GONE
         model.getState().value = MovieState.Finished
     }
 
-    private fun limitedArray(array: String): String {
+    private fun limitedArray(array: List<String>): String {
         val s = StringBuilder()
-        val m = array.split(MovieRepository.SEPARATOR)
         for (n in 0..4) {
-            if (n == m.size)
+            if (n == array.size)
                 break
             s.append(", ")
-            s.append(m[n])
+            s.append(array[n])
         }
         if (s.length > 0) {
             s.delete(0, 2)
             return s.toString()
         }
-        return array
+        return array[0]
     }
 
     private fun showDes() {
