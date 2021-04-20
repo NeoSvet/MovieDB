@@ -41,6 +41,10 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }
+    private val statusView: View by lazy {
+        val main = requireActivity() as MainActivity
+        main.getStatusView()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -162,6 +166,9 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 showMovie(state.movie)
                 showDetails(state.details)
             }
+            is MovieState.Loading -> {
+                statusView.visibility = View.VISIBLE
+            }
             is MovieState.Error -> {
                 val message: String?
                 if (state.error is MyException)
@@ -196,6 +203,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             tvCast.text = getString(R.string.cast) + limitedArray(details.cast)
             tvCrew.text = getString(R.string.crew) + limitedArray(details.crew)
         }
+        statusView.visibility = View.GONE
         model.getState().value = MovieState.Finished
     }
 
