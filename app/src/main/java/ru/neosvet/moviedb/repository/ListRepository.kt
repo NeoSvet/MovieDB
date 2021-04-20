@@ -57,12 +57,14 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
         if (mode != Mode.ONLY_LOAD) {
             val catalog = cache.getCatalog(name)
             if (catalog != null) {
+                if (mode == Mode.ONLY_CACHE) {
+                    callbacks.onSuccess(catalog)
+                    return
+                }
                 needLoad = DateUtils.olderThenDay(catalog.updated)
                 if (!needLoad || ConnectUtils.CONNECTED != true)
                     callbacks.onSuccess(catalog)
             }
-            if (mode == Mode.ONLY_CACHE)
-                return
         }
         if (needLoad) {
             if (ConnectUtils.CONNECTED == true)
