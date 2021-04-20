@@ -54,6 +54,24 @@
                 app:layout_constraintTop_toBottomOf="@id/tvRating" />
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvCountries"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                app:layout_constraintEnd_toEndOf="@id/ivPoster"
+                app:layout_constraintStart_toStartOf="@id/ivPoster"
+                app:layout_constraintTop_toBottomOf="@id/barVote" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                app:layout_constraintEnd_toEndOf="@id/barVote"
+                app:layout_constraintStart_toStartOf="@id/barVote"
+                app:layout_constraintTop_toBottomOf="@id/tvCountries" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -74,23 +92,34 @@
                 app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvDate"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:textSize="15sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/tvOriginal"
-                app:layout_constraintTop_toBottomOf="@id/tvOriginal" />
-
-            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvGenres"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/default_margin"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/tvDate"
-                app:layout_constraintTop_toBottomOf="@id/tvDate" />
+                app:layout_constraintStart_toStartOf="@id/tvOriginal"
+                app:layout_constraintTop_toBottomOf="@id/tvOriginal" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvCrew"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:textSize="15sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tvGenres"
+                app:layout_constraintTop_toBottomOf="@id/tvGenres" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvCast"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:textSize="15sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tvCrew"
+                app:layout_constraintTop_toBottomOf="@id/tvCrew" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvDescription"
@@ -100,7 +129,7 @@
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivPoster"
-                app:layout_constraintTop_toBottomOf="@id/tvGenres" />
+                app:layout_constraintTop_toBottomOf="@id/tvCast" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNote"

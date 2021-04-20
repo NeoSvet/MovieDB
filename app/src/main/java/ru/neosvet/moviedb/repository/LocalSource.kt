@@ -1,10 +1,7 @@
 package ru.neosvet.moviedb.repository
 
 import ru.neosvet.moviedb.app.App
-import ru.neosvet.moviedb.repository.room.CatalogEntity
-import ru.neosvet.moviedb.repository.room.GenreEntity
-import ru.neosvet.moviedb.repository.room.MovieEntity
-import ru.neosvet.moviedb.repository.room.NoteEntity
+import ru.neosvet.moviedb.repository.room.*
 
 class LocalSource {
     private val base = App.getBase()
@@ -45,6 +42,14 @@ class LocalSource {
 
     fun getGenreList(ids: String): List<GenreEntity> {
         return base.genreDao().getList(convertStrToList(ids))
+    }
+
+    fun getDetails(id: Int): DetailsEntity? {
+        return base.detailsDao().get(id)
+    }
+
+    fun addDetails(details: DetailsEntity) {
+        base.detailsDao().add(details)
     }
 
     private fun convertStrToList(ids: String): List<Int> {

@@ -10,6 +10,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.neosvet.moviedb.app.API_KEY
+import ru.neosvet.moviedb.repository.room.DetailsEntity
 
 class RemoteSource {
     val LANG = "ru-RU"
@@ -30,6 +31,26 @@ class RemoteSource {
 
     fun getList(id: String, callback: Callback<Playlist>) {
         retrofitApi.getList(id, API_KEY, LANG).enqueue(callback)
+    }
+
+    fun getDetails(movie_id: Int, callback: Callback<Movie>) {
+        val call: Call<Movie> = retrofitApi.getDetails(movie_id, API_KEY, LANG)
+        try {
+            callback.onResponse(call, call.execute())
+        } catch (e: Exception) {
+            callback.onFailure(call, e)
+        }
+        //retrofitApi.getDetails(movie_id, API_KEY, LANG).enqueue(callback)
+    }
+
+    fun getCredits(movie_id: Int, callback: Callback<Credits>) {
+        val call: Call<Credits> = retrofitApi.getCredits(movie_id, API_KEY, LANG)
+        try {
+            callback.onResponse(call, call.execute())
+        } catch (e: Exception) {
+            callback.onFailure(call, e)
+        }
+        //retrofitApi.getCredits(movie_id, API_KEY, LANG).enqueue(callback)
     }
 
     fun getGenre(id: Int, callback: Callback<Genre>) {
@@ -54,6 +75,20 @@ class RemoteSource {
 }
 
 interface ApiRetrofit {
+    @GET("movie/{ID}")
+    fun getDetails(
+        @Path("ID") movie_id: Int,
+        @Query("api_key") api_key: String,
+        @Query("language") lang: String
+    ): Call<Movie>
+
+    @GET("movie/{ID}/credits")
+    fun getCredits(
+        @Path("ID") movie_id: Int,
+        @Query("api_key") api_key: String,
+        @Query("language") lang: String
+    ): Call<Credits>
+
     @GET("search/movie")
     fun search(
         @Query("api_key") api_key: String,

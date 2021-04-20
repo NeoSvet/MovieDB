@@ -31,4 +31,7 @@
     <string name="share_with">Поделиться фильмом с…</string>
     <string name="share">Поделиться</string>
     <string name="recommend_movie">Рекомендую фильм&#160;</string>
+    <string name="countries">Страны:&#160;</string>
+    <string name="cast">Актёры:&#160;</string>
+    <string name="crew">Команда:&#160;</string>
 </resources>

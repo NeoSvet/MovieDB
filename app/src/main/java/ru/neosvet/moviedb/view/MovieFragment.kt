@@ -6,8 +6,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentMovieBinding
+import ru.neosvet.moviedb.model.ListState
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
+import ru.neosvet.moviedb.repository.MovieRepository
+import ru.neosvet.moviedb.repository.room.DetailsEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.PosterUtils
@@ -149,8 +152,15 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
 
     override fun onChanged(state: MovieState) {
         when (state) {
-            is MovieState.Success -> {
-                showItem(state.item)
+            is MovieState.SuccessMovie -> {
+                showMovie(state.movie)
+            }
+            is MovieState.SuccessDetails -> {
+                showDetails(state.details)
+            }
+            is MovieState.SuccessAll -> {
+                showMovie(state.movie)
+                showDetails(state.details)
             }
             is MovieState.Error -> {
                 val message: String?
@@ -164,7 +174,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         }
     }
 
-    private fun showItem(item: MovieEntity) {
+    private fun showMovie(item: MovieEntity) {
         movie = item
         with(binding) {
             PosterUtils.load(item.poster, ivPoster)
@@ -178,6 +188,31 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             barVote.progress = (item.vote * 10).toInt()
             tvVote.text = "(${item.vote})"
         }
+    }
+
+    private fun showDetails(details: DetailsEntity) {
+        with(binding) {
+            tvCountries.text = getString(R.string.countries) + details.countries
+            tvCast.text = getString(R.string.cast) + limitedArray(details.cast)
+            tvCrew.text = getString(R.string.crew) + limitedArray(details.crew)
+        }
+        model.getState().value = MovieState.Finished
+    }
+
+    private fun limitedArray(array: String): String {
+        val s = StringBuilder()
+        val m = array.split(MovieRepository.SEPARATOR)
+        for (n in 0..4) {
+            if (n == m.size)
+                break
+            s.append(", ")
+            s.append(m[n])
+        }
+        if (s.length > 0) {
+            s.delete(0, 2)
+            return s.toString()
+        }
+        return array
     }
 
     private fun showDes() {

@@ -26,6 +26,15 @@ data class NoteEntity(
 )
 
 @Entity
+data class DetailsEntity(
+    @PrimaryKey
+    val id: Int = -1,
+    var countries: String = "",
+    var cast: String = "",
+    var crew: String = ""
+)
+
+@Entity
 data class GenreEntity(
     @PrimaryKey
     val id: Int = -1,

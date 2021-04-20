@@ -24,6 +24,18 @@ interface MovieDao {
 }
 
 @Dao
+interface DetailsDao {
+    @Query("SELECT * FROM DetailsEntity WHERE id=:id")
+    fun get(id: Int): DetailsEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun add(entity: DetailsEntity)
+
+    @Delete
+    fun delete(entity: DetailsEntity)
+}
+
+@Dao
 interface GenreDao {
     @Query("SELECT * FROM GenreEntity WHERE id=:id")
     fun get(id: Int): GenreEntity?

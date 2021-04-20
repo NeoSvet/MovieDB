@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ru.neosvet.moviedb.repository.MovieRepoCallbacks
 import ru.neosvet.moviedb.repository.MovieRepository
+import ru.neosvet.moviedb.repository.room.DetailsEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.IncorrectResponseExc
 import ru.neosvet.moviedb.utils.PosterUtils
@@ -79,8 +80,16 @@ class MovieModel : ViewModel(), MovieRepoCallbacks {
 
 //OVERRIDE
 
-    override fun onSuccess(movie: MovieEntity) {
-        state.postValue(MovieState.Success(movie))
+    override fun onSuccessMovie(movie: MovieEntity) {
+        state.postValue(MovieState.SuccessMovie(movie))
+    }
+
+    override fun onSuccessDetails(details: DetailsEntity) {
+        state.postValue(MovieState.SuccessDetails(details))
+    }
+
+    override fun onSuccessAll(movie: MovieEntity, details: DetailsEntity) {
+        state.postValue(MovieState.SuccessAll(movie, details))
     }
 
     override fun onFailure(error: Throwable) {
