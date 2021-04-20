@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import ru.neosvet.moviedb.repository.MovieRepository
+import ru.neosvet.moviedb.repository.ListRepository
 import ru.neosvet.moviedb.repository.Page
 import ru.neosvet.moviedb.repository.Playlist
 import ru.neosvet.moviedb.repository.room.CatalogEntity
@@ -21,7 +21,7 @@ class ListModel : ViewModel(), ConnectObserver {
     }
 
     private val state: MutableLiveData<ListState> = MutableLiveData()
-    private val repository = MovieRepository()
+    private val repository = ListRepository()
     var nameWaitLoad: String? = null
     var adult: Boolean = false
 
