@@ -48,13 +48,6 @@ class ListModel : ViewModel(), ListRepoCallbacks {
         repository.requestCatalog(TOP_RATED, getLoadMode(isReload))
     }
 
-    private fun getLoadMode(reload: Boolean): ListRepository.Mode {
-        return if (reload)
-            ListRepository.Mode.ONLY_LOAD
-        else
-            ListRepository.Mode.CACHE_OR_LOAD
-    }
-
     fun search(query: String, page: Int, adult: Boolean) {
         state.value = ListState.Loading
         this.adult = adult
@@ -69,6 +62,15 @@ class ListModel : ViewModel(), ListRepoCallbacks {
 
     fun lastSearch(page: Int) {
         repository.requestCatalog(SEARCH + page, ListRepository.Mode.ONLY_CACHE)
+    }
+
+//PRIVATE
+
+    private fun getLoadMode(reload: Boolean): ListRepository.Mode {
+        return if (reload)
+            ListRepository.Mode.ONLY_LOAD
+        else
+            ListRepository.Mode.CACHE_OR_LOAD
     }
 
 //OVERRIDE
