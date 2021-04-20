@@ -6,14 +6,15 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import ru.neosvet.moviedb.repository.MovieRepoCallbacks
 import ru.neosvet.moviedb.repository.MovieRepository
-import ru.neosvet.moviedb.utils.ItemNoFoundExc
+import ru.neosvet.moviedb.repository.room.MovieEntity
+import ru.neosvet.moviedb.utils.IncorrectResponseExc
 import ru.neosvet.moviedb.utils.PosterUtils
 
-
-class MovieModel : ViewModel() {
+class MovieModel : ViewModel(), MovieRepoCallbacks {
     private val state: MutableLiveData<MovieState> = MutableLiveData()
-    private val repository: MovieRepository = MovieRepository()
+    private val repository: MovieRepository = MovieRepository(this)
 
     fun getState() = state
 
@@ -21,18 +22,7 @@ class MovieModel : ViewModel() {
         if (id == null)
             return
         state.value = MovieState.Loading
-        Thread {
-            try {
-                val item = repository.getMovie(id)
-                if (item == null)
-                    state.postValue(MovieState.Error(ItemNoFoundExc()))
-                else
-                    state.postValue(MovieState.Success(item))
-            } catch (e: Exception) {
-                e.printStackTrace()
-                state.postValue(MovieState.Error(e))
-            }
-        }.start()
+        repository.requestMovie(id)
     }
 
     fun loadBigPoster(url: String, target: ImageView) {
@@ -87,6 +77,16 @@ class MovieModel : ViewModel() {
 
     fun getNote(id: Int) = repository.getNote(id)
 
-//CALLBACKS
+//OVERRIDE
 
+    override fun onSuccess(movie: MovieEntity) {
+        state.postValue(MovieState.Success(movie))
+    }
+
+    override fun onFailure(error: Throwable) {
+        if (error.message == null)
+            state.postValue(MovieState.Error(IncorrectResponseExc("")))
+        else
+            state.postValue(MovieState.Error(error))
+    }
 }
