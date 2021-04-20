@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentManager
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.ActivityMainBinding
 import ru.neosvet.moviedb.utils.ConnectUtils
+import ru.neosvet.moviedb.view.extension.OnBackFragment
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -31,7 +32,26 @@ class MainActivity : AppCompatActivity() {
             openList(false)
         }
         initButtons()
+        binding.ivBigPoster.setOnClickListener {
+            binding.ivBigPoster.visibility = View.GONE
+        }
     }
+
+    override fun onBackPressed() {
+        if (binding.ivBigPoster.visibility == View.VISIBLE) {
+            binding.ivBigPoster.visibility = View.GONE
+            return
+        }
+        supportFragmentManager.fragments.forEach {
+            if (it.isVisible && it is OnBackFragment) {
+                if (!it.onBackPressed())
+                    return
+            }
+        }
+        super.onBackPressed()
+    }
+
+    fun getBitPoster() = binding.ivBigPoster
 
     private fun initButtons() {
         binding.btnMain.setOnClickListener {

@@ -2,8 +2,6 @@ package ru.neosvet.moviedb.view
 
 import android.os.Bundle
 import android.view.*
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ru.neosvet.moviedb.R
@@ -13,9 +11,12 @@ import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.PosterUtils
-import java.lang.StringBuilder
+import ru.neosvet.moviedb.view.extension.OnBackFragment
+import ru.neosvet.moviedb.view.extension.hideKeyboard
+import ru.neosvet.moviedb.view.extension.showError
+import ru.neosvet.moviedb.view.extension.showKeyboard
 
-class MovieFragment : Fragment(), Observer<MovieState> {
+class MovieFragment : OnBackFragment(), Observer<MovieState> {
     companion object {
         private val ARG_ID = "movie_id"
         fun newInstance(movieId: Int) =
@@ -27,6 +28,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     }
 
     private var movieId: Int? = null
+    private var movie: MovieEntity? = null
     private var _binding: FragmentMovieBinding? = null
     private lateinit var itemEdit: MenuItem
     private lateinit var itemSave: MenuItem
@@ -56,6 +58,21 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadDetails();
+        binding.ivPoster.setOnClickListener {
+            movie?.let {
+                val main = requireActivity() as MainActivity
+                val ivBigPoster = main.getBitPoster()
+                ivBigPoster.visibility = View.VISIBLE
+                model.loadBigPoster(it.poster, ivBigPoster)
+            }
+        }
+    }
+
+    override fun onBackPressed(): Boolean {
+        if (itemEdit.isVisible)
+            return true
+        closeEditNote()
+        return false
     }
 
     override fun onResume() {
@@ -74,19 +91,23 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        itemEdit = menu.add(R.string.edit_note)
-        itemEdit.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_edit_24)
-        itemEdit.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        itemSave = menu.add(R.string.save)
-        itemSave.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        itemSave.setVisible(false)
+        inflater.inflate(R.menu.movie, menu)
+        itemEdit = menu.findItem(R.id.edit)
+        itemSave = menu.findItem(R.id.save)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (movieId == null)
             return super.onOptionsItemSelected(item)
+        if (item.itemId == R.id.message) {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, ContactsFragment.newInstance(initMessage()))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+            return super.onOptionsItemSelected(item)
+        }
         with(binding) {
             if (itemEdit.isVisible) {
+                etNote.setText(note)
                 tvDescription.visibility = View.GONE
                 etNote.visibility = View.VISIBLE
                 itemEdit.setVisible(false)
@@ -101,13 +122,25 @@ class MovieFragment : Fragment(), Observer<MovieState> {
                     model.addNote(it, note)
                 }
                 showDes()
-                tvDescription.visibility = View.VISIBLE
-                etNote.visibility = View.GONE
-                itemEdit.setVisible(true)
-                itemSave.setVisible(false)
+                closeEditNote()
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun initMessage(): String {
+        movie?.let {
+            return getString(R.string.recommend_movie) + it.title +
+                    "\nhttps://www.themoviedb.org/movie/" + it.id
+        }
+        return ""
+    }
+
+    private fun closeEditNote() {
+        binding.tvDescription.visibility = View.VISIBLE
+        binding.etNote.visibility = View.GONE
+        itemEdit.setVisible(true)
+        itemSave.setVisible(false)
     }
 
     private fun loadDetails() {
@@ -116,7 +149,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
 
     override fun onChanged(state: MovieState) {
         when (state) {
-            is MovieState.SuccessItem -> {
+            is MovieState.Success -> {
                 showItem(state.item)
             }
             is MovieState.Error -> {
@@ -132,6 +165,7 @@ class MovieFragment : Fragment(), Observer<MovieState> {
     }
 
     private fun showItem(item: MovieEntity) {
+        movie = item
         with(binding) {
             PosterUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
@@ -143,9 +177,6 @@ class MovieFragment : Fragment(), Observer<MovieState> {
             showDes()
             barVote.progress = (item.vote * 10).toInt()
             tvVote.text = "(${item.vote})"
-            movieId?.let {
-                etNote.setText(model.getNote(it))
-            }
         }
     }
 

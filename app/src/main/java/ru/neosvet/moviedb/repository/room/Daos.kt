@@ -7,8 +7,11 @@ interface MovieDao {
     @Query("SELECT * FROM MovieEntity WHERE id=:id")
     fun get(id: Int): MovieEntity?
 
-    @Query("SELECT * FROM MovieEntity WHERE id IN (:ids)")
+    @Query("SELECT * FROM MovieEntity WHERE id IN (:ids) AND adult=0")
     fun getList(ids: List<Int>): List<MovieEntity>
+
+    @Query("SELECT * FROM MovieEntity WHERE id IN (:ids)")
+    fun getListWithAdult(ids: List<Int>): List<MovieEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(entity: MovieEntity)

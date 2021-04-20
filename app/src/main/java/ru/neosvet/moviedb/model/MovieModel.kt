@@ -1,117 +1,21 @@
 package ru.neosvet.moviedb.model
 
-import androidx.core.text.isDigitsOnly
+import android.animation.ValueAnimator
+import android.view.View
+import android.view.animation.DecelerateInterpolator
+import android.widget.ImageView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import ru.neosvet.moviedb.repository.MovieRepository
-import ru.neosvet.moviedb.repository.Page
-import ru.neosvet.moviedb.repository.Playlist
-import ru.neosvet.moviedb.repository.room.CatalogEntity
-import ru.neosvet.moviedb.utils.*
+import ru.neosvet.moviedb.utils.ItemNoFoundExc
+import ru.neosvet.moviedb.utils.PosterUtils
 
-class MovieModel : ViewModel(), ConnectObserver {
-    companion object {
-        val UPCOMING = "upcoming"
-        val POPULAR = "popular"
-        val TOP_RATED = "top_rated"
-        val SEARCH = "query"
-    }
 
+class MovieModel : ViewModel() {
     private val state: MutableLiveData<MovieState> = MutableLiveData()
-    private val repository: MovieRepository = MovieRepository(this)
-    var nameWaitLoad: String? = null
-    var adult: Boolean = false
-
+    private val repository: MovieRepository = MovieRepository()
 
     fun getState() = state
-
-    fun loadList(list_id: Int, adult: Boolean) {
-        this.adult = adult
-        preLoadListByName(list_id.toString())
-    }
-
-    fun loadUpcoming(adult: Boolean) {
-        this.adult = adult
-        preLoadListByName(UPCOMING)
-    }
-
-    fun loadPopular(adult: Boolean) {
-        this.adult = adult
-        preLoadListByName(POPULAR)
-    }
-
-    fun loadTopRated(adult: Boolean) {
-        this.adult = adult
-        preLoadListByName(TOP_RATED)
-    }
-
-    fun search(query: String, page: Int, adult: Boolean) {
-        this.adult = adult
-        try {
-            state.value = MovieState.Loading
-            repository.clearCatalog(SEARCH + page)
-            repository.search(query, page, adult)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            state.postValue(MovieState.Error(e))
-        }
-    }
-
-    fun lastSearch(page: Int) {
-        val name = SEARCH + page
-        val catalog = repository.getCatalog(name)
-        if (catalog != null)
-            pushCatalog(catalog)
-    }
-
-    override fun connectChanged(connected: Boolean) {
-        nameWaitLoad?.let {
-            if (connected)
-                loadListByName(it)
-            else
-                state.postValue(MovieState.Error(NoConnectionExc()))
-        }
-    }
-
-    fun onSuccess() {
-        ConnectUtils.unSubscribe(this)
-        nameWaitLoad = null
-    }
-
-    private fun preLoadListByName(name: String) {
-        val catalog = repository.getCatalog(name)
-        val needLoad: Boolean
-        if (catalog != null) {
-            needLoad = DateUtils.olderThenDay(catalog.updated)
-            if (!needLoad || ConnectUtils.CONNECTED != true)
-                pushCatalog(catalog)
-        } else
-            needLoad = true
-        if (needLoad) {
-            if (ConnectUtils.CONNECTED == true)
-                loadListByName(name)
-            else {
-                nameWaitLoad = name
-                ConnectUtils.subscribe(this)
-            }
-        }
-    }
-
-    private fun loadListByName(name: String) {
-        try {
-            state.value = MovieState.Loading
-            if (name.isDigitsOnly())
-                repository.getList(name)
-            else
-                repository.getPage(name)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            state.postValue(MovieState.Error(e))
-        }
-    }
 
     fun loadDetails(id: Int?) {
         if (id == null)
@@ -123,12 +27,47 @@ class MovieModel : ViewModel(), ConnectObserver {
                 if (item == null)
                     state.postValue(MovieState.Error(ItemNoFoundExc()))
                 else
-                    state.postValue(MovieState.SuccessItem(item))
+                    state.postValue(MovieState.Success(item))
             } catch (e: Exception) {
                 e.printStackTrace()
                 state.postValue(MovieState.Error(e))
             }
         }.start()
+    }
+
+    fun loadBigPoster(url: String, target: ImageView) {
+        PosterUtils.loadBig(url, target)
+
+        target.getLayoutParams().width = 100
+        target.getLayoutParams().height = 100
+        target.requestLayout()
+
+        val toValue: Int
+        val parent = target.parent as View
+        val isWidth: Boolean
+        if (parent.width < parent.height) {
+            toValue = parent.width
+            isWidth = true
+        } else {
+            toValue = parent.height
+            isWidth = false
+        }
+
+        val animator = ValueAnimator.ofInt(100, toValue)
+        animator.duration = 1200
+        animator.interpolator = DecelerateInterpolator()
+        animator.addUpdateListener { animation ->
+            if (isWidth) {
+                target.getLayoutParams().width = animation.animatedValue as Int
+                target.getLayoutParams().height = (target.getLayoutParams().width * 1.33f).toInt()
+            } else {
+                target.getLayoutParams().height = animation.animatedValue as Int
+                target.getLayoutParams().width = (target.getLayoutParams().height * 0.66f).toInt()
+            }
+            target.requestLayout()
+        }
+
+        animator.start()
     }
 
     fun genresToString(genre_ids: String): String {
@@ -142,31 +81,6 @@ class MovieModel : ViewModel(), ConnectObserver {
         return s.toString()
     }
 
-//PRIVATE
-
-    private fun pushCatalog(catalog: CatalogEntity) {
-        val list = repository.getMoviesList(catalog.movie_ids, adult)
-        state.postValue(MovieState.SuccessList(catalog.title, list))
-    }
-
-    private fun getNamePage(url: String): String {
-        return if (url.contains(UPCOMING))
-            UPCOMING
-        else if (url.contains(POPULAR))
-            POPULAR
-        else if (url.contains(TOP_RATED))
-            TOP_RATED
-        else if (url.contains(SEARCH)) {
-            SEARCH + getNumberPage(url)
-        } else
-            url.substring(url.lastIndexOf("/") + 1)
-    }
-
-    private fun getNumberPage(url: String): String {
-        val i = url.indexOf("page")
-        return url.substring(i + 5, url.indexOf("&", i))
-    }
-
     fun addNote(id: Int, content: String) {
         repository.addNote(id, content)
     }
@@ -175,57 +89,4 @@ class MovieModel : ViewModel(), ConnectObserver {
 
 //CALLBACKS
 
-    val callBackPage = object : Callback<Page> {
-
-        override fun onResponse(call: Call<Page>, response: Response<Page>) {
-            val page: Page? = response.body()
-
-            if (response.isSuccessful && page != null) {
-                val name = getNamePage(call.request().url().toString())
-                val catalog = repository.addCatalog(name, null, page.results)
-                if (catalog == null) {
-                    state.postValue(MovieState.Error(ListNoFoundExc()))
-                    return
-                }
-                pushCatalog(catalog)
-                onSuccess()
-            } else {
-                state.postValue(MovieState.Error(IncorrectResponseExc(response.message())))
-            }
-        }
-
-        override fun onFailure(call: Call<Page>, t: Throwable) {
-            if (t.message == null)
-                state.postValue(MovieState.Error(IncorrectResponseExc("")))
-            else
-                state.postValue(MovieState.Error(t))
-        }
-    }
-
-    val callBackList = object : Callback<Playlist> {
-
-        override fun onResponse(call: Call<Playlist>, response: Response<Playlist>) {
-            val list: Playlist? = response.body()
-
-            if (response.isSuccessful && list != null) {
-                val name = repository.getNewName(list.description)
-                val catalog = repository.addCatalog(name, list.description, list.items)
-                if (catalog == null) {
-                    state.postValue(MovieState.Error(ListNoFoundExc()))
-                    return
-                }
-                pushCatalog(catalog)
-                onSuccess()
-            } else {
-                state.postValue(MovieState.Error(IncorrectResponseExc(response.message())))
-            }
-        }
-
-        override fun onFailure(call: Call<Playlist>, t: Throwable) {
-            if (t.message == null)
-                state.postValue(MovieState.Error(IncorrectResponseExc("")))
-            else
-                state.postValue(MovieState.Error(t))
-        }
-    }
 }

@@ -37,7 +37,10 @@ class LocalSource {
     }
 
     fun getMoviesList(ids: String, adult: Boolean): List<MovieEntity> {
-        return base.movieDao().getList(convertStrToList(ids))
+        if (adult)
+            return base.movieDao().getListWithAdult(convertStrToList(ids))
+        else
+            return base.movieDao().getList(convertStrToList(ids))
     }
 
     fun getGenreList(ids: String): List<GenreEntity> {
@@ -51,9 +54,5 @@ class LocalSource {
         val m = ids.split(",")
         m.forEach { list.add(it.toInt()) }
         return list
-    }
-
-    fun updateMovie(movie: MovieEntity) {
-        base.movieDao().update(movie)
     }
 }

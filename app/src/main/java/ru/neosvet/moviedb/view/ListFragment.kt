@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,13 +15,15 @@ import ru.neosvet.moviedb.list.CatalogAdapter
 import ru.neosvet.moviedb.list.ListCallbacks
 import ru.neosvet.moviedb.list.MovieItem
 import ru.neosvet.moviedb.list.MoviesAdapter
-import ru.neosvet.moviedb.model.MovieModel
-import ru.neosvet.moviedb.model.MovieState
+import ru.neosvet.moviedb.model.ListModel
+import ru.neosvet.moviedb.model.ListState
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
+import ru.neosvet.moviedb.view.extension.OnBackFragment
+import ru.neosvet.moviedb.view.extension.showError
 
-class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
+class ListFragment : OnBackFragment(), ListCallbacks, Observer<ListState> {
     companion object {
         private val ARG_SEARCH = "search"
         fun newInstance(withSearch: Boolean) =
@@ -33,7 +34,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             }
     }
 
-    private val COUNT_LIST = 6
+    private val COUNT_LIST = 3
     private var searcher: SearchView? = null
     private val statusView: View by lazy {
         val main = requireActivity() as MainActivity
@@ -42,11 +43,9 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private var snackbar: Snackbar? = null
-    private val catalog by lazy {
-        CatalogAdapter(requireContext())
-    }
-    private val model: MovieModel by lazy {
-        ViewModelProvider(this).get(MovieModel::class.java)
+    private val catalog = CatalogAdapter()
+    private val model: ListModel by lazy {
+        ViewModelProvider(this).get(ListModel::class.java)
     }
     private val settings: SettingsUtils by lazy {
         SettingsUtils(requireContext())
@@ -59,6 +58,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     }
     private var query: String? = null
     private var isLastSearch = false
+    private var isRefresh = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,6 +76,14 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         savedInstanceState?.let {
             query = it.getString(ARG_SEARCH)
         }
+    }
+
+    override fun onBackPressed(): Boolean {
+        if (snackbar == null)
+            return true
+        snackbar?.dismiss()
+        snackbar = null
+        return false
     }
 
     override fun onResume() {
@@ -135,6 +143,16 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.refresh) {
+            isRefresh = true
+            catalog.clear()
+            catalog.notifyDataSetChanged()
+            loadNextList()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun startSearch(query: String) {
         isLastSearch = false
         this.query = query
@@ -145,17 +163,17 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private fun loadNextList() {
         if (query == null) {
             when (catalog.itemCount) {
-                0 -> model.loadUpcoming(settings.getAdult())
-                2 -> model.loadPopular(settings.getAdult())
-                4 -> model.loadTopRated(settings.getAdult())
+                0 -> model.loadUpcoming(!isRefresh, settings.getAdult())
+                1 -> model.loadPopular(!isRefresh, settings.getAdult())
+                2 -> model.loadTopRated(!isRefresh, settings.getAdult())
             }
             return
         }
         query?.let {
             if (isLastSearch)
-                model.lastSearch(catalog.itemCount / 2 + 1)
+                model.lastSearch(catalog.itemCount + 1)
             else
-                model.search(it, catalog.itemCount / 2 + 1, settings.getAdult())
+                model.search(it, catalog.itemCount + 1, settings.getAdult())
         }
     }
 
@@ -177,10 +195,10 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
 
     private fun getTranslate(title: String): String {
         return when (title) {
-            MovieModel.UPCOMING -> getString(R.string.upcoming)
-            MovieModel.POPULAR -> getString(R.string.popular)
-            MovieModel.TOP_RATED -> getString(R.string.top_rated)
-            else -> if (title.contains(MovieModel.SEARCH))
+            ListModel.UPCOMING -> getString(R.string.upcoming)
+            ListModel.POPULAR -> getString(R.string.popular)
+            ListModel.TOP_RATED -> getString(R.string.top_rated)
+            else -> if (title.contains(ListModel.SEARCH))
                 getResultSearchTitle(title)
             else
                 title
@@ -190,8 +208,8 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
     private fun getResultSearchTitle(title: String): String {
         return getString(R.string.search_result) +
                 title.substring(
-                    title.indexOf(MovieModel.SEARCH) +
-                            MovieModel.SEARCH.length
+                    title.indexOf(ListModel.SEARCH) +
+                            ListModel.SEARCH.length
                 )
     }
 
@@ -201,22 +219,22 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
             ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
     }
 
-    override fun onChanged(state: MovieState) {
+    override fun onChanged(state: ListState) {
         when (state) {
-            is MovieState.SuccessList -> {
+            is ListState.Success -> {
                 showList(state.title, state.list)
-                if (catalog.itemCount == COUNT_LIST) {
-                    statusView.visibility = View.GONE
-                    model.getState().value = MovieState.Finished
-                } else
+                if (catalog.itemCount == COUNT_LIST)
+                    finishLoad()
+                else
                     loadNextList()
             }
-            is MovieState.Loading -> {
+            is ListState.Loading -> {
                 statusView.visibility = View.VISIBLE
                 snackbar?.dismiss()
+                snackbar = null
             }
-            is MovieState.Error -> {
-                statusView.visibility = View.GONE
+            is ListState.Error -> {
+                finishLoad()
                 val message: String?
                 if (state.error is MyException)
                     message = state.error.getTranslate(requireContext())
@@ -229,6 +247,12 @@ class ListFragment : Fragment(), ListCallbacks, Observer<MovieState> {
                     })
             }
         }
+    }
+
+    private fun finishLoad() {
+        statusView.visibility = View.GONE
+        model.getState().value = ListState.Finished
+        isRefresh = false
     }
 
     fun openSearch() {
