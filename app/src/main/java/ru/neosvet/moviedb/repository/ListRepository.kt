@@ -1,18 +1,25 @@
 package ru.neosvet.moviedb.repository
 
+import androidx.core.text.isDigitsOnly
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import ru.neosvet.moviedb.model.ListModel
 import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
-import ru.neosvet.moviedb.utils.DateUtils
+import ru.neosvet.moviedb.utils.*
 import java.util.*
 
-class ListRepository {
+class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
     private val source = RemoteSource()
     private val cache = LocalSource()
-    fun getCatalog(name: String) = cache.getCatalog(name)
-    fun containsGenre(id: Int) = cache.containsGenre(id)
+    private var nameWaitLoad: String? = null
+
+//PUBLIC
+
+    enum class Mode {
+        CACHE_OR_LOAD, ONLY_CACHE, ONLY_LOAD
+    }
 
     fun getNewName(name: String?): String {
         val n = if (name == null || name.length == 0) "Unnamed" else name
@@ -43,6 +50,54 @@ class ListRepository {
         val catalog = CatalogEntity(name, DateUtils.getNow(), d ?: name, ids.toString())
         cache.addCatalog(catalog)
         return catalog
+    }
+
+    fun getCatalog(name: String, mode: Mode) {
+        var needLoad = true
+        if (mode != Mode.ONLY_LOAD) {
+            val catalog = cache.getCatalog(name)
+            if (catalog != null) {
+                needLoad = DateUtils.olderThenDay(catalog.updated)
+                if (!needLoad || ConnectUtils.CONNECTED != true)
+                    callbacks.onSuccess(catalog)
+            }
+            if (mode == Mode.ONLY_CACHE)
+                return
+        }
+        if (needLoad) {
+            if (ConnectUtils.CONNECTED == true)
+                loadList(name)
+            else {
+                nameWaitLoad = name
+                ConnectUtils.subscribe(this)
+            }
+        }
+    }
+
+    fun clearCatalog(name: String) {
+        cache.clearCatalog(name)
+    }
+
+    fun search(query: String, page: Int, adult: Boolean) {
+        source.search(query, page, adult, callBackPage)
+    }
+
+    fun getMoviesList(movie_ids: String, adult: Boolean): List<MovieEntity> {
+        return cache.getMoviesList(movie_ids, adult)
+    }
+
+//PRIVATE
+
+    private fun loadList(name: String) {
+        try {
+            if (name.isDigitsOnly())
+                source.getList(name, callBackList)
+            else
+                source.getPage(name, callBackPage)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            callbacks.onFailure(e)
+        }
     }
 
     private fun parseList(list: List<Item>): ArrayList<MovieEntity> {
@@ -78,6 +133,8 @@ class ListRepository {
         return movies
     }
 
+    private fun containsGenre(id: Int) = cache.containsGenre(id)
+
     private fun formatDate(date: String?): String {
         date?.let {
             val m = it.split("-")
@@ -111,28 +168,77 @@ class ListRepository {
         }
     }
 
-    fun clearCatalog(name: String) {
-        cache.clearCatalog(name)
+    private fun getNamePage(url: String): String {
+        return if (url.contains(ListModel.UPCOMING))
+            ListModel.UPCOMING
+        else if (url.contains(ListModel.POPULAR))
+            ListModel.POPULAR
+        else if (url.contains(ListModel.TOP_RATED))
+            ListModel.TOP_RATED
+        else if (url.contains(ListModel.SEARCH)) {
+            ListModel.SEARCH + getNumberPage(url)
+        } else
+            url.substring(url.lastIndexOf("/") + 1)
     }
 
-    fun search(query: String, page: Int, adult: Boolean, callback: Callback<Page>) {
-        source.search(query, page, adult, callback)
+    private fun getNumberPage(url: String): String {
+        val i = url.indexOf("page")
+        return url.substring(i + 5, url.indexOf("&", i))
     }
 
-    fun getList(name: String, callback: Callback<Playlist>) {
-        source.getList(name, callback)
+    private fun onSuccess(catalog: CatalogEntity) {
+        callbacks.onSuccess(catalog)
+        ConnectUtils.unSubscribe(this)
+        nameWaitLoad = null
     }
 
-    fun getPage(name: String, callback: Callback<Page>) {
-        source.getPage(name, callback)
+//CALLBACKS
+
+    val callBackPage = object : Callback<Page> {
+        override fun onResponse(call: Call<Page>, response: Response<Page>) {
+            val page: Page? = response.body()
+
+            if (response.isSuccessful && page != null) {
+                val name = getNamePage(call.request().url().toString())
+                val catalog = addCatalog(name, null, page.results)
+                if (catalog == null) {
+                    callbacks.onFailure(ListNoFoundExc())
+                    return
+                }
+                onSuccess(catalog)
+            } else {
+                callbacks.onFailure(IncorrectResponseExc(response.message()))
+            }
+        }
+
+        override fun onFailure(call: Call<Page>, error: Throwable) {
+            callbacks.onFailure(error)
+        }
     }
 
-    fun getMoviesList(movie_ids: String, adult: Boolean): List<MovieEntity> {
-        return cache.getMoviesList(movie_ids, adult)
+    val callBackList = object : Callback<Playlist> {
+        override fun onResponse(call: Call<Playlist>, response: Response<Playlist>) {
+            val list: Playlist? = response.body()
+
+            if (response.isSuccessful && list != null) {
+                val name = getNewName(list.description)
+                val catalog = addCatalog(name, list.description, list.items)
+                if (catalog == null) {
+                    callbacks.onFailure(ListNoFoundExc())
+                    return
+                }
+                onSuccess(catalog)
+            } else {
+                callbacks.onFailure(IncorrectResponseExc(response.message()))
+            }
+        }
+
+        override fun onFailure(call: Call<Playlist>, error: Throwable) {
+            callbacks.onFailure(error)
+        }
     }
 
     private val callBackGenre = object : Callback<Genre> {
-
         override fun onResponse(call: Call<Genre>, response: Response<Genre>) {
             val genre: Genre? = response.body()
 
@@ -140,7 +246,18 @@ class ListRepository {
                 addGenre(genre)
         }
 
-        override fun onFailure(call: Call<Genre>, t: Throwable) {
+        override fun onFailure(call: Call<Genre>, error: Throwable) {
+        }
+    }
+
+//OVERRIDE
+
+    override fun connectChanged(connected: Boolean) {
+        nameWaitLoad?.let {
+            if (connected)
+                loadList(it)
+            else
+                callbacks.onFailure(NoConnectionExc())
         }
     }
 }

@@ -163,9 +163,9 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<ListState> {
     private fun loadNextList() {
         if (query == null) {
             when (catalog.itemCount) {
-                0 -> model.loadUpcoming(!isRefresh, settings.getAdult())
-                1 -> model.loadPopular(!isRefresh, settings.getAdult())
-                2 -> model.loadTopRated(!isRefresh, settings.getAdult())
+                0 -> model.loadUpcoming(isRefresh, settings.getAdult())
+                1 -> model.loadPopular(isRefresh, settings.getAdult())
+                2 -> model.loadTopRated(isRefresh, settings.getAdult())
             }
             return
         }

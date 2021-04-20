@@ -1,18 +1,13 @@
 package ru.neosvet.moviedb.model
 
-import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import ru.neosvet.moviedb.repository.ListRepoCallbacks
 import ru.neosvet.moviedb.repository.ListRepository
-import ru.neosvet.moviedb.repository.Page
-import ru.neosvet.moviedb.repository.Playlist
 import ru.neosvet.moviedb.repository.room.CatalogEntity
-import ru.neosvet.moviedb.utils.*
+import ru.neosvet.moviedb.utils.IncorrectResponseExc
 
-class ListModel : ViewModel(), ConnectObserver {
+class ListModel : ViewModel(), ListRepoCallbacks {
     companion object {
         val UPCOMING = "upcoming"
         val POPULAR = "popular"
@@ -21,38 +16,51 @@ class ListModel : ViewModel(), ConnectObserver {
     }
 
     private val state: MutableLiveData<ListState> = MutableLiveData()
-    private val repository = ListRepository()
-    var nameWaitLoad: String? = null
+    private val repository = ListRepository(this)
     var adult: Boolean = false
 
     fun getState() = state
 
-    fun loadList(list_id: Int, fromCache: Boolean, adult: Boolean) {
+//PUBLIC    
+
+    fun loadList(list_id: Int, isReload: Boolean, adult: Boolean) {
+        state.value = ListState.Loading
         this.adult = adult
-        preLoadListByName(list_id.toString(), fromCache)
+        repository.getCatalog(list_id.toString(), getLoadMode(isReload))
     }
 
-    fun loadUpcoming(fromCache: Boolean, adult: Boolean) {
+    fun loadUpcoming(isReload: Boolean, adult: Boolean) {
+        state.value = ListState.Loading
         this.adult = adult
-        preLoadListByName(UPCOMING, fromCache)
+        repository.getCatalog(UPCOMING, getLoadMode(isReload))
     }
 
-    fun loadPopular(fromCache: Boolean, adult: Boolean) {
+    fun loadPopular(isReload: Boolean, adult: Boolean) {
+        state.value = ListState.Loading
         this.adult = adult
-        preLoadListByName(POPULAR, fromCache)
+        repository.getCatalog(POPULAR, getLoadMode(isReload))
+
     }
 
-    fun loadTopRated(fromCache: Boolean, adult: Boolean) {
+    fun loadTopRated(isReload: Boolean, adult: Boolean) {
+        state.value = ListState.Loading
         this.adult = adult
-        preLoadListByName(TOP_RATED, fromCache)
+        repository.getCatalog(TOP_RATED, getLoadMode(isReload))
+    }
+
+    private fun getLoadMode(reload: Boolean): ListRepository.Mode {
+        return if (reload)
+            ListRepository.Mode.ONLY_LOAD
+        else
+            ListRepository.Mode.CACHE_OR_LOAD
     }
 
     fun search(query: String, page: Int, adult: Boolean) {
+        state.value = ListState.Loading
         this.adult = adult
         try {
-            state.value = ListState.Loading
             repository.clearCatalog(SEARCH + page)
-            repository.search(query, page, adult, callBackPage)
+            repository.search(query, page, adult)
         } catch (e: Exception) {
             e.printStackTrace()
             state.postValue(ListState.Error(e))
@@ -60,137 +68,20 @@ class ListModel : ViewModel(), ConnectObserver {
     }
 
     fun lastSearch(page: Int) {
-        val name = SEARCH + page
-        val catalog = repository.getCatalog(name)
-        if (catalog != null)
-            pushCatalog(catalog)
+        repository.getCatalog(SEARCH + page, ListRepository.Mode.ONLY_CACHE)
     }
 
-    override fun connectChanged(connected: Boolean) {
-        nameWaitLoad?.let {
-            if (connected)
-                loadListByName(it)
-            else
-                state.postValue(ListState.Error(NoConnectionExc()))
-        }
-    }
+//OVERRIDE
 
-    fun onSuccess() {
-        ConnectUtils.unSubscribe(this)
-        nameWaitLoad = null
-    }
-
-    private fun preLoadListByName(name: String, fromCache: Boolean) {
-        var needLoad = true
-        if (fromCache) {
-            val catalog = repository.getCatalog(name)
-            if (catalog != null) {
-                needLoad = DateUtils.olderThenDay(catalog.updated)
-                if (!needLoad || ConnectUtils.CONNECTED != true)
-                    pushCatalog(catalog)
-            }
-        }
-        if (needLoad) {
-            if (ConnectUtils.CONNECTED == true)
-                loadListByName(name)
-            else {
-                nameWaitLoad = name
-                ConnectUtils.subscribe(this)
-            }
-        }
-    }
-
-    private fun loadListByName(name: String) {
-        try {
-            state.value = ListState.Loading
-            if (name.isDigitsOnly())
-                repository.getList(name, callBackList)
-            else
-                repository.getPage(name, callBackPage)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            state.postValue(ListState.Error(e))
-        }
-    }
-
-//PRIVATE
-
-    private fun pushCatalog(catalog: CatalogEntity) {
+    override fun onSuccess(catalog: CatalogEntity) {
         val list = repository.getMoviesList(catalog.movie_ids, adult)
         state.postValue(ListState.Success(catalog.title, list))
     }
 
-    private fun getNamePage(url: String): String {
-        return if (url.contains(UPCOMING))
-            UPCOMING
-        else if (url.contains(POPULAR))
-            POPULAR
-        else if (url.contains(TOP_RATED))
-            TOP_RATED
-        else if (url.contains(SEARCH)) {
-            SEARCH + getNumberPage(url)
-        } else
-            url.substring(url.lastIndexOf("/") + 1)
-    }
-
-    private fun getNumberPage(url: String): String {
-        val i = url.indexOf("page")
-        return url.substring(i + 5, url.indexOf("&", i))
-    }
-
-//CALLBACKS
-
-    val callBackPage = object : Callback<Page> {
-
-        override fun onResponse(call: Call<Page>, response: Response<Page>) {
-            val page: Page? = response.body()
-
-            if (response.isSuccessful && page != null) {
-                val name = getNamePage(call.request().url().toString())
-                val catalog = repository.addCatalog(name, null, page.results)
-                if (catalog == null) {
-                    state.postValue(ListState.Error(ListNoFoundExc()))
-                    return
-                }
-                pushCatalog(catalog)
-                onSuccess()
-            } else {
-                state.postValue(ListState.Error(IncorrectResponseExc(response.message())))
-            }
-        }
-
-        override fun onFailure(call: Call<Page>, t: Throwable) {
-            if (t.message == null)
-                state.postValue(ListState.Error(IncorrectResponseExc("")))
-            else
-                state.postValue(ListState.Error(t))
-        }
-    }
-
-    val callBackList = object : Callback<Playlist> {
-
-        override fun onResponse(call: Call<Playlist>, response: Response<Playlist>) {
-            val list: Playlist? = response.body()
-
-            if (response.isSuccessful && list != null) {
-                val name = repository.getNewName(list.description)
-                val catalog = repository.addCatalog(name, list.description, list.items)
-                if (catalog == null) {
-                    state.postValue(ListState.Error(ListNoFoundExc()))
-                    return
-                }
-                pushCatalog(catalog)
-                onSuccess()
-            } else {
-                state.postValue(ListState.Error(IncorrectResponseExc(response.message())))
-            }
-        }
-
-        override fun onFailure(call: Call<Playlist>, t: Throwable) {
-            if (t.message == null)
-                state.postValue(ListState.Error(IncorrectResponseExc("")))
-            else
-                state.postValue(ListState.Error(t))
-        }
+    override fun onFailure(error: Throwable) {
+        if (error.message == null)
+            state.postValue(ListState.Error(IncorrectResponseExc("")))
+        else
+            state.postValue(ListState.Error(error))
     }
 }
