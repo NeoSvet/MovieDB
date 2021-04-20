@@ -46,6 +46,7 @@
                 android:id="@+id/tvCountries"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:textColor="@color/link"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@id/tvOriginal"

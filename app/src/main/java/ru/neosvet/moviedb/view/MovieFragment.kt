@@ -2,11 +2,11 @@ package ru.neosvet.moviedb.view
 
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentMovieBinding
-import ru.neosvet.moviedb.model.ListState
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.MovieRepository
@@ -79,6 +79,14 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     }
 
     private fun initLink() {
+        binding.tvCountries.setOnClickListener {
+            var s = binding.tvCountries.text
+            s = s.substring(s.indexOf(":") + 2)
+            if (s.contains(","))
+                showMenu(s)
+            else
+                openMap(s)
+        }
         binding.tvCrew.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.container, PeopleFragment.newInstance(crew))
@@ -89,6 +97,24 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 ?.replace(R.id.container, PeopleFragment.newInstance(cast))
                 ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
+    }
+
+    private fun showMenu(list: String) {
+        val menu = PopupMenu(requireContext(), binding.tvCountries)
+        list.split(",").forEach {
+            menu.menu.add(it.trimStart())
+        }
+        menu.setOnMenuItemClickListener {
+            openMap(it.title.toString())
+            return@setOnMenuItemClickListener true
+        }
+        menu.show()
+    }
+
+    private fun openMap(country: String) {
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.replace(R.id.container, MapsFragment.newInstance(country))
+            ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
     }
 
     override fun onBackPressed(): Boolean {
