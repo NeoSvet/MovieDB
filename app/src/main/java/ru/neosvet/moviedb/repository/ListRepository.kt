@@ -35,24 +35,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
         return n
     }
 
-    fun addCatalog(name: String, desc: String?, list: List<Item>): CatalogEntity? {
-        if (list.size == 0)
-            return null
-        val new_list = parseList(list)
-        val ids = StringBuilder()
-        new_list.forEach {
-            cache.addMovie(it)
-            ids.append(",")
-            ids.append(it.id)
-        }
-        ids.delete(0, 1)
-        val d = if (desc?.length == 0) null else desc
-        val catalog = CatalogEntity(name, DateUtils.getNow(), d ?: name, ids.toString())
-        cache.addCatalog(catalog)
-        return catalog
-    }
-
-    fun getCatalog(name: String, mode: Mode) {
+    fun requestCatalog(name: String, mode: Mode) {
         var needLoad = true
         if (mode != Mode.ONLY_LOAD) {
             val catalog = cache.getCatalog(name)
@@ -100,6 +83,23 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
             e.printStackTrace()
             callbacks.onFailure(e)
         }
+    }
+
+    private fun addCatalog(name: String, desc: String?, list: List<Item>): CatalogEntity? {
+        if (list.size == 0)
+            return null
+        val new_list = parseList(list)
+        val ids = StringBuilder()
+        new_list.forEach {
+            cache.addMovie(it)
+            ids.append(",")
+            ids.append(it.id)
+        }
+        ids.delete(0, 1)
+        val d = if (desc?.length == 0) null else desc
+        val catalog = CatalogEntity(name, DateUtils.getNow(), d ?: name, ids.toString())
+        cache.addCatalog(catalog)
+        return catalog
     }
 
     private fun parseList(list: List<Item>): ArrayList<MovieEntity> {

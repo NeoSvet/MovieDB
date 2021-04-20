@@ -26,26 +26,26 @@ class ListModel : ViewModel(), ListRepoCallbacks {
     fun loadList(list_id: Int, isReload: Boolean, adult: Boolean) {
         state.value = ListState.Loading
         this.adult = adult
-        repository.getCatalog(list_id.toString(), getLoadMode(isReload))
+        repository.requestCatalog(list_id.toString(), getLoadMode(isReload))
     }
 
     fun loadUpcoming(isReload: Boolean, adult: Boolean) {
         state.value = ListState.Loading
         this.adult = adult
-        repository.getCatalog(UPCOMING, getLoadMode(isReload))
+        repository.requestCatalog(UPCOMING, getLoadMode(isReload))
     }
 
     fun loadPopular(isReload: Boolean, adult: Boolean) {
         state.value = ListState.Loading
         this.adult = adult
-        repository.getCatalog(POPULAR, getLoadMode(isReload))
+        repository.requestCatalog(POPULAR, getLoadMode(isReload))
 
     }
 
     fun loadTopRated(isReload: Boolean, adult: Boolean) {
         state.value = ListState.Loading
         this.adult = adult
-        repository.getCatalog(TOP_RATED, getLoadMode(isReload))
+        repository.requestCatalog(TOP_RATED, getLoadMode(isReload))
     }
 
     private fun getLoadMode(reload: Boolean): ListRepository.Mode {
@@ -68,7 +68,7 @@ class ListModel : ViewModel(), ListRepoCallbacks {
     }
 
     fun lastSearch(page: Int) {
-        repository.getCatalog(SEARCH + page, ListRepository.Mode.ONLY_CACHE)
+        repository.requestCatalog(SEARCH + page, ListRepository.Mode.ONLY_CACHE)
     }
 
 //OVERRIDE
