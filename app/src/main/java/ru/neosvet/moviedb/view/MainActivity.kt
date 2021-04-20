@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(getLayoutInflater())
         setContentView(binding.getRoot())
 
-        registerReceiver(recConnect, IntentFilter(CONNECTIVITY_ACTION));
+        registerReceiver(recConnect, IntentFilter(CONNECTIVITY_ACTION))
         if (savedInstanceState == null) {
             openList(false)
         }

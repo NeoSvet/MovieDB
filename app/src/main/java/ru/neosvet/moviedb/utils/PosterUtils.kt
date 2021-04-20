@@ -12,14 +12,14 @@ object PosterUtils {
         Picasso.get()
             .load(BASE_URL + url)
             .placeholder(R.drawable.no_poster)
-            .into(target);
+            .into(target)
     }
 
     fun loadBig(url: String, target: ImageView) {
         Picasso.get()
             .load(BASE_URL_BIG + url)
             .placeholder(R.drawable.no_poster)
-            .into(target);
+            .into(target)
     }
 
     fun cancel(target: ImageView) {

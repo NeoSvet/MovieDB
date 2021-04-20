@@ -45,7 +45,7 @@ class GetterPhones : IntentService("GetterPhones") {
             val type = cursor.getInt(cursor.getColumnIndex(Phone.TYPE))
             if (type == Phone.TYPE_MOBILE) {
                 phone = cursor.getString(cursor.getColumnIndex(Phone.NUMBER))
-                break;
+                break
             }
         }
         cursor.close()
