@@ -51,13 +51,7 @@ class ListModel : ViewModel(), ListRepoCallbacks {
     fun search(query: String, page: Int, adult: Boolean) {
         state.value = ListState.Loading
         this.adult = adult
-        try {
-            repository.clearCatalog(SEARCH + page)
-            repository.search(query, page, adult)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            state.postValue(ListState.Error(e))
-        }
+        repository.requestSearch(query, page, adult)
     }
 
     fun lastSearch(page: Int) {

@@ -63,8 +63,13 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
         cache.clearCatalog(name)
     }
 
-    fun search(query: String, page: Int, adult: Boolean) {
-        source.search(query, page, adult, callBackPage)
+    fun requestSearch(query: String, page: Int, adult: Boolean) {
+        if (ConnectUtils.CONNECTED == true) {
+            clearCatalog(ListModel.SEARCH + page)
+            source.search(query, page, adult, callBackPage)
+        } else {
+            callbacks.onFailure(NoConnectionExc())
+        }
     }
 
     fun getMoviesList(movie_ids: String, adult: Boolean): List<MovieEntity> {
