@@ -53,6 +53,11 @@ class PersonFragment : Fragment(), Observer<PersonState> {
             personId = it.getInt(ARG_ID)
             loadPerson()
         }
+        binding.tvPlace.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, MapsFragment.newInstance(binding.tvPlace.text.toString()))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+        }
     }
 
     override fun onResume() {
