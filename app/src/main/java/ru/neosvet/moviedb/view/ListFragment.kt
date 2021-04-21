@@ -217,8 +217,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<ListState> {
                     loadNextList()
             }
             is ListState.Loading -> {
-                main.getStatusView().visibility = View.VISIBLE
-                main.hideError()
+                main.startLoad()
             }
             is ListState.Error -> {
                 finishLoad()
@@ -241,7 +240,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<ListState> {
     }
 
     private fun finishLoad() {
-        main.getStatusView().visibility = View.GONE
+        main.finishLoad()
         model.getState().value = ListState.Finished
         isRefresh = false
     }

@@ -83,15 +83,14 @@ class PersonFragment : Fragment(), Observer<PersonState> {
     override fun onChanged(state: PersonState) {
         when (state) {
             is PersonState.Success -> {
-                main.getStatusView().visibility = View.GONE
+                main.finishLoad()
                 showPerson(state.person)
             }
             is PersonState.Loading -> {
-                main.getStatusView().visibility = View.VISIBLE
-                main.hideError()
+                main.startLoad()
             }
             is PersonState.Error -> {
-                main.getStatusView().visibility = View.GONE
+                main.finishLoad()
                 val message: String?
                 if (state.error is MyException)
                     message = state.error.getTranslate(requireContext())

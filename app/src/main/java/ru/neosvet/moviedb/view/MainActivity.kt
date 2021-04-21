@@ -22,8 +22,6 @@ class MainActivity : AppCompatActivity() {
     private val recConnect = ConnectUtils()
     private var snackbar: Snackbar? = null
 
-    fun getStatusView() = binding.tvStatus
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(getLayoutInflater())
@@ -107,6 +105,15 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(recConnect)
+    }
+
+    fun startLoad() {
+        binding.tvStatus.visibility = View.VISIBLE
+        hideError()
+    }
+
+    fun finishLoad() {
+        binding.tvStatus.visibility = View.GONE
     }
 
     fun showError(

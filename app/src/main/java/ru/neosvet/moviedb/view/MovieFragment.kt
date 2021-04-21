@@ -209,10 +209,10 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 showDetails(state.details)
             }
             is MovieState.Loading -> {
-                main.getStatusView().visibility = View.VISIBLE
-                main.hideError()
+                main.startLoad()
             }
             is MovieState.Error -> {
+                main.finishLoad()
                 val message: String?
                 if (state.error is MyException)
                     message = state.error.getTranslate(requireContext())
@@ -250,7 +250,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             crew = details.crew.split(MovieRepository.SEPARATOR)
             tvCrew.text = getString(R.string.crew) + limitedArray(crew)
         }
-        main.getStatusView().visibility = View.GONE
+        main.finishLoad()
         model.getState().value = MovieState.Finished
     }
 
