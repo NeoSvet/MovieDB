@@ -128,7 +128,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
                     original = getOriginal(it.original_title, it.original_language),
                     description = it.overview ?: "",
                     genre_ids = genre_ids.toString(),
-                    date = formatDate(it.release_date),
+                    date = DateUtils.format(it.release_date),
                     poster = it.poster_path ?: "",
                     vote = it.vote_average ?: 0f,
                     adult = it.adult
@@ -141,16 +141,6 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
     }
 
     private fun containsGenre(id: Int) = cache.containsGenre(id)
-
-    private fun formatDate(date: String?): String {
-        date?.let {
-            val m = it.split("-")
-            if (m.size != 3)
-                return it
-            return "${m[2]}.${m[1]}.${m[0]}"
-        }
-        return ""
-    }
 
     private fun loadGenres(list: ArrayList<Int>) {
         Thread {

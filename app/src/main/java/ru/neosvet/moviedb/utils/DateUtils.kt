@@ -6,5 +6,14 @@ object DateUtils {
     fun olderThenDay(time: Long): Boolean {
         return getNow() - time > DAY_IN_MILLS
     }
+    fun format(date: String?): String {
+        date?.let {
+            val m = it.split("-")
+            if (m.size != 3)
+                return it
+            return "${m[2]}.${m[1]}.${m[0]}"
+        }
+        return ""
+    }
 }
 
