@@ -10,28 +10,30 @@ import ru.neosvet.moviedb.R
 import java.util.*
 
 data class Person(
+    val id: Int,
     val name: String,
     val des: String
 )
 
-class PeopleAdapter(val context: Context) :
+class PeopleAdapter(val context: Context, val callbacks: PersonCallbacks) :
     RecyclerView.Adapter<PeopleAdapter.Holder>() {
 
 //BASE:
 
     private val people = ArrayList<Person>()
 
-    fun addPerson(name: String) {
+    fun addPerson(id: Int, name: String) {
         if (name.contains(" (")) {
             val i = name.indexOf(" (")
             people.add(
                 Person(
+                    id,
                     name.substring(0, i),
                     name.substring(i + 2, name.length - 1)
                 )
             )
         } else
-            people.add(Person(name, ""))
+            people.add(Person(id, name, ""))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -41,7 +43,7 @@ class PeopleAdapter(val context: Context) :
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.setItem(people[position])
+        holder.setItem(people[position], callbacks)
     }
 
     override fun getItemCount() = people.size
@@ -52,9 +54,18 @@ class PeopleAdapter(val context: Context) :
         private val tvName: MaterialTextView = itemView.findViewById(R.id.tvName)
         private val tvDes: MaterialTextView = itemView.findViewById(R.id.tvPhone)
 
-        fun setItem(item: Person) {
+        fun setItem(item: Person, callbacks: PersonCallbacks) {
             tvName.text = item.name
             tvDes.text = item.des
+
+            itemView.setOnClickListener {
+                callbacks.onPersonClicked(item.id)
+            }
         }
     }
+}
+
+//CALLBACKS
+interface PersonCallbacks {
+    fun onPersonClicked(id: Int)
 }

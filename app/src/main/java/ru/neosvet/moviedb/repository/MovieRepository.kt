@@ -95,34 +95,47 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
             val credits: Credits? = response.body()
 
             if (response.isSuccessful && credits != null) {
-                val s = StringBuilder()
+                val names = StringBuilder()
+                val ids = StringBuilder()
+
                 credits.cast?.forEach {
-                    s.append(SEPARATOR)
-                    s.append(it.name)
+                    names.append(SEPARATOR)
+                    names.append(it.name)
+                    ids.append(SEPARATOR)
+                    ids.append(it.id)
                     it.character?.run {
-                        s.append(" (")
-                        s.append(this)
-                        s.append(")")
+                        names.append(" (")
+                        names.append(this)
+                        names.append(")")
                     }
                 }
-                if (s.length > 0) {
-                    s.delete(0, 1)
-                    details.cast = s.toString()
-                    s.clear()
+                if (names.length > 0) {
+                    names.delete(0, 1)
+                    details.cast = names.toString()
+                    names.clear()
+                    ids.delete(0, 1)
+                    details.cast_ids = ids.toString()
+                    ids.clear()
                 }
+
                 credits.crew?.forEach {
-                    s.append(SEPARATOR)
-                    s.append(it.name)
+                    names.append(SEPARATOR)
+                    names.append(it.name)
+                    ids.append(SEPARATOR)
+                    ids.append(it.id)
                     it.job?.run {
-                        s.append(" (")
-                        s.append(this)
-                        s.append(")")
+                        names.append(" (")
+                        names.append(this)
+                        names.append(")")
                     }
                 }
-                if (s.length > 0) {
-                    s.delete(0, 1)
-                    details.crew = s.toString()
+                if (names.length > 0) {
+                    names.delete(0, 1)
+                    details.crew = names.toString()
+                    ids.delete(0, 1)
+                    details.crew_ids = ids.toString()
                 }
+
                 cache.addDetails(details)
                 callbacks.onSuccessDetails(details)
             } else {

@@ -33,13 +33,15 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private var movieId: Int? = null
     private var movie: MovieEntity? = null
     private var _binding: FragmentMovieBinding? = null
+    private val binding get() = _binding!!
     private lateinit var itemEdit: MenuItem
     private lateinit var itemSave: MenuItem
     private lateinit var des: String
     private lateinit var note: String
+    private lateinit var cast_ids: List<String>
     private lateinit var cast: List<String>
+    private lateinit var crew_ids: List<String>
     private lateinit var crew: List<String>
-    private val binding get() = _binding!!
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }
@@ -89,12 +91,12 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         }
         binding.tvCrew.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.container, PeopleFragment.newInstance(crew))
+                ?.replace(R.id.container, PeopleFragment.newInstance(crew_ids, crew))
                 ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
         binding.tvCast.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.container, PeopleFragment.newInstance(cast))
+                ?.replace(R.id.container, PeopleFragment.newInstance(cast_ids, cast))
                 ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
     }
@@ -242,8 +244,10 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private fun showDetails(details: DetailsEntity) {
         with(binding) {
             tvCountries.text = getString(R.string.countries) + details.countries
+            cast_ids = details.cast_ids.split(MovieRepository.SEPARATOR)
             cast = details.cast.split(MovieRepository.SEPARATOR)
             tvCast.text = getString(R.string.cast) + limitedArray(cast)
+            crew_ids = details.crew_ids.split(MovieRepository.SEPARATOR)
             crew = details.crew.split(MovieRepository.SEPARATOR)
             tvCrew.text = getString(R.string.crew) + limitedArray(crew)
         }
