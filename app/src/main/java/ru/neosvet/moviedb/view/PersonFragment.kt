@@ -14,7 +14,6 @@ import ru.neosvet.moviedb.model.PersonState
 import ru.neosvet.moviedb.repository.room.PersonEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.PosterUtils
-import ru.neosvet.moviedb.view.extension.showError
 
 class PersonFragment : Fragment(), Observer<PersonState> {
     companion object {
@@ -35,9 +34,8 @@ class PersonFragment : Fragment(), Observer<PersonState> {
     private val model: PersonModel by lazy {
         ViewModelProvider(this).get(PersonModel::class.java)
     }
-    private val statusView: View by lazy {
-        val main = requireActivity() as MainActivity
-        main.getStatusView()
+    private val main: MainActivity by lazy {
+        requireActivity() as MainActivity
     }
 
     override fun onCreateView(
@@ -85,20 +83,21 @@ class PersonFragment : Fragment(), Observer<PersonState> {
     override fun onChanged(state: PersonState) {
         when (state) {
             is PersonState.Success -> {
-                statusView.visibility = View.GONE
+                main.getStatusView().visibility = View.GONE
                 showPerson(state.person)
             }
             is PersonState.Loading -> {
-                statusView.visibility = View.VISIBLE
+                main.getStatusView().visibility = View.VISIBLE
+                main.hideError()
             }
             is PersonState.Error -> {
-                statusView.visibility = View.GONE
+                main.getStatusView().visibility = View.GONE
                 val message: String?
                 if (state.error is MyException)
                     message = state.error.getTranslate(requireContext())
                 else
                     message = state.error.message
-                binding.tvName.showError(message,
+                main.showError(message,
                     getString(R.string.repeat), { loadPerson() })
             }
         }

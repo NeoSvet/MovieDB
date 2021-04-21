@@ -16,7 +16,6 @@ import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.PosterUtils
 import ru.neosvet.moviedb.view.extension.OnBackFragment
 import ru.neosvet.moviedb.view.extension.hideKeyboard
-import ru.neosvet.moviedb.view.extension.showError
 import ru.neosvet.moviedb.view.extension.showKeyboard
 
 class MovieFragment : OnBackFragment(), Observer<MovieState> {
@@ -45,9 +44,8 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }
-    private val statusView: View by lazy {
-        val main = requireActivity() as MainActivity
-        main.getStatusView()
+    private val main: MainActivity by lazy {
+        requireActivity() as MainActivity
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -211,7 +209,8 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 showDetails(state.details)
             }
             is MovieState.Loading -> {
-                statusView.visibility = View.VISIBLE
+                main.getStatusView().visibility = View.VISIBLE
+                main.hideError()
             }
             is MovieState.Error -> {
                 val message: String?
@@ -219,7 +218,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                     message = state.error.getTranslate(requireContext())
                 else
                     message = state.error.message
-                binding.tvTitle.showError(message,
+                main.showError(message,
                     getString(R.string.repeat), { loadDetails() })
             }
         }
@@ -251,7 +250,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             crew = details.crew.split(MovieRepository.SEPARATOR)
             tvCrew.text = getString(R.string.crew) + limitedArray(crew)
         }
-        statusView.visibility = View.GONE
+        main.getStatusView().visibility = View.GONE
         model.getState().value = MovieState.Finished
     }
 

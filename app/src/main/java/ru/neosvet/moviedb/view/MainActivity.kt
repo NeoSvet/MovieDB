@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
+import com.google.android.material.snackbar.Snackbar
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.ActivityMainBinding
 import ru.neosvet.moviedb.utils.ConnectUtils
@@ -19,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     private val TAG_LIST = "list"
     private lateinit var binding: ActivityMainBinding
     private val recConnect = ConnectUtils()
+    private var snackbar: Snackbar? = null
 
     fun getStatusView() = binding.tvStatus
 
@@ -40,6 +42,10 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         if (binding.ivBigPoster.visibility == View.VISIBLE) {
             binding.ivBigPoster.visibility = View.GONE
+            return
+        }
+        if (snackbar != null) {
+            hideError()
             return
         }
         supportFragmentManager.fragments.forEach {
@@ -101,5 +107,26 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(recConnect)
+    }
+
+    fun showError(
+        message: String?,
+        titleAction: String?,
+        eventAction: View.OnClickListener?
+    ) {
+        val msg = message?.let {
+            ": " + it
+        } ?: ""
+        snackbar = Snackbar.make(
+            binding.panelButtons,
+            getString(R.string.error) + msg,
+            Snackbar.LENGTH_INDEFINITE
+        ).setAction(titleAction, eventAction)
+        snackbar?.show()
+    }
+
+    fun hideError() {
+        snackbar?.dismiss()
+        snackbar = null
     }
 }
