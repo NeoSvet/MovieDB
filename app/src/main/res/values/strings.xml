@@ -34,4 +34,6 @@
     <string name="countries">Страны:&#160;</string>
     <string name="cast">Актёры:&#160;</string>
     <string name="crew">Команда:&#160;</string>
+    <string name="birthday">Дата рождения:&#160;</string>
+    <string name="deathday">Дата смерти:&#160;</string>
 </resources>

@@ -73,3 +73,15 @@ interface CatalogDao {
     @Query("DELETE FROM CatalogEntity WHERE name=:name")
     fun delete(name: String)
 }
+
+@Dao
+interface PeopleDao {
+    @Query("SELECT * FROM PersonEntity WHERE id=:id")
+    fun get(id: Int): PersonEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun add(entity: PersonEntity)
+
+    @Delete
+    fun delete(entity: PersonEntity)
+}

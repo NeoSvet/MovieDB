@@ -1,32 +1,43 @@
 package ru.neosvet.moviedb.view
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.list.PeopleAdapter
+import ru.neosvet.moviedb.list.PersonCallbacks
 
-class PeopleFragment : Fragment() {
+class PeopleFragment : Fragment(), PersonCallbacks {
     companion object {
+        private val ARG_IDS = "ids"
         private val ARG_PEOPLE = "people"
-        fun newInstance(people: List<String>) =
+        fun newInstance(ids: List<String>, people: List<String>) =
             PeopleFragment().apply {
                 arguments = Bundle().apply {
+                    putStringArray(ARG_IDS, ids.toTypedArray())
                     putStringArray(ARG_PEOPLE, people.toTypedArray())
                 }
             }
     }
 
-    private var people: Array<String>? = null
+    private var ids: Array<String> = arrayOf("")
+    private var people: Array<String> = arrayOf("")
     private val adapter: PeopleAdapter by lazy {
-        PeopleAdapter(requireContext())
+        PeopleAdapter(requireContext(), this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.getStringArray(ARG_PEOPLE)?.let {
-            people = it
+        arguments?.run {
+            getStringArray(ARG_IDS)?.let {
+                ids = it
+            }
+            getStringArray(ARG_PEOPLE)?.let {
+                people = it
+            }
         }
     }
 
@@ -45,9 +56,15 @@ class PeopleFragment : Fragment() {
     }
 
     private fun initList() {
-        people?.forEach {
-            adapter.addPerson(it)
+        for (i in people.indices) {
+            adapter.addPerson(ids[i].toInt(), people[i])
         }
         adapter.notifyDataSetChanged()
+    }
+
+    override fun onPersonClicked(id: Int) {
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.replace(R.id.container, PersonFragment.newInstance(id))
+            ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
     }
 }

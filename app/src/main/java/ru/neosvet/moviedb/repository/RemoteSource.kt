@@ -10,7 +10,6 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.neosvet.moviedb.app.API_KEY
-import ru.neosvet.moviedb.repository.room.DetailsEntity
 
 class RemoteSource {
     val LANG = "ru-RU"
@@ -53,6 +52,10 @@ class RemoteSource {
         //retrofitApi.getCredits(movie_id, API_KEY, LANG).enqueue(callback)
     }
 
+    fun getPerson(person_id: Int, callback: Callback<Person>) {
+        retrofitApi.getPerson(person_id, API_KEY, LANG).enqueue(callback)
+    }
+
     fun getGenre(id: Int, callback: Callback<Genre>) {
         val call: Call<Genre> = retrofitApi.getGenre(id, API_KEY, LANG)
         try {
@@ -75,6 +78,13 @@ class RemoteSource {
 }
 
 interface ApiRetrofit {
+    @GET("person/{ID}")
+    fun getPerson(
+        @Path("ID") person_id: Int,
+        @Query("api_key") api_key: String,
+        @Query("language") lang: String
+    ): Call<Person>
+
     @GET("movie/{ID}")
     fun getDetails(
         @Path("ID") movie_id: Int,

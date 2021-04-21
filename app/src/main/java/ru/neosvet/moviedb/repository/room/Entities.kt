@@ -30,8 +30,24 @@ data class DetailsEntity(
     @PrimaryKey
     val id: Int = -1,
     var countries: String = "",
+    var cast_ids: String = "",
     var cast: String = "",
+    var crew_ids: String = "",
     var crew: String = ""
+)
+
+@Entity
+data class PersonEntity(
+    @PrimaryKey
+    val id: Int = -1,
+    val name: String = "",
+    val birthday: String = "",
+    val deathday: String = "",
+    val gender: Int = 0,
+    val biography: String = "",
+    val photo: String = "",
+    val popularity: Float = 0f,
+    val place_of_birth: String = ""
 )
 
 @Entity
