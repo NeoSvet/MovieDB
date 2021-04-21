@@ -230,7 +230,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         with(binding) {
             PosterUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
-            tvDate.text = getString(R.string.release_date) + item.date
+            tvDate.text = getString(R.string.release_date) + " " + item.date
             tvOriginal.text = item.original
             tvGenres.text = model.genresToString(item.genre_ids)
             des = item.description
