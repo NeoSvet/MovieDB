@@ -56,6 +56,10 @@ class RemoteSource {
         retrofitApi.getPerson(person_id, API_KEY, LANG).enqueue(callback)
     }
 
+    fun getPersonEn(person_id: Int, callback: Callback<Person>) {
+        retrofitApi.getPerson(person_id, API_KEY, "en-US").enqueue(callback)
+    }
+
     fun getGenre(id: Int, callback: Callback<Genre>) {
         val call: Call<Genre> = retrofitApi.getGenre(id, API_KEY, LANG)
         try {

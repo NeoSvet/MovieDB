@@ -31,6 +31,14 @@ class PeopleRepository(val callbacks: PersonRepoCallbacks) {
             val person: Person? = response.body()
 
             if (response.isSuccessful && person != null) {
+                if ((person.biography == null || person.biography.length == 0) &&
+                    call.request().url().toString().contains("ru-RU")
+                ) {
+                    person.id?.let {
+                        source.getPersonEn(it, this)
+                    }
+                    return
+                }
                 val personEntity = PersonEntity(
                     id = person.id ?: -1,
                     name = person.name ?: "",
