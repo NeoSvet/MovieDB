@@ -15,7 +15,12 @@ class PersonModel : ViewModel(), PersonRepoCallbacks {
 
     fun loadPerson(id: Int) {
         state.value = PersonState.Loading
-        repository.requestPerson(id)
+        repository.requestPerson(id, false)
+    }
+
+    fun reloadPerson(id: Int) {
+        state.value = PersonState.Loading
+        repository.requestPerson(id, true)
     }
 
     override fun onSuccess(person: PersonEntity) {

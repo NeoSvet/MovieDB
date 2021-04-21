@@ -1,9 +1,8 @@
 package ru.neosvet.moviedb.view
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -42,6 +41,7 @@ class PersonFragment : Fragment(), Observer<PersonState> {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         _binding = FragmentPersonBinding.inflate(inflater, container, false)
         return binding.getRoot()
     }
@@ -72,6 +72,20 @@ class PersonFragment : Fragment(), Observer<PersonState> {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        val item = menu.add(R.string.refresh)
+        item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_refresh_24)
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        personId?.let {
+            model.reloadPerson(it)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun loadPerson() {

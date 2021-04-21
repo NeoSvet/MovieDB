@@ -12,7 +12,11 @@ class PeopleRepository(val callbacks: PersonRepoCallbacks) {
     private val source = RemoteSource()
     private val base = App.getPeopleBase()
 
-    fun requestPerson(id: Int) {
+    fun requestPerson(id: Int, isRefresh: Boolean) {
+        if (isRefresh) {
+            source.getPerson(id, callBackPerson)
+            return
+        }
         val person = base.peopleDao().get(id)
         if (person == null)
             source.getPerson(id, callBackPerson)
