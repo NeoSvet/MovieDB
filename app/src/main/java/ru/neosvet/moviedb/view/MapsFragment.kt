@@ -47,6 +47,7 @@ class MapsFragment : Fragment() {
 
     private val onMapReady = OnMapReadyCallback { googleMap ->
         map = googleMap
+        map.uiSettings.isZoomControlsEnabled = true
         arguments?.getString(ARG_QUERY)?.let {
             showPlace(it)
         }
