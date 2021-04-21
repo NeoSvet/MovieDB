@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="StatusPanel">
-        <item name="android:background">?attr/colorPrimary</item>
+    <style name="StatusText">
         <item name="android:gravity">center</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">20sp</item>

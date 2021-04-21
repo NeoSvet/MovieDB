@@ -108,12 +108,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun startLoad() {
-        binding.tvStatus.visibility = View.VISIBLE
+        binding.pStatus.visibility = View.VISIBLE
         hideError()
     }
 
     fun finishLoad() {
-        binding.tvStatus.visibility = View.GONE
+        binding.pStatus.visibility = View.GONE
     }
 
     fun showError(

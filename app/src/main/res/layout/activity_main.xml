@@ -85,16 +85,32 @@
         </LinearLayout>
     </LinearLayout>
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvStatus"
-        style="@style/StatusPanel"
+    <LinearLayout
+        android:id="@+id/pStatus"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:text="@string/load"
+        android:background="?attr/colorPrimary"
+        android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/panelButtons" />
+        app:layout_constraintTop_toTopOf="@id/panelButtons">
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/StatusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_margin"
+            android:layout_marginBottom="5dp"
+            android:text="@string/load" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:indicatorColor="?attr/colorSecondaryVariant"
+            app:trackColor="?attr/colorOnSecondary" />
+    </LinearLayout>
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivBigPoster"
