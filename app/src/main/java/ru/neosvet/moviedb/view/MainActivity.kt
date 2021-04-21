@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
             hideError()
             return
         }
+        if (binding.pStatus.visibility == View.VISIBLE)
+            return
         supportFragmentManager.fragments.forEach {
             if (it.isVisible && it is OnBackFragment) {
                 if (!it.onBackPressed())
