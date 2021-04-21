@@ -10,7 +10,10 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import ru.neosvet.moviedb.R
 import java.io.IOException
 
@@ -62,7 +65,7 @@ class MapsFragment : Fragment() {
                     addresses[0].longitude
                 )
                 view?.post {
-                    // setMarker(location, place, R.drawable.ic_map_marker)
+                    addMarker(location, place)
                     map.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(location, 5f)
                     )
@@ -71,5 +74,14 @@ class MapsFragment : Fragment() {
                 e.printStackTrace()
             }
         }.start()
+    }
+
+    private fun addMarker(location: LatLng, title: String): Marker {
+        return map.addMarker(
+            MarkerOptions()
+                .position(location)
+                .title(title)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
+        )
     }
 }
