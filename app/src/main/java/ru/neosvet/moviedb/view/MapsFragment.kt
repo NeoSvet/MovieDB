@@ -12,21 +12,21 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import ru.neosvet.moviedb.R
-import ru.neosvet.moviedb.databinding.FragmentMapsBinding
 import java.io.IOException
 
 class MapsFragment : Fragment() {
     companion object {
+        private val ARG_QUERY = "query"
+
         @JvmStatic
-        fun newInstance(country: String) =
+        fun newInstance(query: String) =
             MapsFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_COUNTRY, country)
+                    putString(ARG_QUERY, query)
                 }
             }
     }
 
-    private val ARG_COUNTRY = "country"
     private lateinit var map: GoogleMap
 
     override fun onCreateView(
@@ -44,16 +44,16 @@ class MapsFragment : Fragment() {
 
     private val onMapReady = OnMapReadyCallback { googleMap ->
         map = googleMap
-        arguments?.getString(ARG_COUNTRY)?.let {
-            showCountry(it)
+        arguments?.getString(ARG_QUERY)?.let {
+            showPlace(it)
         }
     }
 
-    private fun showCountry(country: String) {
+    private fun showPlace(place: String) {
         Thread {
             try {
                 val geoCoder = Geocoder(requireContext())
-                val addresses = geoCoder.getFromLocationName(country, 1)
+                val addresses = geoCoder.getFromLocationName(place, 1)
                 if (addresses.size == 0)
                     return@Thread
 
@@ -62,7 +62,7 @@ class MapsFragment : Fragment() {
                     addresses[0].longitude
                 )
                 view?.post {
-                    // setMarker(location, country, R.drawable.ic_map_marker)
+                    // setMarker(location, place, R.drawable.ic_map_marker)
                     map.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(location, 5f)
                     )
