@@ -63,7 +63,7 @@ class LocalSource {
 
     private fun convertStrToList(ids: String): List<Int> {
         val list = ArrayList<Int>()
-        if (ids.length == 0)
+        if (ids.isEmpty())
             return list
         val m = ids.split(",")
         m.forEach { list.add(it.toInt()) }

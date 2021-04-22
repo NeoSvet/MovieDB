@@ -122,7 +122,7 @@ class PersonFragment : Fragment(), Observer<PersonState> {
 
     private fun showPerson(person: PersonEntity) {
         with(binding) {
-            if (person.photo.length > 0) {
+            if (person.photo.isNotEmpty()) {
                 photo = person.photo
                 ImageUtils.load(person.photo, ivPhoto)
             }
@@ -135,11 +135,11 @@ class PersonFragment : Fragment(), Observer<PersonState> {
     }
 
     private fun getDates(birthday: String, deathday: String): String {
-        if (birthday.length > 0) {
+        if (birthday.isNotEmpty()) {
             val s = StringBuilder()
             s.append(getString(R.string.birthday))
             s.append(birthday)
-            if (deathday.length > 0) {
+            if (deathday.isNotEmpty()) {
                 s.appendLine()
                 s.append(getString(R.string.deathday))
                 s.append(deathday)

@@ -94,7 +94,7 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
                     s.append(", ")
                     s.append(it.name)
                 }
-                if (s.length > 0) {
+                if (s.isNotEmpty()) {
                     s.delete(0, 2)
                     details.countries = s.toString()
                 }
@@ -128,7 +128,7 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
                         names.append(")")
                     }
                 }
-                if (names.length > 0) {
+                if (names.isNotEmpty()) {
                     names.delete(0, 1)
                     details.cast = names.toString()
                     names.clear()
@@ -148,7 +148,7 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
                         names.append(")")
                     }
                 }
-                if (names.length > 0) {
+                if (names.isNotEmpty()) {
                     names.delete(0, 1)
                     details.crew = names.toString()
                     ids.delete(0, 1)

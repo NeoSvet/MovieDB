@@ -229,14 +229,14 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         with(binding) {
             ImageUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
-            if (item.date.length > 0) {
+            if (item.date.isNotEmpty()) {
                 tvDate.text = getString(R.string.release_date) + " " + item.date
                 tvDate.visibility = View.VISIBLE
             }
             tvOriginal.text = item.original
             tvGenres.text = model.genresToString(item.genre_ids)
             des = item.description
-            if (des.length == 0)
+            if (des.isEmpty())
                 binding.tvTryLoadEn.visibility = View.VISIBLE
             else
                 binding.tvTryLoadEn.visibility = View.GONE
@@ -249,19 +249,19 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
 
     private fun showDetails(details: DetailsEntity) {
         with(binding) {
-            if (details.countries.length > 0) {
+            if (details.countries.isNotEmpty()) {
                 tvCountries.text = getString(R.string.countries) + details.countries
                 tvCountries.visibility = View.VISIBLE
             }
             cast_ids = details.cast_ids.split(MovieRepository.SEPARATOR)
             cast = details.cast.split(MovieRepository.SEPARATOR)
-            if (cast[0].length > 0) {
+            if (cast[0].isNotEmpty()) {
                 tvCast.text = getString(R.string.cast) + limitedArray(cast)
                 tvCast.visibility = View.VISIBLE
             }
             crew_ids = details.crew_ids.split(MovieRepository.SEPARATOR)
             crew = details.crew.split(MovieRepository.SEPARATOR)
-            if (crew[0].length > 0) {
+            if (crew[0].isNotEmpty()) {
                 tvCrew.text = getString(R.string.crew) + limitedArray(crew)
                 tvCrew.visibility = View.VISIBLE
             }
@@ -278,7 +278,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             s.append(", ")
             s.append(array[n])
         }
-        if (s.length > 0) {
+        if (s.isNotEmpty()) {
             s.delete(0, 2)
             return s.toString()
         }
@@ -286,7 +286,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     }
 
     private fun showDes() {
-        if (note.length == 0)
+        if (note.isEmpty())
             binding.tvDescription.text = des
         else {
             val s = StringBuilder(des)

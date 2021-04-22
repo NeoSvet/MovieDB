@@ -22,7 +22,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
     }
 
     fun getNewName(name: String?): String {
-        val n = if (name == null || name.length == 0) "Unnamed" else name
+        val n = if (name.isNullOrEmpty()) "Unnamed" else name
         if (cache.containsCatalog(n)) {
             var i = 1
             var t = n
@@ -101,7 +101,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
             ids.append(it.id)
         }
         ids.delete(0, 1)
-        val d = if (desc?.length == 0) null else desc
+        val d = if (desc.isNullOrEmpty()) null else desc
         val catalog = CatalogEntity(name, DateUtils.getNow(), d ?: name, ids.toString())
         cache.addCatalog(catalog)
         return catalog
