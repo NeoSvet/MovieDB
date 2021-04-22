@@ -190,7 +190,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     }
 
     private fun loadDetails() {
-        model.loadDetails(movieId)
+        movieId?.let { model.loadDetails(it) }
     }
 
     override fun onChanged(state: MovieState) {

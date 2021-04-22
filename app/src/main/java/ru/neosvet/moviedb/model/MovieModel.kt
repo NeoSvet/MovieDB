@@ -14,9 +14,7 @@ class MovieModel : ViewModel(), MovieRepoCallbacks {
 
     fun getState() = state
 
-    fun loadDetails(id: Int?) {
-        if (id == null)
-            return
+    fun loadDetails(id: Int) {
         state.value = MovieState.Loading
         repository.requestMovie(id)
     }
