@@ -64,7 +64,7 @@
                     android:textSize="15sp"
                     android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/tvOriginal"
+                    app:layout_constraintStart_toStartOf="@id/tvTitle"
                     app:layout_constraintTop_toBottomOf="@id/tvCountries" />
 
                 <com.google.android.material.textview.MaterialTextView
@@ -73,8 +73,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/default_margin"
                     android:textSize="15sp"
+                    android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/tvDate"
+                    app:layout_constraintStart_toStartOf="@id/tvTitle"
                     app:layout_constraintTop_toBottomOf="@id/tvDate" />
 
                 <com.google.android.material.textview.MaterialTextView
@@ -84,7 +85,7 @@
                     android:layout_marginBottom="@dimen/default_margin"
                     android:text="@string/rating"
                     android:textSize="15sp"
-                    app:layout_constraintStart_toStartOf="@id/tvGenres"
+                    app:layout_constraintStart_toStartOf="@id/tvTitle"
                     app:layout_constraintTop_toBottomOf="@id/tvGenres" />
 
                 <ProgressBar

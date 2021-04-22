@@ -234,7 +234,10 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 tvDate.visibility = View.VISIBLE
             }
             tvOriginal.text = item.original
-            tvGenres.text = model.genresToString(item.genre_ids)
+            if (item.genre_ids.isNotEmpty()) {
+                tvGenres.text = model.genresToString(item.genre_ids)
+                tvGenres.visibility = View.VISIBLE
+            }
             des = item.description
             if (des.isEmpty())
                 binding.tvTryLoadEn.visibility = View.VISIBLE
