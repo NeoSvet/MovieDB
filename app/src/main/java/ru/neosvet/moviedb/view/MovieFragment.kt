@@ -81,20 +81,18 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             s = s.substring(s.indexOf(":") + 2)
             if (s.contains(","))
                 showMenu(s)
-            else if (s.length > 0)
+            else
                 openMap(s)
         }
         binding.tvCrew.setOnClickListener {
-            if (crew[0].length > 0)
-                activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(R.id.container, PeopleFragment.newInstance(crew_ids, crew))
-                    ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, PeopleFragment.newInstance(crew_ids, crew))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
         binding.tvCast.setOnClickListener {
-            if (cast[0].length > 0)
-                activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(R.id.container, PeopleFragment.newInstance(cast_ids, cast))
-                    ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, PeopleFragment.newInstance(cast_ids, cast))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
         binding.tvTryLoadEn.setOnClickListener {
             movieId?.let { model.loadDetailsEn(it) }
@@ -231,7 +229,10 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         with(binding) {
             ImageUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
-            tvDate.text = getString(R.string.release_date) + " " + item.date
+            if (item.date.length > 0) {
+                tvDate.text = getString(R.string.release_date) + " " + item.date
+                tvDate.visibility = View.VISIBLE
+            }
             tvOriginal.text = item.original
             tvGenres.text = model.genresToString(item.genre_ids)
             des = item.description
@@ -248,13 +249,22 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
 
     private fun showDetails(details: DetailsEntity) {
         with(binding) {
-            tvCountries.text = getString(R.string.countries) + details.countries
+            if (details.countries.length > 0) {
+                tvCountries.text = getString(R.string.countries) + details.countries
+                tvCountries.visibility = View.VISIBLE
+            }
             cast_ids = details.cast_ids.split(MovieRepository.SEPARATOR)
             cast = details.cast.split(MovieRepository.SEPARATOR)
-            tvCast.text = getString(R.string.cast) + limitedArray(cast)
+            if (cast[0].length > 0) {
+                tvCast.text = getString(R.string.cast) + limitedArray(cast)
+                tvCast.visibility = View.VISIBLE
+            }
             crew_ids = details.crew_ids.split(MovieRepository.SEPARATOR)
             crew = details.crew.split(MovieRepository.SEPARATOR)
-            tvCrew.text = getString(R.string.crew) + limitedArray(crew)
+            if (crew[0].length > 0) {
+                tvCrew.text = getString(R.string.crew) + limitedArray(crew)
+                tvCrew.visibility = View.VISIBLE
+            }
         }
         main.finishLoad()
         model.getState().value = MovieState.Finished

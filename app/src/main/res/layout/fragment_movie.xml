@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -53,6 +52,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/link"
                     android:textSize="15sp"
+                    android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/tvOriginal"
                     app:layout_constraintTop_toBottomOf="@id/tvOriginal" />
@@ -62,8 +62,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
+                    android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/tvCountries"
+                    app:layout_constraintStart_toStartOf="@id/tvOriginal"
                     app:layout_constraintTop_toBottomOf="@id/tvCountries" />
 
                 <com.google.android.material.textview.MaterialTextView
@@ -118,7 +119,8 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:textColor="@color/link"
-                android:textSize="15sp" />
+                android:textSize="15sp"
+                android:visibility="gone" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvCast"
@@ -128,7 +130,8 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:textColor="@color/link"
-                android:textSize="15sp" />
+                android:textSize="15sp"
+                android:visibility="gone" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvTryLoadEn"
