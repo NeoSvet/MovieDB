@@ -4,7 +4,7 @@
     android:layout_width="120dp"
     android:layout_height="280dp"
     android:layout_margin="@dimen/default_margin"
-    app:cardBackgroundColor="#e2dbcd"
+    app:cardBackgroundColor="@color/card"
     app:cardCornerRadius="10dp"
     app:cardElevation="8dp">
 
@@ -18,7 +18,7 @@
             android:layout_height="180dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/no_poster" />
+            app:srcCompat="@drawable/no_image" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvTitle"
