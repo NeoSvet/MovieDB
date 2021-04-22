@@ -38,6 +38,9 @@ class MainActivity : AppCompatActivity() {
         binding.pBigImage.setOnClickListener {
             binding.pBigImage.visibility = View.GONE
         }
+        binding.pStatus.setOnClickListener {
+            //for block buttons
+        }
     }
 
     override fun onBackPressed() {
