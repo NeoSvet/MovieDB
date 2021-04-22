@@ -122,9 +122,9 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
                     names.append(it.name)
                     ids.append(SEPARATOR)
                     ids.append(it.id)
-                    it.character?.run {
+                    if (!it.character.isNullOrEmpty()) {
                         names.append(" (")
-                        names.append(this)
+                        names.append(it.character)
                         names.append(")")
                     }
                 }
@@ -142,9 +142,9 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
                     names.append(it.name)
                     ids.append(SEPARATOR)
                     ids.append(it.id)
-                    it.job?.run {
+                    if (!it.job.isNullOrEmpty()) {
                         names.append(" (")
-                        names.append(this)
+                        names.append(it.job)
                         names.append(")")
                     }
                 }
