@@ -19,6 +19,11 @@ class MovieModel : ViewModel(), MovieRepoCallbacks {
         repository.requestMovie(id)
     }
 
+    fun loadDetailsEn(id: Int) {
+        state.value = MovieState.Loading
+        repository.requestMovieEn(id)
+    }
+
     fun genresToString(genre_ids: String): String {
         val list = repository.getGenreList(genre_ids)
         val s = StringBuilder()

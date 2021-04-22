@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit
 
 class RemoteSource {
     val LANG = "ru-RU"
+    val LANG_EN = "en-US"
 
     private val retrofitApi = Retrofit.Builder()
         .baseUrl("https://api.themoviedb.org/3/")
@@ -51,6 +52,16 @@ class RemoteSource {
         //retrofitApi.getDetails(movie_id, API_KEY, LANG).enqueue(callback)
     }
 
+    fun getDetailsEn(movie_id: Int, callback: Callback<Movie>) {
+        val call: Call<Movie> = retrofitApi.getDetails(movie_id, API_KEY, LANG_EN)
+        try {
+            callback.onResponse(call, call.execute())
+        } catch (e: Exception) {
+            callback.onFailure(call, e)
+        }
+        //retrofitApi.getDetails(movie_id, API_KEY, LANG_EN).enqueue(callback)
+    }
+
     fun getCredits(movie_id: Int, callback: Callback<Credits>) {
         val call: Call<Credits> = retrofitApi.getCredits(movie_id, API_KEY, LANG)
         try {
@@ -66,7 +77,7 @@ class RemoteSource {
     }
 
     fun getPersonEn(person_id: Int, callback: Callback<Person>) {
-        retrofitApi.getPerson(person_id, API_KEY, "en-US").enqueue(callback)
+        retrofitApi.getPerson(person_id, API_KEY, LANG_EN).enqueue(callback)
     }
 
     fun getGenre(id: Int, callback: Callback<Genre>) {

@@ -2,6 +2,7 @@ package ru.neosvet.moviedb.repository
 
 import ru.neosvet.moviedb.app.App
 import ru.neosvet.moviedb.repository.room.*
+import ru.neosvet.moviedb.utils.DateUtils
 
 class LocalSource {
     private val base = App.getBase()
@@ -15,6 +16,16 @@ class LocalSource {
 
     fun addMovie(item: MovieEntity) {
         base.movieDao().add(item)
+    }
+
+    fun updateMovieDes(id: Int, des: String): MovieEntity? {
+        val movie = getMovie(id)
+        if (movie == null)
+            return null
+        movie.updated = DateUtils.getNow()
+        movie.description = des
+        base.movieDao().update(movie)
+        return movie
     }
 
     fun addNote(id: Int, content: String) {

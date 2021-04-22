@@ -38,6 +38,18 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
         }.start()
     }
 
+    fun requestMovieEn(id: Int) {
+        Thread {
+            try {
+                details = DetailsEntity(id = id)
+                source.getDetailsEn(id, callBackDetails)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                callbacks.onFailure(e)
+            }
+        }.start()
+    }
+
     private fun loadDetails(id: Int) {
         details = DetailsEntity(id = id)
         source.getDetails(id, callBackDetails)
@@ -70,6 +82,13 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
             val movie: Movie? = response.body()
 
             if (response.isSuccessful && movie != null) {
+                if (call.request().url().toString().contains(source.LANG_EN)) {
+                    movie.id?.let {
+                        val m = cache.updateMovieDes(it, movie.overview ?: "")
+                        if (m != null)
+                            callbacks.onSuccessMovie(m)
+                    }
+                }
                 val s = StringBuilder()
                 movie.production_countries?.forEach {
                     s.append(", ")

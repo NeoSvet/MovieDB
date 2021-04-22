@@ -94,6 +94,9 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 ?.replace(R.id.container, PeopleFragment.newInstance(cast_ids, cast))
                 ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
+        binding.tvTryLoadEn.setOnClickListener {
+            movieId?.let { model.loadDetailsEn(it) }
+        }
     }
 
     private fun showMenu(list: String) {
@@ -230,6 +233,10 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             tvOriginal.text = item.original
             tvGenres.text = model.genresToString(item.genre_ids)
             des = item.description
+            if (des.length == 0)
+                binding.tvTryLoadEn.visibility = View.VISIBLE
+            else
+                binding.tvTryLoadEn.visibility = View.GONE
             note = model.getNote(item.id)
             showDes()
             barVote.progress = (item.vote * 10).toInt()

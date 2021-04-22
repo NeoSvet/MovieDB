@@ -127,6 +127,18 @@
                 app:layout_constraintTop_toBottomOf="@id/tvCrew" />
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvTryLoadEn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="@string/try_load_en"
+                android:textColor="@color/link"
+                android:textSize="16sp"
+                android:visibility="gone"
+                app:layout_constraintStart_toEndOf="@id/ivPoster"
+                app:layout_constraintTop_toBottomOf="@id/tvCast" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvDescription"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -134,7 +146,7 @@
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivPoster"
-                app:layout_constraintTop_toBottomOf="@id/tvCast" />
+                app:layout_constraintTop_toBottomOf="@id/tvTryLoadEn" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNote"
@@ -144,7 +156,7 @@
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivPoster"
-                app:layout_constraintTop_toBottomOf="@id/tvCast" />
+                app:layout_constraintTop_toBottomOf="@id/tvTryLoadEn" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 </LinearLayout>

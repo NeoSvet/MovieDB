@@ -36,4 +36,5 @@
     <string name="crew">Персонал:&#160;</string>
     <string name="birthday">Дата рождения:&#160;</string>
     <string name="deathday">Дата смерти:&#160;</string>
+    <string name="try_load_en">Попробовать загрузить описание на английском.</string>
 </resources>
