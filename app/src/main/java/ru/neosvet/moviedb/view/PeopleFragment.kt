@@ -52,7 +52,8 @@ class PeopleFragment : Fragment(), PersonCallbacks {
         super.onViewCreated(view, savedInstanceState)
         val rvPeople = view.findViewById<RecyclerView>(R.id.rvPeople)
         rvPeople.adapter = adapter
-        initList()
+        if (adapter.itemCount == 0)
+            initList()
     }
 
     private fun initList() {
