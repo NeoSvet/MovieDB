@@ -10,6 +10,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.neosvet.moviedb.app.API_KEY
+import java.util.concurrent.TimeUnit
 
 class RemoteSource {
     val LANG = "ru-RU"
@@ -23,6 +24,14 @@ class RemoteSource {
         )
         .client(createOkHttpClient())
         .build().create(ApiRetrofit::class.java)
+
+    private fun createOkHttpClient(): OkHttpClient {
+        val httpClient = OkHttpClient.Builder()
+        httpClient.connectTimeout(3, TimeUnit.SECONDS)
+        httpClient.readTimeout(3, TimeUnit.SECONDS)
+        httpClient.writeTimeout(3, TimeUnit.SECONDS)
+        return httpClient.build()
+    }
 
     fun getPage(url: String, callback: Callback<Page>) {
         retrofitApi.getPage(url, API_KEY, LANG).enqueue(callback)
@@ -73,11 +82,6 @@ class RemoteSource {
         retrofitApi.search(
             API_KEY, LANG, page, adult, query
         ).enqueue(callback)
-    }
-
-    private fun createOkHttpClient(): OkHttpClient {
-        val httpClient = OkHttpClient.Builder()
-        return httpClient.build()
     }
 }
 
