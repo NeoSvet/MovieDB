@@ -12,8 +12,8 @@ import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.repository.MovieRepository
 import ru.neosvet.moviedb.repository.room.DetailsEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
-import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.ImageUtils
+import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.view.extension.OnBackFragment
 import ru.neosvet.moviedb.view.extension.hideKeyboard
 import ru.neosvet.moviedb.view.extension.showKeyboard
@@ -81,18 +81,20 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             s = s.substring(s.indexOf(":") + 2)
             if (s.contains(","))
                 showMenu(s)
-            else
+            else if (s.length > 0)
                 openMap(s)
         }
         binding.tvCrew.setOnClickListener {
-            activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.container, PeopleFragment.newInstance(crew_ids, crew))
-                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+            if (crew[0].length > 0)
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, PeopleFragment.newInstance(crew_ids, crew))
+                    ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
         binding.tvCast.setOnClickListener {
-            activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.container, PeopleFragment.newInstance(cast_ids, cast))
-                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+            if (cast[0].length > 0)
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, PeopleFragment.newInstance(cast_ids, cast))
+                    ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
         binding.tvTryLoadEn.setOnClickListener {
             movieId?.let { model.loadDetailsEn(it) }
