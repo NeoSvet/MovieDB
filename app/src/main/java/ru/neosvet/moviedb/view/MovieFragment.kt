@@ -70,10 +70,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         initLink()
         binding.ivPoster.setOnClickListener {
             movie?.let {
-                val main = requireActivity() as MainActivity
-                val ivBigPoster = main.getBitPoster()
-                ivBigPoster.visibility = View.VISIBLE
-                model.loadBigPoster(it.poster, ivBigPoster)
+                main.loadBigPoster(it.poster)
             }
         }
     }

@@ -1,15 +1,18 @@
 package ru.neosvet.moviedb.view
 
+import android.animation.ValueAnimator
 import android.content.IntentFilter
 import android.net.ConnectivityManager.CONNECTIVITY_ACTION
 import android.os.Bundle
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.snackbar.Snackbar
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.ActivityMainBinding
 import ru.neosvet.moviedb.utils.ConnectUtils
+import ru.neosvet.moviedb.utils.PosterUtils
 import ru.neosvet.moviedb.view.extension.OnBackFragment
 
 class MainActivity : AppCompatActivity() {
@@ -56,8 +59,6 @@ class MainActivity : AppCompatActivity() {
         }
         super.onBackPressed()
     }
-
-    fun getBitPoster() = binding.ivBigPoster
 
     private fun initButtons() {
         binding.btnMain.setOnClickListener {
@@ -137,5 +138,44 @@ class MainActivity : AppCompatActivity() {
     fun hideError() {
         snackbar?.dismiss()
         snackbar = null
+    }
+
+    fun loadBigPoster(url: String) {
+        with(binding.ivBigPoster) {
+            visibility = View.VISIBLE
+            PosterUtils.loadBig(url, this)
+
+            getLayoutParams().width = 100
+            getLayoutParams().height = 100
+            requestLayout()
+
+            val toValue: Int
+            val parent = parent as View
+            val isWidth: Boolean
+            if (parent.width < parent.height) {
+                toValue = parent.width
+                isWidth = true
+            } else {
+                toValue = parent.height
+                isWidth = false
+            }
+
+            val animator = ValueAnimator.ofInt(100, toValue)
+            animator.duration = 1200
+            animator.interpolator = DecelerateInterpolator()
+            animator.addUpdateListener { animation ->
+                if (isWidth) {
+                    getLayoutParams().width = animation.animatedValue as Int
+                    getLayoutParams().height =
+                        (getLayoutParams().width * 1.33f).toInt()
+                } else {
+                    getLayoutParams().height = animation.animatedValue as Int
+                    getLayoutParams().width =
+                        (getLayoutParams().height * 0.66f).toInt()
+                }
+                requestLayout()
+            }
+            animator.start()
+        }
     }
 }
