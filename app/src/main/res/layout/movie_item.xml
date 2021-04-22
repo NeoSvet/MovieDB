@@ -2,43 +2,42 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="120dp"
-    android:layout_height="280dp"
+    android:layout_height="290dp"
     android:layout_margin="@dimen/default_margin"
     app:cardBackgroundColor="@color/card"
     app:cardCornerRadius="10dp"
     app:cardElevation="8dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="5dp">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivPoster"
             android:layout_width="120dp"
             android:layout_height="180dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/no_image" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvTitle"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1"
             android:maxLines="3"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/ivPoster"
-            app:layout_constraintTop_toBottomOf="@id/ivPoster" />
+            android:textSize="14sp" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/default_margin"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tvTitle"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+            android:layout_weight="1"
+            android:textSize="12sp" />
 
         <ProgressBar
             android:id="@+id/barVote"
@@ -46,10 +45,9 @@
             android:layout_width="100dp"
             android:layout_height="20dp"
             android:layout_marginStart="@dimen/default_margin"
+            android:layout_weight="1"
             android:max="100"
             android:progress="0"
-            android:progressDrawable="@drawable/vote_bar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvDescription" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:progressDrawable="@drawable/vote_bar" />
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
