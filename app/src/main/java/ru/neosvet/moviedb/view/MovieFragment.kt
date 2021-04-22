@@ -70,7 +70,8 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         initLink()
         binding.ivPoster.setOnClickListener {
             movie?.let {
-                main.loadBigImage(it.poster)
+                if (it.poster.isNotEmpty())
+                    main.loadBigImage(it.poster)
             }
         }
     }
