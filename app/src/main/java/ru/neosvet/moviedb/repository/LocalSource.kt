@@ -19,9 +19,7 @@ class LocalSource {
     }
 
     fun updateMovieDes(id: Int, des: String): MovieEntity? {
-        val movie = getMovie(id)
-        if (movie == null)
-            return null
+        val movie = getMovie(id) ?: return null
         movie.updated = DateUtils.getNow()
         movie.description = des
         base.movieDao().update(movie)
