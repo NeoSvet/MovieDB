@@ -25,7 +25,7 @@
                     android:layout_margin="@dimen/default_margin"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/no_poster" />
+                    app:srcCompat="@drawable/no_image" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tvTitle"

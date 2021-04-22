@@ -126,6 +126,6 @@
             android:layout_width="120dp"
             android:layout_height="180dp"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/no_poster" />
+            app:srcCompat="@drawable/no_image" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,14 +11,14 @@ object ImageUtils {
     fun load(url: String, target: ImageView) {
         Picasso.get()
             .load(BASE_URL + url)
-            .placeholder(R.drawable.no_poster)
+            .placeholder(R.drawable.no_image)
             .into(target)
     }
 
     fun loadBig(url: String, target: ImageView) {
         Picasso.get()
             .load(BASE_URL_BIG + url)
-            .placeholder(R.drawable.no_poster)
+            .placeholder(R.drawable.no_image)
             .into(target)
     }
 
