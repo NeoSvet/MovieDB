@@ -13,7 +13,7 @@ import ru.neosvet.moviedb.repository.MovieRepository
 import ru.neosvet.moviedb.repository.room.DetailsEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
-import ru.neosvet.moviedb.utils.PosterUtils
+import ru.neosvet.moviedb.utils.ImageUtils
 import ru.neosvet.moviedb.view.extension.OnBackFragment
 import ru.neosvet.moviedb.view.extension.hideKeyboard
 import ru.neosvet.moviedb.view.extension.showKeyboard
@@ -70,7 +70,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         initLink()
         binding.ivPoster.setOnClickListener {
             movie?.let {
-                main.loadBigPoster(it.poster)
+                main.loadBigImage(it.poster)
             }
         }
     }
@@ -224,7 +224,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private fun showMovie(item: MovieEntity) {
         movie = item
         with(binding) {
-            PosterUtils.load(item.poster, ivPoster)
+            ImageUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
             tvDate.text = getString(R.string.release_date) + " " + item.date
             tvOriginal.text = item.original

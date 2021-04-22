@@ -12,7 +12,7 @@ import com.google.android.material.snackbar.Snackbar
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.ActivityMainBinding
 import ru.neosvet.moviedb.utils.ConnectUtils
-import ru.neosvet.moviedb.utils.PosterUtils
+import ru.neosvet.moviedb.utils.ImageUtils
 import ru.neosvet.moviedb.view.extension.OnBackFragment
 
 class MainActivity : AppCompatActivity() {
@@ -35,14 +35,14 @@ class MainActivity : AppCompatActivity() {
             openList(false)
         }
         initButtons()
-        binding.ivBigPoster.setOnClickListener {
-            binding.ivBigPoster.visibility = View.GONE
+        binding.ivBigImage.setOnClickListener {
+            binding.ivBigImage.visibility = View.GONE
         }
     }
 
     override fun onBackPressed() {
-        if (binding.ivBigPoster.visibility == View.VISIBLE) {
-            binding.ivBigPoster.visibility = View.GONE
+        if (binding.ivBigImage.visibility == View.VISIBLE) {
+            binding.ivBigImage.visibility = View.GONE
             return
         }
         if (snackbar != null) {
@@ -140,10 +140,10 @@ class MainActivity : AppCompatActivity() {
         snackbar = null
     }
 
-    fun loadBigPoster(url: String) {
-        with(binding.ivBigPoster) {
+    fun loadBigImage(url: String) {
+        with(binding.ivBigImage) {
             visibility = View.VISIBLE
-            PosterUtils.loadBig(url, this)
+            ImageUtils.loadBig(url, this)
 
             getLayoutParams().width = 100
             getLayoutParams().height = 100

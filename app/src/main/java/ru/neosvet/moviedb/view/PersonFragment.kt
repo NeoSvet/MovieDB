@@ -12,7 +12,7 @@ import ru.neosvet.moviedb.model.PersonModel
 import ru.neosvet.moviedb.model.PersonState
 import ru.neosvet.moviedb.repository.room.PersonEntity
 import ru.neosvet.moviedb.utils.MyException
-import ru.neosvet.moviedb.utils.PosterUtils
+import ru.neosvet.moviedb.utils.ImageUtils
 
 class PersonFragment : Fragment(), Observer<PersonState> {
     companion object {
@@ -119,7 +119,7 @@ class PersonFragment : Fragment(), Observer<PersonState> {
     private fun showPerson(person: PersonEntity) {
         with(binding) {
             if (person.photo.length > 0)
-                PosterUtils.load(person.photo, ivPhoto)
+                ImageUtils.load(person.photo, ivPhoto)
             tvName.text = person.name
             tvPlace.text = person.place_of_birth
             tvDates.text = getDates(person.birthday, person.deathday)

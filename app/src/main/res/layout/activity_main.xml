@@ -113,7 +113,7 @@
     </LinearLayout>
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/ivBigPoster"
+        android:id="@+id/ivBigImage"
         android:layout_width="120dp"
         android:layout_height="180dp"
         android:visibility="gone"
