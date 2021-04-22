@@ -11,8 +11,8 @@ import ru.neosvet.moviedb.databinding.FragmentPersonBinding
 import ru.neosvet.moviedb.model.PersonModel
 import ru.neosvet.moviedb.model.PersonState
 import ru.neosvet.moviedb.repository.room.PersonEntity
-import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.ImageUtils
+import ru.neosvet.moviedb.utils.MyException
 
 class PersonFragment : Fragment(), Observer<PersonState> {
     companion object {
@@ -28,6 +28,7 @@ class PersonFragment : Fragment(), Observer<PersonState> {
     }
 
     private var personId: Int? = null
+    private var photo: String? = null
     private var _binding: FragmentPersonBinding? = null
     private val binding get() = _binding!!
     private val model: PersonModel by lazy {
@@ -56,6 +57,9 @@ class PersonFragment : Fragment(), Observer<PersonState> {
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.container, MapsFragment.newInstance(binding.tvPlace.text.toString()))
                 ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+        }
+        binding.ivPhoto.setOnClickListener {
+            photo?.let { main.loadBigImage(it) }
         }
     }
 
@@ -118,8 +122,10 @@ class PersonFragment : Fragment(), Observer<PersonState> {
 
     private fun showPerson(person: PersonEntity) {
         with(binding) {
-            if (person.photo.length > 0)
+            if (person.photo.length > 0) {
+                photo = person.photo
                 ImageUtils.load(person.photo, ivPhoto)
+            }
             tvName.text = person.name
             tvPlace.text = person.place_of_birth
             tvDates.text = getDates(person.birthday, person.deathday)
