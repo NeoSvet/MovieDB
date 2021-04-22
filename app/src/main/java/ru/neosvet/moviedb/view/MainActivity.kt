@@ -35,14 +35,14 @@ class MainActivity : AppCompatActivity() {
             openList(false)
         }
         initButtons()
-        binding.ivBigImage.setOnClickListener {
-            binding.ivBigImage.visibility = View.GONE
+        binding.pBigImage.setOnClickListener {
+            binding.pBigImage.visibility = View.GONE
         }
     }
 
     override fun onBackPressed() {
-        if (binding.ivBigImage.visibility == View.VISIBLE) {
-            binding.ivBigImage.visibility = View.GONE
+        if (binding.pBigImage.visibility == View.VISIBLE) {
+            binding.pBigImage.visibility = View.GONE
             return
         }
         if (snackbar != null) {
@@ -142,15 +142,14 @@ class MainActivity : AppCompatActivity() {
 
     fun loadBigImage(url: String) {
         with(binding.ivBigImage) {
-            visibility = View.VISIBLE
             ImageUtils.loadBig(url, this)
-
             getLayoutParams().width = 100
             getLayoutParams().height = 100
             requestLayout()
+            binding.pBigImage.visibility = View.VISIBLE
 
+            val parent = binding.root as View
             val toValue: Int
-            val parent = parent as View
             val isWidth: Boolean
             if (parent.width < parent.height) {
                 toValue = parent.width
