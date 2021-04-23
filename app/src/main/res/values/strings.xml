@@ -37,4 +37,6 @@
     <string name="birthday">Дата рождения:&#160;</string>
     <string name="deathday">Дата смерти:&#160;</string>
     <string name="try_load_en">Попробовать загрузить описание на английском.</string>
+    <string name="push_channel_name">Канал push-уведомлений</string>
+    <string name="push_channel_des">Push-уведомления от разработчика</string>
 </resources>
