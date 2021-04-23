@@ -114,45 +114,12 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
             val credits: Credits? = response.body()
 
             if (response.isSuccessful && credits != null) {
-                val names = StringBuilder()
-                val ids = StringBuilder()
 
-                credits.cast?.forEach {
-                    names.append(SEPARATOR)
-                    names.append(it.name)
-                    ids.append(SEPARATOR)
-                    ids.append(it.id)
-                    if (!it.character.isNullOrEmpty()) {
-                        names.append(" (")
-                        names.append(it.character)
-                        names.append(")")
-                    }
+                credits.cast?.let {
+                    fillListPeople(it, false)
                 }
-                if (names.isNotEmpty()) {
-                    names.delete(0, 1)
-                    details.cast = names.toString()
-                    names.clear()
-                    ids.delete(0, 1)
-                    details.cast_ids = ids.toString()
-                    ids.clear()
-                }
-
-                credits.crew?.forEach {
-                    names.append(SEPARATOR)
-                    names.append(it.name)
-                    ids.append(SEPARATOR)
-                    ids.append(it.id)
-                    if (!it.job.isNullOrEmpty()) {
-                        names.append(" (")
-                        names.append(it.job)
-                        names.append(")")
-                    }
-                }
-                if (names.isNotEmpty()) {
-                    names.delete(0, 1)
-                    details.crew = names.toString()
-                    ids.delete(0, 1)
-                    details.crew_ids = ids.toString()
+                credits.crew?.let {
+                    fillListPeople(it, true)
                 }
 
                 cache.addDetails(details)
@@ -164,6 +131,40 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
 
         override fun onFailure(call: Call<Credits>, error: Throwable) {
             callbacks.onFailure(error)
+        }
+    }
+
+    private fun fillListPeople(list: List<Cast>, isCrew: Boolean) {
+        val names = StringBuilder()
+        val ids = StringBuilder()
+
+        list.forEach {
+            names.append(SEPARATOR)
+            names.append(it.name)
+            ids.append(SEPARATOR)
+            ids.append(it.id)
+            if (!it.character.isNullOrEmpty()) {
+                names.append(" (")
+                names.append(it.character)
+                names.append(")")
+            } else if (!it.job.isNullOrEmpty()) {
+                names.append(" (")
+                names.append(it.job)
+                names.append(")")
+            }
+        }
+        if (names.isNotEmpty()) {
+            names.delete(0, 1)
+            ids.delete(0, 1)
+            if (isCrew) {
+                details.crew = names.toString()
+                details.crew_ids = ids.toString()
+            } else {
+                details.cast = names.toString()
+                details.cast_ids = ids.toString()
+            }
+            names.clear()
+            ids.clear()
         }
     }
 }
