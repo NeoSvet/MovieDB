@@ -37,15 +37,13 @@ class GetterPhones : IntentService("GetterPhones") {
         val cursor = contentResolver.query(
             Phone.CONTENT_URI, null,
             Phone.CONTACT_ID + " = " + id, null, null
-        )
-        if (cursor == null)
-            return null
+        ) ?: return null
         var phone: String? = null
         while (cursor.moveToNext()) {
             val type = cursor.getInt(cursor.getColumnIndex(Phone.TYPE))
             if (type == Phone.TYPE_MOBILE) {
                 phone = cursor.getString(cursor.getColumnIndex(Phone.NUMBER))
-                break;
+                break
             }
         }
         cursor.close()

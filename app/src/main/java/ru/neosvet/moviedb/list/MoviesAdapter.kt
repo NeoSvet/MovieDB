@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.neosvet.moviedb.R
-import ru.neosvet.moviedb.utils.PosterUtils
+import ru.neosvet.moviedb.utils.ImageUtils
 import java.util.*
 
 class MoviesAdapter(val callbacks: ListCallbacks) : RecyclerView.Adapter<MovieHolder>() {
@@ -22,13 +22,13 @@ class MoviesAdapter(val callbacks: ListCallbacks) : RecyclerView.Adapter<MovieHo
     }
 
     override fun onViewRecycled(holder: MovieHolder) {
-        PosterUtils.cancel(holder.poster)
+        ImageUtils.cancel(holder.poster)
         super.onViewRecycled(holder)
     }
 
     override fun onBindViewHolder(holder: MovieHolder, position: Int) {
         holder.setItem(data[position], callbacks)
-        PosterUtils.load(data[position].poster, holder.poster)
+        ImageUtils.load(data[position].poster, holder.poster)
     }
 
     override fun getItemCount(): Int {

@@ -2,18 +2,20 @@ package ru.neosvet.moviedb.view
 
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
+import ru.neosvet.moviedb.repository.MovieRepository
+import ru.neosvet.moviedb.repository.room.DetailsEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
+import ru.neosvet.moviedb.utils.ImageUtils
 import ru.neosvet.moviedb.utils.MyException
-import ru.neosvet.moviedb.utils.PosterUtils
 import ru.neosvet.moviedb.view.extension.OnBackFragment
 import ru.neosvet.moviedb.view.extension.hideKeyboard
-import ru.neosvet.moviedb.view.extension.showError
 import ru.neosvet.moviedb.view.extension.showKeyboard
 
 class MovieFragment : OnBackFragment(), Observer<MovieState> {
@@ -30,13 +32,20 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private var movieId: Int? = null
     private var movie: MovieEntity? = null
     private var _binding: FragmentMovieBinding? = null
+    private val binding get() = _binding!!
     private lateinit var itemEdit: MenuItem
     private lateinit var itemSave: MenuItem
     private lateinit var des: String
     private lateinit var note: String
-    private val binding get() = _binding!!
+    private lateinit var cast_ids: List<String>
+    private lateinit var cast: List<String>
+    private lateinit var crew_ids: List<String>
+    private lateinit var crew: List<String>
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
+    }
+    private val main: MainActivity by lazy {
+        requireActivity() as MainActivity
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,15 +66,56 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadDetails();
+        loadDetails()
+        initLink()
         binding.ivPoster.setOnClickListener {
             movie?.let {
-                val main = requireActivity() as MainActivity
-                val ivBigPoster = main.getBitPoster()
-                ivBigPoster.visibility = View.VISIBLE
-                model.loadBigPoster(it.poster, ivBigPoster)
+                if (it.poster.isNotEmpty())
+                    main.loadBigImage(it.poster)
             }
         }
+    }
+
+    private fun initLink() {
+        binding.tvCountries.setOnClickListener {
+            var s = binding.tvCountries.text
+            s = s.substring(s.indexOf(":") + 2)
+            if (s.contains(","))
+                showMenu(s)
+            else
+                openMap(s)
+        }
+        binding.tvCrew.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, PeopleFragment.newInstance(crew_ids, crew))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+        }
+        binding.tvCast.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, PeopleFragment.newInstance(cast_ids, cast))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+        }
+        binding.tvTryLoadEn.setOnClickListener {
+            movieId?.let { model.loadDetailsEn(it) }
+        }
+    }
+
+    private fun showMenu(list: String) {
+        val menu = PopupMenu(requireContext(), binding.tvCountries)
+        list.split(",").forEach {
+            menu.menu.add(it.trimStart())
+        }
+        menu.setOnMenuItemClickListener {
+            openMap(it.title.toString())
+            return@setOnMenuItemClickListener true
+        }
+        menu.show()
+    }
+
+    private fun openMap(country: String) {
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.replace(R.id.container, MapsFragment.newInstance(country))
+            ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
     }
 
     override fun onBackPressed(): Boolean {
@@ -144,35 +194,56 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     }
 
     private fun loadDetails() {
-        model.loadDetails(movieId)
+        movieId?.let { model.loadDetails(it) }
     }
 
     override fun onChanged(state: MovieState) {
         when (state) {
-            is MovieState.Success -> {
-                showItem(state.item)
+            is MovieState.SuccessMovie -> {
+                showMovie(state.movie)
+            }
+            is MovieState.SuccessDetails -> {
+                showDetails(state.details)
+            }
+            is MovieState.SuccessAll -> {
+                showMovie(state.movie)
+                showDetails(state.details)
+            }
+            is MovieState.Loading -> {
+                main.startLoad()
             }
             is MovieState.Error -> {
+                main.finishLoad()
                 val message: String?
                 if (state.error is MyException)
                     message = state.error.getTranslate(requireContext())
                 else
                     message = state.error.message
-                binding.tvTitle.showError(message,
+                main.showError(message,
                     getString(R.string.repeat), { loadDetails() })
             }
         }
     }
 
-    private fun showItem(item: MovieEntity) {
+    private fun showMovie(item: MovieEntity) {
         movie = item
         with(binding) {
-            PosterUtils.load(item.poster, ivPoster)
+            ImageUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
-            tvDate.text = getString(R.string.release_date) + item.date
+            if (item.date.isNotEmpty()) {
+                tvDate.text = getString(R.string.release_date) + " " + item.date
+                tvDate.visibility = View.VISIBLE
+            }
             tvOriginal.text = item.original
-            tvGenres.text = model.genresToString(item.genre_ids)
+            if (item.genre_ids.isNotEmpty()) {
+                tvGenres.text = model.genresToString(item.genre_ids)
+                tvGenres.visibility = View.VISIBLE
+            }
             des = item.description
+            if (des.isEmpty())
+                binding.tvTryLoadEn.visibility = View.VISIBLE
+            else
+                binding.tvTryLoadEn.visibility = View.GONE
             note = model.getNote(item.id)
             showDes()
             barVote.progress = (item.vote * 10).toInt()
@@ -180,8 +251,46 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         }
     }
 
+    private fun showDetails(details: DetailsEntity) {
+        with(binding) {
+            if (details.countries.isNotEmpty()) {
+                tvCountries.text = getString(R.string.countries) + details.countries
+                tvCountries.visibility = View.VISIBLE
+            }
+            cast_ids = details.cast_ids.split(MovieRepository.SEPARATOR)
+            cast = details.cast.split(MovieRepository.SEPARATOR)
+            if (cast[0].isNotEmpty()) {
+                tvCast.text = getString(R.string.cast) + limitedArray(cast)
+                tvCast.visibility = View.VISIBLE
+            }
+            crew_ids = details.crew_ids.split(MovieRepository.SEPARATOR)
+            crew = details.crew.split(MovieRepository.SEPARATOR)
+            if (crew[0].isNotEmpty()) {
+                tvCrew.text = getString(R.string.crew) + limitedArray(crew)
+                tvCrew.visibility = View.VISIBLE
+            }
+        }
+        main.finishLoad()
+        model.getState().value = MovieState.Finished
+    }
+
+    private fun limitedArray(array: List<String>): String {
+        val s = StringBuilder()
+        for (n in 0..4) {
+            if (n == array.size)
+                break
+            s.append(", ")
+            s.append(array[n])
+        }
+        if (s.isNotEmpty()) {
+            s.delete(0, 2)
+            return s.toString()
+        }
+        return array[0]
+    }
+
     private fun showDes() {
-        if (note.length == 0)
+        if (note.isEmpty())
             binding.tvDescription.text = des
         else {
             val s = StringBuilder(des)

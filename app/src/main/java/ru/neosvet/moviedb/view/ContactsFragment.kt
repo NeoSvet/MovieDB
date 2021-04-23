@@ -70,7 +70,7 @@ class ContactsFragment : Fragment(), ContactCallbacks {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val share = Intent(Intent.ACTION_SEND)
         share.type = "text/plain"
-        share.putExtra(Intent.EXTRA_TEXT, message);
+        share.putExtra(Intent.EXTRA_TEXT, message)
         startActivity(share)
         return super.onOptionsItemSelected(item)
     }
@@ -81,8 +81,8 @@ class ContactsFragment : Fragment(), ContactCallbacks {
     ) {
         when (requestCode) {
             REQUEST_CODE -> {
-                if ((grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                if (grantResults.isNotEmpty() &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED
                 ) {
                     getContacts()
                 } else {
@@ -95,7 +95,6 @@ class ContactsFragment : Fragment(), ContactCallbacks {
                         .create()
                         .show()
                 }
-                return
             }
         }
     }
@@ -160,7 +159,7 @@ class ContactsFragment : Fragment(), ContactCallbacks {
     }
 
     override fun onContactClicked(phone: String) {
-        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + phone));
+        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + phone))
         intent.putExtra("sms_body", message)
         startActivity(intent)
     }

@@ -5,10 +5,10 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentListBinding
 import ru.neosvet.moviedb.list.CatalogAdapter
@@ -20,10 +20,8 @@ import ru.neosvet.moviedb.model.ListState
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
-import ru.neosvet.moviedb.view.extension.OnBackFragment
-import ru.neosvet.moviedb.view.extension.showError
 
-class ListFragment : OnBackFragment(), ListCallbacks, Observer<ListState> {
+class ListFragment : Fragment(), ListCallbacks, Observer<ListState> {
     companion object {
         private val ARG_SEARCH = "search"
         fun newInstance(withSearch: Boolean) =
@@ -36,13 +34,11 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<ListState> {
 
     private val COUNT_LIST = 3
     private var searcher: SearchView? = null
-    private val statusView: View by lazy {
-        val main = requireActivity() as MainActivity
-        main.getStatusView()
+    private val main: MainActivity by lazy {
+        requireActivity() as MainActivity
     }
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-    private var snackbar: Snackbar? = null
     private val catalog = CatalogAdapter()
     private val model: ListModel by lazy {
         ViewModelProvider(this).get(ListModel::class.java)
@@ -76,14 +72,6 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<ListState> {
         savedInstanceState?.let {
             query = it.getString(ARG_SEARCH)
         }
-    }
-
-    override fun onBackPressed(): Boolean {
-        if (snackbar == null)
-            return true
-        snackbar?.dismiss()
-        snackbar = null
-        return false
     }
 
     override fun onResume() {
@@ -163,9 +151,9 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<ListState> {
     private fun loadNextList() {
         if (query == null) {
             when (catalog.itemCount) {
-                0 -> model.loadUpcoming(!isRefresh, settings.getAdult())
-                1 -> model.loadPopular(!isRefresh, settings.getAdult())
-                2 -> model.loadTopRated(!isRefresh, settings.getAdult())
+                0 -> model.loadUpcoming(isRefresh, settings.getAdult())
+                1 -> model.loadPopular(isRefresh, settings.getAdult())
+                2 -> model.loadTopRated(isRefresh, settings.getAdult())
             }
             return
         }
@@ -229,9 +217,7 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<ListState> {
                     loadNextList()
             }
             is ListState.Loading -> {
-                statusView.visibility = View.VISIBLE
-                snackbar?.dismiss()
-                snackbar = null
+                main.startLoad()
             }
             is ListState.Error -> {
                 finishLoad()
@@ -240,17 +226,21 @@ class ListFragment : OnBackFragment(), ListCallbacks, Observer<ListState> {
                     message = state.error.getTranslate(requireContext())
                 else
                     message = state.error.message
-                snackbar = binding.rvCatalog.showError(message,
-                    getString(R.string.repeat), {
-                        catalog.clear()
-                        loadNextList()
-                    })
+                showError(message)
             }
         }
     }
 
+    private fun showError(message: String?) {
+        main.showError(message,
+            getString(R.string.repeat), {
+                catalog.clear()
+                loadNextList()
+            })
+    }
+
     private fun finishLoad() {
-        statusView.visibility = View.GONE
+        main.finishLoad()
         model.getState().value = ListState.Finished
         isRefresh = false
     }

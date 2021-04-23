@@ -1,10 +1,8 @@
 package ru.neosvet.moviedb.repository
 
 import ru.neosvet.moviedb.app.App
-import ru.neosvet.moviedb.repository.room.CatalogEntity
-import ru.neosvet.moviedb.repository.room.GenreEntity
-import ru.neosvet.moviedb.repository.room.MovieEntity
-import ru.neosvet.moviedb.repository.room.NoteEntity
+import ru.neosvet.moviedb.repository.room.*
+import ru.neosvet.moviedb.utils.DateUtils
 
 class LocalSource {
     private val base = App.getBase()
@@ -18,6 +16,14 @@ class LocalSource {
 
     fun addMovie(item: MovieEntity) {
         base.movieDao().add(item)
+    }
+
+    fun updateMovieDes(id: Int, des: String): MovieEntity? {
+        val movie = getMovie(id) ?: return null
+        movie.updated = DateUtils.getNow()
+        movie.description = des
+        base.movieDao().update(movie)
+        return movie
     }
 
     fun addNote(id: Int, content: String) {
@@ -47,9 +53,17 @@ class LocalSource {
         return base.genreDao().getList(convertStrToList(ids))
     }
 
+    fun getDetails(id: Int): DetailsEntity? {
+        return base.detailsDao().get(id)
+    }
+
+    fun addDetails(details: DetailsEntity) {
+        base.detailsDao().add(details)
+    }
+
     private fun convertStrToList(ids: String): List<Int> {
         val list = ArrayList<Int>()
-        if (ids.length == 0)
+        if (ids.isEmpty())
             return list
         val m = ids.split(",")
         m.forEach { list.add(it.toInt()) }

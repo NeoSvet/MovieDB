@@ -10,9 +10,11 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.neosvet.moviedb.app.API_KEY
+import java.util.concurrent.TimeUnit
 
 class RemoteSource {
     val LANG = "ru-RU"
+    val LANG_EN = "en-US"
 
     private val retrofitApi = Retrofit.Builder()
         .baseUrl("https://api.themoviedb.org/3/")
@@ -24,12 +26,58 @@ class RemoteSource {
         .client(createOkHttpClient())
         .build().create(ApiRetrofit::class.java)
 
+    private fun createOkHttpClient(): OkHttpClient {
+        val httpClient = OkHttpClient.Builder()
+        httpClient.connectTimeout(3, TimeUnit.SECONDS)
+        httpClient.readTimeout(3, TimeUnit.SECONDS)
+        httpClient.writeTimeout(3, TimeUnit.SECONDS)
+        return httpClient.build()
+    }
+
     fun getPage(url: String, callback: Callback<Page>) {
         retrofitApi.getPage(url, API_KEY, LANG).enqueue(callback)
     }
 
     fun getList(id: String, callback: Callback<Playlist>) {
         retrofitApi.getList(id, API_KEY, LANG).enqueue(callback)
+    }
+
+    fun getDetails(movie_id: Int, callback: Callback<Movie>) {
+        val call: Call<Movie> = retrofitApi.getDetails(movie_id, API_KEY, LANG)
+        try {
+            callback.onResponse(call, call.execute())
+        } catch (e: Exception) {
+            callback.onFailure(call, e)
+        }
+        //retrofitApi.getDetails(movie_id, API_KEY, LANG).enqueue(callback)
+    }
+
+    fun getDetailsEn(movie_id: Int, callback: Callback<Movie>) {
+        val call: Call<Movie> = retrofitApi.getDetails(movie_id, API_KEY, LANG_EN)
+        try {
+            callback.onResponse(call, call.execute())
+        } catch (e: Exception) {
+            callback.onFailure(call, e)
+        }
+        //retrofitApi.getDetails(movie_id, API_KEY, LANG_EN).enqueue(callback)
+    }
+
+    fun getCredits(movie_id: Int, callback: Callback<Credits>) {
+        val call: Call<Credits> = retrofitApi.getCredits(movie_id, API_KEY, LANG)
+        try {
+            callback.onResponse(call, call.execute())
+        } catch (e: Exception) {
+            callback.onFailure(call, e)
+        }
+        //retrofitApi.getCredits(movie_id, API_KEY, LANG).enqueue(callback)
+    }
+
+    fun getPerson(person_id: Int, callback: Callback<Person>) {
+        retrofitApi.getPerson(person_id, API_KEY, LANG).enqueue(callback)
+    }
+
+    fun getPersonEn(person_id: Int, callback: Callback<Person>) {
+        retrofitApi.getPerson(person_id, API_KEY, LANG_EN).enqueue(callback)
     }
 
     fun getGenre(id: Int, callback: Callback<Genre>) {
@@ -46,14 +94,30 @@ class RemoteSource {
             API_KEY, LANG, page, adult, query
         ).enqueue(callback)
     }
-
-    private fun createOkHttpClient(): OkHttpClient {
-        val httpClient = OkHttpClient.Builder()
-        return httpClient.build()
-    }
 }
 
 interface ApiRetrofit {
+    @GET("person/{ID}")
+    fun getPerson(
+        @Path("ID") person_id: Int,
+        @Query("api_key") api_key: String,
+        @Query("language") lang: String
+    ): Call<Person>
+
+    @GET("movie/{ID}")
+    fun getDetails(
+        @Path("ID") movie_id: Int,
+        @Query("api_key") api_key: String,
+        @Query("language") lang: String
+    ): Call<Movie>
+
+    @GET("movie/{ID}/credits")
+    fun getCredits(
+        @Path("ID") movie_id: Int,
+        @Query("api_key") api_key: String,
+        @Query("language") lang: String
+    ): Call<Credits>
+
     @GET("search/movie")
     fun search(
         @Query("api_key") api_key: String,

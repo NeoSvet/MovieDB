@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -16,56 +15,117 @@
         android:id="@+id/panelButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:baselineAligned="false"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <com.google.android.material.button.MaterialButton
+        <LinearLayout
             android:id="@+id/btnMain"
-            style="@style/ButtonPanel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/ic_baseline_home_24"
-            android:paddingStart="@dimen/default_margin"
-            android:text="@string/main" />
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp">
 
-        <com.google.android.material.button.MaterialButton
+            <com.google.android.material.imageview.ShapeableImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_home_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/main"
+                android:textColor="?attr/colorOnPrimary" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/btnSearch"
-            style="@style/ButtonPanel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/ic_baseline_search_24"
-            android:text="@string/search" />
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp">
 
-        <com.google.android.material.button.MaterialButton
+            <com.google.android.material.imageview.ShapeableImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_search_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search"
+                android:textColor="?attr/colorOnPrimary" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/btnSettings"
-            style="@style/ButtonPanel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/ic_baseline_settings_24"
-            android:text="@string/settings" />
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_settings_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings"
+                android:textColor="?attr/colorOnPrimary" />
+        </LinearLayout>
     </LinearLayout>
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvStatus"
-        style="@style/StatusPanel"
+    <LinearLayout
+        android:id="@+id/pStatus"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:text="@string/load"
+        android:background="?attr/colorPrimary"
+        android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/panelButtons" />
+        app:layout_constraintTop_toTopOf="@id/panelButtons">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/ivBigPoster"
-        android:layout_width="120dp"
-        android:layout_height="180dp"
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/StatusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_margin"
+            android:layout_marginBottom="5dp"
+            android:text="@string/load" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:indicatorColor="?attr/colorSecondaryVariant"
+            app:trackColor="?attr/colorOnSecondary" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/pBigImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#55000000"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/no_poster" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivBigImage"
+            android:layout_width="120dp"
+            android:layout_height="180dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/no_image" />
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

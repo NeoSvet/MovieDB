@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -20,7 +19,7 @@
                 android:layout_margin="@dimen/default_margin"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/no_poster" />
+                app:srcCompat="@drawable/no_image" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvRating"
@@ -54,6 +53,27 @@
                 app:layout_constraintTop_toBottomOf="@id/tvRating" />
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvCountries"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/link"
+                android:textSize="15sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@id/ivPoster"
+                app:layout_constraintStart_toStartOf="@id/ivPoster"
+                app:layout_constraintTop_toBottomOf="@id/barVote" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@id/ivPoster"
+                app:layout_constraintStart_toStartOf="@id/ivPoster"
+                app:layout_constraintTop_toBottomOf="@id/tvCountries" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -74,23 +94,53 @@
                 app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvDate"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:textSize="15sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/tvOriginal"
-                app:layout_constraintTop_toBottomOf="@id/tvOriginal" />
-
-            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvGenres"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/default_margin"
                 android:textSize="15sp"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/tvDate"
-                app:layout_constraintTop_toBottomOf="@id/tvDate" />
+                app:layout_constraintStart_toStartOf="@id/tvTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvOriginal" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvCrew"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:textColor="@color/link"
+                android:textSize="15sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tvTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvGenres" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvCast"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:textColor="@color/link"
+                android:textSize="15sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tvCrew"
+                app:layout_constraintTop_toBottomOf="@id/tvCrew" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvTryLoadEn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="@string/try_load_en"
+                android:textColor="@color/link"
+                android:textSize="16sp"
+                android:visibility="gone"
+                app:layout_constraintStart_toEndOf="@id/ivPoster"
+                app:layout_constraintTop_toBottomOf="@id/tvCast" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvDescription"
@@ -100,18 +150,17 @@
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivPoster"
-                app:layout_constraintTop_toBottomOf="@id/tvGenres" />
+                app:layout_constraintTop_toBottomOf="@id/tvTryLoadEn" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNote"
                 style="@style/NoteField"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivPoster"
-                app:layout_constraintTop_toBottomOf="@id/tvGenres" />
+                app:layout_constraintTop_toBottomOf="@id/tvTryLoadEn" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 </LinearLayout>

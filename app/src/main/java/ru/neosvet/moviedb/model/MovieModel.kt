@@ -1,73 +1,27 @@
 package ru.neosvet.moviedb.model
 
-import android.animation.ValueAnimator
-import android.view.View
-import android.view.animation.DecelerateInterpolator
-import android.widget.ImageView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import ru.neosvet.moviedb.repository.MovieRepoCallbacks
 import ru.neosvet.moviedb.repository.MovieRepository
-import ru.neosvet.moviedb.utils.ItemNoFoundExc
-import ru.neosvet.moviedb.utils.PosterUtils
+import ru.neosvet.moviedb.repository.room.DetailsEntity
+import ru.neosvet.moviedb.repository.room.MovieEntity
+import ru.neosvet.moviedb.utils.IncorrectResponseExc
 
-
-class MovieModel : ViewModel() {
+class MovieModel : ViewModel(), MovieRepoCallbacks {
     private val state: MutableLiveData<MovieState> = MutableLiveData()
-    private val repository: MovieRepository = MovieRepository()
+    private val repository: MovieRepository = MovieRepository(this)
 
     fun getState() = state
 
-    fun loadDetails(id: Int?) {
-        if (id == null)
-            return
+    fun loadDetails(id: Int) {
         state.value = MovieState.Loading
-        Thread {
-            try {
-                val item = repository.getMovie(id)
-                if (item == null)
-                    state.postValue(MovieState.Error(ItemNoFoundExc()))
-                else
-                    state.postValue(MovieState.Success(item))
-            } catch (e: Exception) {
-                e.printStackTrace()
-                state.postValue(MovieState.Error(e))
-            }
-        }.start()
+        repository.requestMovie(id)
     }
 
-    fun loadBigPoster(url: String, target: ImageView) {
-        PosterUtils.loadBig(url, target)
-
-        target.getLayoutParams().width = 100
-        target.getLayoutParams().height = 100
-        target.requestLayout()
-
-        val toValue: Int
-        val parent = target.parent as View
-        val isWidth: Boolean
-        if (parent.width < parent.height) {
-            toValue = parent.width
-            isWidth = true
-        } else {
-            toValue = parent.height
-            isWidth = false
-        }
-
-        val animator = ValueAnimator.ofInt(100, toValue)
-        animator.duration = 1200
-        animator.interpolator = DecelerateInterpolator()
-        animator.addUpdateListener { animation ->
-            if (isWidth) {
-                target.getLayoutParams().width = animation.animatedValue as Int
-                target.getLayoutParams().height = (target.getLayoutParams().width * 1.33f).toInt()
-            } else {
-                target.getLayoutParams().height = animation.animatedValue as Int
-                target.getLayoutParams().width = (target.getLayoutParams().height * 0.66f).toInt()
-            }
-            target.requestLayout()
-        }
-
-        animator.start()
+    fun loadDetailsEn(id: Int) {
+        state.value = MovieState.Loading
+        repository.requestMovieEn(id)
     }
 
     fun genresToString(genre_ids: String): String {
@@ -87,6 +41,24 @@ class MovieModel : ViewModel() {
 
     fun getNote(id: Int) = repository.getNote(id)
 
-//CALLBACKS
+//OVERRIDE
 
+    override fun onSuccessMovie(movie: MovieEntity) {
+        state.postValue(MovieState.SuccessMovie(movie))
+    }
+
+    override fun onSuccessDetails(details: DetailsEntity) {
+        state.postValue(MovieState.SuccessDetails(details))
+    }
+
+    override fun onSuccessAll(movie: MovieEntity, details: DetailsEntity) {
+        state.postValue(MovieState.SuccessAll(movie, details))
+    }
+
+    override fun onFailure(error: Throwable) {
+        if (error.message == null)
+            state.postValue(MovieState.Error(IncorrectResponseExc("")))
+        else
+            state.postValue(MovieState.Error(error))
+    }
 }
