@@ -135,10 +135,26 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
     }
 
     private fun fillListPeople(list: List<Cast>, isCrew: Boolean) {
+        val m = list.toTypedArray()
+        var max: Int
+        for (a in 0..m.size - 2) {
+            max = a
+            for (b in a + 1 until m.size) {
+                if (m[b].popularity ?: 0f > m[max].popularity ?: 0f) {
+                    max = b
+                }
+            }
+            if (max != a) {
+                val item = m[a]
+                m[a] = m[max]
+                m[max] = item
+            }
+        }
+
         val names = StringBuilder()
         val ids = StringBuilder()
 
-        list.forEach {
+        m.forEach {
             names.append(SEPARATOR)
             names.append(it.name)
             ids.append(SEPARATOR)
