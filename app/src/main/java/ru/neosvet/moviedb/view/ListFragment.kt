@@ -11,17 +11,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentListBinding
-import ru.neosvet.moviedb.list.CatalogAdapter
-import ru.neosvet.moviedb.list.ListCallbacks
-import ru.neosvet.moviedb.list.MovieItem
-import ru.neosvet.moviedb.list.MoviesAdapter
+import ru.neosvet.moviedb.list.*
 import ru.neosvet.moviedb.model.ListModel
 import ru.neosvet.moviedb.model.ListState
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
 
-class ListFragment : Fragment(), ListCallbacks, Observer<ListState> {
+class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     companion object {
         private val ARG_SEARCH = "search"
         fun newInstance(withSearch: Boolean) =
