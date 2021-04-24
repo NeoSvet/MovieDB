@@ -13,7 +13,7 @@ import java.util.*
 class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
     private val source = RemoteSource()
     private val cache = LocalSource()
-    private var nameWaitLoad: String? = null
+    private var waitLoad: DataPage? = null
 
 //PUBLIC
 
@@ -40,16 +40,12 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
         }
         if (needLoad) {
             if (ConnectUtils.CONNECTED == true)
-                loadList(name)
+                loadPage(name, page)
             else {
-                nameWaitLoad = name
+                waitLoad = DataPage(name, page)
                 ConnectUtils.subscribe(this)
             }
         }
-    }
-
-    fun clearCatalog(name: String) {
-        cache.clearCatalog(name)
     }
 
     fun requestSearch(query: String, page: Int, isReload: Boolean, adult: Boolean) {
@@ -88,12 +84,12 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
         return n
     }*/
 
-    private fun loadList(name: String) {
+    private fun loadPage(name: String, page: Int) {
         try {
             /*if (name.isDigitsOnly())
                 source.getList(name, callBackList)
             else*/
-            source.getPage(name, callBackPage)
+            source.getPage(name, page, callBackPage)
         } catch (e: Exception) {
             e.printStackTrace()
             callbacks.onFailure(e)
@@ -196,7 +192,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
     private fun onSuccess(catalog: CatalogEntity) {
         callbacks.onSuccess(catalog)
         ConnectUtils.unSubscribe(this)
-        nameWaitLoad = null
+        waitLoad = null
     }
 
 //CALLBACKS
@@ -260,11 +256,16 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
 //OVERRIDE
 
     override fun connectChanged(connected: Boolean) {
-        nameWaitLoad?.let {
+        waitLoad?.let {
             if (connected)
-                loadList(it)
+                loadPage(it.name, it.page)
             else
                 callbacks.onFailure(NoConnectionExc())
         }
     }
+
+    data class DataPage(
+        val name: String,
+        val page: Int
+    )
 }

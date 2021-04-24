@@ -45,19 +45,28 @@ class CatalogAdapter : RecyclerView.Adapter<CatalogAdapter.Holder>() {
 
     inner class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvTitle: MaterialTextView = itemView.findViewById(R.id.tvTitle)
+        private val rvPages: RecyclerView = itemView.findViewById(R.id.rvPages)
         private val rvMovies: RecyclerView = itemView.findViewById(R.id.rvMovies)
 
         init {
+            rvPages.layoutManager = LinearLayoutManager(
+                rvPages.context,
+                RecyclerView.HORIZONTAL, false
+            )
             rvMovies.layoutManager = LinearLayoutManager(
                 rvMovies.context,
                 RecyclerView.HORIZONTAL, false
             )
         }
 
-        fun setItem(title: String, adapter: MoviesAdapter) {
+        fun setItem(title: String, movies: MoviesAdapter) {
             tvTitle.text = title
-            rvMovies.adapter = adapter
-            adapter.notifyDataSetChanged()
+            rvMovies.adapter = movies
+            movies.notifyDataSetChanged()
+
+            val pages = PageAdapter(movies)
+            rvPages.adapter = pages
+            pages.notifyDataSetChanged()
         }
     }
 }
@@ -65,4 +74,5 @@ class CatalogAdapter : RecyclerView.Adapter<CatalogAdapter.Holder>() {
 //CALLBACKS
 interface CatalogCallbacks {
     fun onItemClicked(id: Int)
+    fun onPageClicked(page: Int, adapter: MoviesAdapter)
 }

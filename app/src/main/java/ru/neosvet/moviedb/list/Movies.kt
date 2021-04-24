@@ -8,16 +8,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import ru.neosvet.moviedb.R
+import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.utils.ImageUtils
 import java.util.*
 
-class MoviesAdapter(val callbacks: CatalogCallbacks) :
+class MoviesAdapter(val catalog: CatalogEntity, val callbacks: CatalogCallbacks) :
     RecyclerView.Adapter<MoviesAdapter.Holder>() {
     private val data = ArrayList<MovieItem>()
 
     fun addItem(item: MovieItem) {
         data.add(item)
     }
+
+    fun getName() = catalog.name
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val view: View = LayoutInflater.from(parent.context)

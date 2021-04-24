@@ -17,6 +17,7 @@ class ListModel : ViewModel(), ListRepoCallbacks {
 
     private val state: MutableLiveData<ListState> = MutableLiveData()
     private val repository = ListRepository(this)
+    var index = 0
     var adult: Boolean = false
         set(value) {
             field = value
@@ -33,22 +34,26 @@ class ListModel : ViewModel(), ListRepoCallbacks {
 
     fun loadUpcoming(isReload: Boolean, page: Int) {
         state.value = ListState.Loading
+        index = 0
         repository.requestCatalog(UPCOMING, page, getLoadMode(isReload))
     }
 
     fun loadPopular(isReload: Boolean, page: Int) {
         state.value = ListState.Loading
+        index = 1
         repository.requestCatalog(POPULAR, page, getLoadMode(isReload))
 
     }
 
     fun loadTopRated(isReload: Boolean, page: Int) {
         state.value = ListState.Loading
+        index = 2
         repository.requestCatalog(TOP_RATED, page, getLoadMode(isReload))
     }
 
     fun search(query: String, page: Int, isReload: Boolean) {
         state.value = ListState.Loading
+        index = 0
         repository.requestSearch(query, page, isReload, adult)
     }
 
@@ -65,7 +70,7 @@ class ListModel : ViewModel(), ListRepoCallbacks {
 
     override fun onSuccess(catalog: CatalogEntity) {
         val list = repository.getMoviesList(catalog.movie_ids, adult)
-        state.postValue(ListState.Success(catalog.name, list))
+        state.postValue(ListState.Success(index, catalog, list))
     }
 
     override fun onFailure(error: Throwable) {

@@ -11,9 +11,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentListBinding
-import ru.neosvet.moviedb.list.*
+import ru.neosvet.moviedb.list.CatalogAdapter
+import ru.neosvet.moviedb.list.CatalogCallbacks
+import ru.neosvet.moviedb.list.MovieItem
+import ru.neosvet.moviedb.list.MoviesAdapter
 import ru.neosvet.moviedb.model.ListModel
 import ru.neosvet.moviedb.model.ListState
+import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
@@ -36,7 +40,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     }
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-    private val catalog = CatalogAdapter()
+    private val catalogAdapter = CatalogAdapter()
     private val model: ListModel by lazy {
         ViewModelProvider(this).get(ListModel::class.java)
     }
@@ -65,7 +69,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.rvCatalog.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvCatalog.adapter = catalog
+        binding.rvCatalog.adapter = catalogAdapter
         savedInstanceState?.let {
             query = it.getString(ARG_SEARCH)
         }
@@ -83,7 +87,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
         }
         if (isSearch)
             openSearch()
-        else if (catalog.itemCount < COUNT_LIST)
+        else if (catalogAdapter.itemCount < COUNT_LIST)
             loadNextList()
     }
 
@@ -132,8 +136,8 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.refresh) {
             isRefresh = true
-            catalog.clear()
-            catalog.notifyDataSetChanged()
+            catalogAdapter.clear()
+            catalogAdapter.notifyDataSetChanged()
             loadNextList()
         }
         return super.onOptionsItemSelected(item)
@@ -142,26 +146,31 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     private fun startSearch(query: String) {
         isLastSearch = false
         this.query = query
-        catalog.clear()
+        catalogAdapter.clear()
         loadNextList()
     }
 
     private fun loadNextList() {
         if (query == null) {
-            when (catalog.itemCount) {
+            when (catalogAdapter.itemCount) {
                 0 -> model.loadUpcoming(isRefresh, 1)
                 1 -> model.loadPopular(isRefresh, 1)
                 2 -> model.loadTopRated(isRefresh, 1)
             }
             return
         }
+        if (catalogAdapter.itemCount > 0) {
+            finishLoad()
+            return
+        }
         query?.let {
-            model.search(it, catalog.itemCount + 1, !isLastSearch)
+            model.search(it, 1, !isLastSearch)
         }
     }
 
-    private fun showList(title: String, list: List<MovieEntity>) {
-        val adapter = MoviesAdapter(this)
+    private fun showList(index: Int, catalog: CatalogEntity, list: List<MovieEntity>) {
+        val adapter = MoviesAdapter(catalog, this)
+
         for (movie in list) {
             adapter.addItem(
                 MovieItem(
@@ -172,8 +181,10 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
                 )
             )
         }
-        catalog.addItem(getTranslate(title), adapter)
-        catalog.notifyDataSetChanged()
+        if (index >= catalogAdapter.itemCount) //is new item
+            catalogAdapter.addItem(getTranslate(catalog.name), adapter)
+        else
+            catalogAdapter.replaceItem(index, adapter)
     }
 
     private fun getTranslate(title: String): String {
@@ -194,11 +205,22 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
             ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
     }
 
+    override fun onPageClicked(page: Int, adapter: MoviesAdapter) {
+        when (adapter.getName()) {
+            ListModel.UPCOMING -> model.loadUpcoming(isRefresh, page)
+            ListModel.POPULAR -> model.loadPopular(isRefresh, page)
+            ListModel.TOP_RATED -> model.loadTopRated(isRefresh, page)
+            else -> query?.let {
+                model.search(it, page, !isLastSearch)
+            }
+        }
+    }
+
     override fun onChanged(state: ListState) {
         when (state) {
             is ListState.Success -> {
-                showList(state.title, state.list)
-                if (catalog.itemCount == COUNT_LIST)
+                showList(state.index, state.catalog, state.list)
+                if (catalogAdapter.itemCount == COUNT_LIST)
                     finishLoad()
                 else
                     loadNextList()
@@ -221,7 +243,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     private fun showError(message: String?) {
         main.showError(message,
             getString(R.string.repeat), {
-                catalog.clear()
+                catalogAdapter.clear()
                 loadNextList()
             })
     }
@@ -236,8 +258,8 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
         if (query == null)
             query = pref.getString(ARG_SEARCH, null)
         if (query != null) {
-            catalog.clear()
-            catalog.notifyDataSetChanged()
+            catalogAdapter.clear()
+            catalogAdapter.notifyDataSetChanged()
             isLastSearch = true
             loadNextList()
             searcher?.setQuery(query, false)
@@ -251,8 +273,8 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
             query = null
             searcher?.setQuery(query, false)
             searcher?.clearFocus()
-            catalog.clear()
-            catalog.notifyDataSetChanged()
+            catalogAdapter.clear()
+            catalogAdapter.notifyDataSetChanged()
             loadNextList()
         }
         arguments?.putBoolean(ARG_SEARCH, false)
