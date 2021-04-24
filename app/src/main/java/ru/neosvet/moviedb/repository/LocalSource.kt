@@ -7,12 +7,10 @@ import ru.neosvet.moviedb.utils.DateUtils
 class LocalSource {
     private val base = App.getBase()
 
-    fun getCatalog(name: String) = base.catalogeDao().get(name)
-    fun containsCatalog(name: String) = getCatalog(name) != null
+    fun getCatalog(name: String, page: Int) = base.catalogeDao().get(name, page)
     fun getMovie(id: Int) = base.movieDao().get(id)
     fun getNote(id: Int) = base.noteDao().get(id)
-    fun getGenre(id: Int) = base.genreDao().get(id)
-    fun containsGenre(id: Int) = getGenre(id) != null
+    fun containsGenre(id: Int) = base.genreDao().get(id) != null
 
     fun addMovie(item: MovieEntity) {
         base.movieDao().add(item)

@@ -64,8 +64,8 @@ interface NoteDao {
 
 @Dao
 interface CatalogDao {
-    @Query("SELECT * FROM CatalogEntity WHERE name=:name")
-    fun get(name: String): CatalogEntity?
+    @Query("SELECT * FROM CatalogEntity WHERE name=:name AND page=:page")
+    fun get(name: String, page: Int): CatalogEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(entity: CatalogEntity)

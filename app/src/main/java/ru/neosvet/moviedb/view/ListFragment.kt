@@ -72,6 +72,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<ListState> {
         savedInstanceState?.let {
             query = it.getString(ARG_SEARCH)
         }
+        model.adult = settings.getAdult()
     }
 
     override fun onResume() {
@@ -151,17 +152,14 @@ class ListFragment : Fragment(), ListCallbacks, Observer<ListState> {
     private fun loadNextList() {
         if (query == null) {
             when (catalog.itemCount) {
-                0 -> model.loadUpcoming(isRefresh, settings.getAdult())
-                1 -> model.loadPopular(isRefresh, settings.getAdult())
-                2 -> model.loadTopRated(isRefresh, settings.getAdult())
+                0 -> model.loadUpcoming(isRefresh, 1)
+                1 -> model.loadPopular(isRefresh, 1)
+                2 -> model.loadTopRated(isRefresh, 1)
             }
             return
         }
         query?.let {
-            if (isLastSearch)
-                model.lastSearch(catalog.itemCount + 1)
-            else
-                model.search(it, catalog.itemCount + 1, settings.getAdult())
+            model.search(it, catalog.itemCount + 1, !isLastSearch)
         }
     }
 
@@ -187,18 +185,10 @@ class ListFragment : Fragment(), ListCallbacks, Observer<ListState> {
             ListModel.POPULAR -> getString(R.string.popular)
             ListModel.TOP_RATED -> getString(R.string.top_rated)
             else -> if (title.contains(ListModel.SEARCH))
-                getResultSearchTitle(title)
+                getString(R.string.search_result)
             else
                 title
         }
-    }
-
-    private fun getResultSearchTitle(title: String): String {
-        return getString(R.string.search_result) +
-                title.substring(
-                    title.indexOf(ListModel.SEARCH) +
-                            ListModel.SEARCH.length
-                )
     }
 
     override fun onItemClicked(id: Int) {
@@ -252,7 +242,7 @@ class ListFragment : Fragment(), ListCallbacks, Observer<ListState> {
             catalog.clear()
             catalog.notifyDataSetChanged()
             isLastSearch = true
-            model.lastSearch(1)
+            loadNextList()
             searcher?.setQuery(query, false)
         }
         searcher?.setIconified(false)

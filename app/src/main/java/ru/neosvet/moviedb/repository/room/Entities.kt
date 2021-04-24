@@ -59,9 +59,11 @@ data class GenreEntity(
 
 @Entity
 data class CatalogEntity(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val name: String = "",
     val updated: Long = 0,
-    val title: String = "",
+    val page: Int = 1,
+    val total_pages: Int = 1,
     val movie_ids: String = ""
 )
