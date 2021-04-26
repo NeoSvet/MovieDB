@@ -18,6 +18,12 @@ class ListUtils(val context: Context) {
         editor.putInt(name, value)
     }
 
+    fun getPage(name: String) = pref.getInt(name + "p", 1)
+
+    fun setPage(name: String, value: Int) {
+        editor.putInt(name + "p", value)
+    }
+
     fun save() = editor.apply()
 
     fun clear() {

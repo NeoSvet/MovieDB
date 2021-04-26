@@ -22,6 +22,7 @@ import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.ListUtils
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
+import java.net.URLEncoder
 
 class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     companion object {
@@ -169,9 +170,9 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     private fun loadNextList() {
         if (query == null) {
             when (catalogAdapter.itemCount) {
-                0 -> model.loadUpcoming(isRefresh, 1)
-                1 -> model.loadPopular(isRefresh, 1)
-                2 -> model.loadTopRated(isRefresh, 1)
+                0 -> model.loadUpcoming(isRefresh, listUtils.getPage(ListModel.UPCOMING))
+                1 -> model.loadPopular(isRefresh, listUtils.getPage(ListModel.POPULAR))
+                2 -> model.loadTopRated(isRefresh, listUtils.getPage(ListModel.TOP_RATED))
             }
             return
         }
@@ -180,7 +181,8 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
             return
         }
         query?.let {
-            model.search(it, 1, !isLastSearch)
+            val name = ListModel.SEARCH + "=" + URLEncoder.encode(query, "utf-8")
+            model.search(it, listUtils.getPage(name), !isLastSearch)
         }
     }
 
@@ -222,6 +224,8 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     }
 
     override fun onPageClicked(page: Int, adapter: MoviesAdapter) {
+        listUtils.setPage(adapter.getName(), page)
+        listUtils.save()
         when (adapter.getName()) {
             ListModel.UPCOMING -> model.loadUpcoming(isRefresh, page)
             ListModel.POPULAR -> model.loadPopular(isRefresh, page)
