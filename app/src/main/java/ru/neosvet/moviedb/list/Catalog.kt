@@ -67,6 +67,7 @@ class CatalogAdapter : RecyclerView.Adapter<CatalogAdapter.Holder>() {
             val pages = PageAdapter(movies)
             rvPages.adapter = pages
             pages.notifyDataSetChanged()
+            rvPages.scrollToPosition(movies.catalog.page - 1)
         }
     }
 }
