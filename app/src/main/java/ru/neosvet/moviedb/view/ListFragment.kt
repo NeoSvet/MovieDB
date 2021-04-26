@@ -19,20 +19,24 @@ import ru.neosvet.moviedb.model.ListModel
 import ru.neosvet.moviedb.model.ListState
 import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
+import ru.neosvet.moviedb.utils.ListUtils
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
 
 class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     companion object {
         private val ARG_SEARCH = "search"
+        private val ARG_CLEAR = "clear"
         fun newInstance(withSearch: Boolean) =
             ListFragment().apply {
                 arguments = Bundle().apply {
                     putBoolean(ARG_SEARCH, withSearch)
+                    putBoolean(ARG_CLEAR, true)
                 }
             }
     }
 
+    private val MAIN_LIST = "main"
     private val COUNT_LIST = 3
     private var searcher: SearchView? = null
     private val main: MainActivity by lazy {
@@ -56,6 +60,9 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     private var query: String? = null
     private var isLastSearch = false
     private var isRefresh = false
+    private val listUtils: ListUtils by lazy {
+        ListUtils(requireContext())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -84,6 +91,10 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
         arguments?.let {
             if (it.getBoolean(ARG_SEARCH))
                 isSearch = true
+            if (it.getBoolean(ARG_CLEAR)) {
+                listUtils.clear()
+                it.putBoolean(ARG_CLEAR, false)
+            }
         }
         if (isSearch)
             openSearch()
@@ -104,6 +115,11 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(ARG_SEARCH, query)
+        _binding?.let {
+            val m = it.rvCatalog.layoutManager as LinearLayoutManager
+            listUtils.setIndex(MAIN_LIST, m.findFirstCompletelyVisibleItemPosition())
+        }
+        catalogAdapter.saveChildListIndex(listUtils)
         super.onSaveInstanceState(outState)
     }
 
@@ -252,6 +268,10 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
         main.finishLoad()
         model.getState().value = ListState.Finished
         isRefresh = false
+        val index = listUtils.getIndex(MAIN_LIST)
+        if (index > 0)
+            binding.rvCatalog.scrollToPosition(index)
+        catalogAdapter.restoreChildListIndex(listUtils)
     }
 
     fun openSearch() {

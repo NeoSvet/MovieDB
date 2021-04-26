@@ -15,6 +15,11 @@ import java.util.*
 class MoviesAdapter(val catalog: CatalogEntity, val callbacks: CatalogCallbacks) :
     RecyclerView.Adapter<MoviesAdapter.Holder>() {
     private val data = ArrayList<MovieItem>()
+    var index: Int = 0
+        get() = field
+        set(value) {
+            field = value
+        }
 
     fun addItem(item: MovieItem) {
         data.add(item)

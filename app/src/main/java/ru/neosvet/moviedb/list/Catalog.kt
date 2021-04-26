@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import ru.neosvet.moviedb.R
-import java.util.*
+import ru.neosvet.moviedb.utils.ListUtils
 
 class CatalogAdapter : RecyclerView.Adapter<CatalogAdapter.Holder>() {
     private val adapters = ArrayList<MoviesAdapter>()
@@ -22,6 +22,19 @@ class CatalogAdapter : RecyclerView.Adapter<CatalogAdapter.Holder>() {
     fun replaceItem(index: Int, adapter: MoviesAdapter) {
         adapters[index] = adapter
         notifyItemChanged(index)
+    }
+
+    fun saveChildListIndex(listUtils: ListUtils) {
+        adapters.forEach {
+            listUtils.setIndex(it.getName(), it.index)
+        }
+        listUtils.save()
+    }
+
+    fun restoreChildListIndex(listUtils: ListUtils) {
+        adapters.forEach {
+            it.index = listUtils.getIndex(it.getName())
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -47,27 +60,39 @@ class CatalogAdapter : RecyclerView.Adapter<CatalogAdapter.Holder>() {
         private val tvTitle: MaterialTextView = itemView.findViewById(R.id.tvTitle)
         private val rvPages: RecyclerView = itemView.findViewById(R.id.rvPages)
         private val rvMovies: RecyclerView = itemView.findViewById(R.id.rvMovies)
+        private val managerMovies: LinearLayoutManager
 
         init {
             rvPages.layoutManager = LinearLayoutManager(
                 rvPages.context,
                 RecyclerView.HORIZONTAL, false
             )
-            rvMovies.layoutManager = LinearLayoutManager(
+            managerMovies = LinearLayoutManager(
                 rvMovies.context,
                 RecyclerView.HORIZONTAL, false
             )
+            rvMovies.layoutManager = managerMovies
         }
 
         fun setItem(title: String, movies: MoviesAdapter) {
             tvTitle.text = title
             rvMovies.adapter = movies
+            rvMovies.setOnScrollChangeListener { v, _, _, _, _ ->
+                movies.index = managerMovies.findFirstCompletelyVisibleItemPosition()
+            }
             movies.notifyDataSetChanged()
+            if (movies.index > 0)
+                rvMovies.scrollToPosition(movies.index)
 
             val pages = PageAdapter(movies)
             rvPages.adapter = pages
             pages.notifyDataSetChanged()
             rvPages.scrollToPosition(movies.catalog.page - 1)
+        }
+
+        fun setState(index: Int) {
+            if (index > 0)
+                rvMovies.scrollToPosition(index)
         }
     }
 }
