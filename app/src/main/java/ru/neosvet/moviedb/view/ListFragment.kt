@@ -96,6 +96,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
                 it.putBoolean(ARG_CLEAR, false)
             }
         }
+        restoreIndex()
         if (isSearch)
             openSearch()
         else if (catalogAdapter.itemCount < COUNT_LIST)
@@ -104,6 +105,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
 
     override fun onPause() {
         super.onPause()
+        saveIndex()
         model.getState().removeObserver(this)
     }
 
@@ -115,11 +117,6 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(ARG_SEARCH, query)
-        _binding?.let {
-            val m = it.rvCatalog.layoutManager as LinearLayoutManager
-            listUtils.setIndex(MAIN_LIST, m.findFirstCompletelyVisibleItemPosition())
-        }
-        catalogAdapter.saveChildListIndex(listUtils)
         super.onSaveInstanceState(outState)
     }
 
@@ -224,6 +221,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     override fun onPageClicked(page: Int, adapter: MoviesAdapter) {
         listUtils.setPage(adapter.getName(), page)
         listUtils.save()
+
         when (adapter.getName()) {
             ListModel.UPCOMING -> model.loadUpcoming(isRefresh, page)
             ListModel.POPULAR -> model.loadPopular(isRefresh, page)
@@ -270,6 +268,16 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
         main.finishLoad()
         model.getState().value = ListState.Finished
         isRefresh = false
+        restoreIndex()
+    }
+
+    private fun saveIndex() {
+        val m = binding.rvCatalog.layoutManager as LinearLayoutManager
+        listUtils.setIndex(MAIN_LIST, m.findFirstCompletelyVisibleItemPosition())
+        catalogAdapter.saveChildListIndex(listUtils)
+    }
+
+    private fun restoreIndex() {
         val index = listUtils.getIndex(MAIN_LIST)
         if (index > 0)
             binding.rvCatalog.scrollToPosition(index)
