@@ -22,7 +22,6 @@ import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.ListUtils
 import ru.neosvet.moviedb.utils.MyException
 import ru.neosvet.moviedb.utils.SettingsUtils
-import java.net.URLEncoder
 
 class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     companion object {
@@ -181,8 +180,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
             return
         }
         query?.let {
-            val name = ListModel.SEARCH + "=" + URLEncoder.encode(query, "utf-8")
-            model.search(it, listUtils.getPage(name), !isLastSearch)
+            model.search(it, listUtils.getPage(ListModel.getSearchName(it)), !isLastSearch)
         }
     }
 

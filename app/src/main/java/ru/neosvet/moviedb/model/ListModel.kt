@@ -6,6 +6,7 @@ import ru.neosvet.moviedb.repository.ListRepoCallbacks
 import ru.neosvet.moviedb.repository.ListRepository
 import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.utils.IncorrectResponseExc
+import java.net.URLEncoder
 
 class ListModel : ViewModel(), ListRepoCallbacks {
     companion object {
@@ -13,6 +14,7 @@ class ListModel : ViewModel(), ListRepoCallbacks {
         val POPULAR = "popular"
         val TOP_RATED = "top_rated"
         val SEARCH = "query"
+        fun getSearchName(query: String) = SEARCH + "=" + URLEncoder.encode(query, "utf-8")
     }
 
     private val state: MutableLiveData<ListState> = MutableLiveData()

@@ -7,7 +7,6 @@ import ru.neosvet.moviedb.model.ListModel
 import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.*
-import java.net.URLEncoder
 import java.util.*
 
 class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
@@ -49,7 +48,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
     }
 
     fun requestSearch(query: String, page: Int, isReload: Boolean, adult: Boolean) {
-        val name = ListModel.SEARCH + "=" + URLEncoder.encode(query, "utf-8")
+        val name = ListModel.getSearchName(query)
         val catalog = cache.getCatalog(name, page)
         if (!isReload && catalog != null) {
             callbacks.onSuccess(catalog)
