@@ -89,11 +89,6 @@ class CatalogAdapter : RecyclerView.Adapter<CatalogAdapter.Holder>() {
             pages.notifyDataSetChanged()
             rvPages.scrollToPosition(movies.catalog.page - 1)
         }
-
-        fun setState(index: Int) {
-            if (index > 0)
-                rvMovies.scrollToPosition(index)
-        }
     }
 }
 
