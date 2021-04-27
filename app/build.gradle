@@ -35,6 +35,17 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    flavorDimensions 'source'
+    productFlavors {
+        moviedb {
+            dimension 'source'
+            applicationId 'ru.neosvet.moviedb'
+        }
+        kinopoisk {
+            dimension 'source'
+            applicationId 'ru.neosvet.kinopoisk'
+        }
+    }
 }
 
 dependencies {
