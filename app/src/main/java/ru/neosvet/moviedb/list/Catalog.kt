@@ -78,7 +78,7 @@ class CatalogAdapter : RecyclerView.Adapter<CatalogAdapter.Holder>() {
             tvTitle.text = title
             rvMovies.adapter = movies
             rvMovies.setOnScrollChangeListener { v, _, _, _, _ ->
-                movies.index = managerMovies.findFirstCompletelyVisibleItemPosition()
+                movies.index = managerMovies.findFirstVisibleItemPosition()
             }
             movies.notifyDataSetChanged()
             if (movies.index > 0)

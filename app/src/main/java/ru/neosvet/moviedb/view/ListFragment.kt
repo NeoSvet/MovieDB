@@ -273,7 +273,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
 
     private fun saveIndex() {
         val m = binding.rvCatalog.layoutManager as LinearLayoutManager
-        listUtils.setIndex(MAIN_LIST, m.findFirstCompletelyVisibleItemPosition())
+        listUtils.setIndex(MAIN_LIST, m.findFirstVisibleItemPosition())
         catalogAdapter.saveChildListIndex(listUtils)
     }
 
