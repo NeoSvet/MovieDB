@@ -129,7 +129,10 @@ class PersonFragment : Fragment(), Observer<PersonState> {
             tvName.text = person.name
             tvPlace.text = person.place_of_birth
             tvDates.text = getDates(person.birthday, person.deathday)
-            tvRating.text = getString(R.string.rating) + " %.2f".format(person.popularity)
+            if (person.popularity == 0f)
+                tvRating.visibility = View.GONE
+            else
+                tvRating.text = getString(R.string.rating) + " %.2f".format(person.popularity)
             tvBiography.text = person.biography
         }
     }
