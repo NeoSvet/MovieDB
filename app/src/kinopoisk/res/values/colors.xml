@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#010220</color>
+    <color name="primaryVariant">@color/black</color>
+    <color name="secondary">#FF6600</color>
+    <color name="secondaryVariant">#C67803</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="card">#BF8B3D</color>
+    <color name="link">#FF0077AA</color>
+</resources>
