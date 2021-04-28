@@ -125,8 +125,6 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
                     namesA.append(selectName(it.nameRu, it.nameEn))
                     idsA.append(SEPARATOR)
                     idsA.append(it.staffId)
-                    if (!it.professionText.isNullOrEmpty())
-                        namesA.append(getProf(it.professionText))
                 } else {
                     names.append(selectName(it.nameRu, it.nameEn))
                     ids.append(SEPARATOR)
