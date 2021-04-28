@@ -68,11 +68,11 @@ data class Country(
 
 data class Credits(
     val id: Int?,
-    val cast: List<Artist>?,
-    val crew: List<Worker>?
+    val cast: List<Cast>?,
+    val crew: List<Cast>?
 )
 
-data class Artist(
+data class Cast(
     val adult: Boolean,
     val gender: Int?,
     val id: Int?,
@@ -84,19 +84,7 @@ data class Artist(
     val cast_id: Int?,
     val character: String?,
     val credit_id: String?,
-    val order: Int?
-)
-
-data class Worker(
-    val adult: Boolean,
-    val gender: Int?,
-    val id: Int?,
-    val known_for_department: String?,
-    val name: String?,
-    val original_name: String?,
-    val popularity: Float?,
-    val profile_path: String?,
-    val cast_id: Int?,
+    val order: Int?,
     val department: String?,
     val job: String?
 )

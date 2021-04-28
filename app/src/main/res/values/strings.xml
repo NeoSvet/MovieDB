@@ -7,7 +7,7 @@
     <string name="no_connected">Подключение к интернету разорвано</string>
     <string name="connected">Подключение к интернету установленно</string>
     <string name="repeat">Повторить</string>
-    <string name="upcoming">Новое</string>
+    <string name="upcoming">Новинки</string>
     <string name="popular">Популярное</string>
     <string name="top_rated">Высшая оценка</string>
     <string name="item_no_found">Элемент не найден</string>
@@ -18,7 +18,7 @@
     <string name="main">Главная</string>
     <string name="settings">Настройки</string>
     <string name="content_for_adult">Контент для взрослых</string>
-    <string name="search_result">Результаты поиска - Страница&#160;</string>
+    <string name="search_result">Результаты поиска</string>
     <string name="my_note">Моя заметка</string>
     <string name="edit_note">Редактировать заметку</string>
     <string name="save">Сохранить</string>
@@ -37,4 +37,6 @@
     <string name="birthday">Дата рождения:&#160;</string>
     <string name="deathday">Дата смерти:&#160;</string>
     <string name="try_load_en">Попробовать загрузить описание на английском.</string>
+    <string name="push_channel_name">Канал push-уведомлений</string>
+    <string name="push_channel_des">Push-уведомления от разработчика</string>
 </resources>

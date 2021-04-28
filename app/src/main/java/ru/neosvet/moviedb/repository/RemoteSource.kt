@@ -34,8 +34,8 @@ class RemoteSource {
         return httpClient.build()
     }
 
-    fun getPage(url: String, callback: Callback<Page>) {
-        retrofitApi.getPage(url, API_KEY, LANG).enqueue(callback)
+    fun getPage(url: String, page: Int, callback: Callback<Page>) {
+        retrofitApi.getPage(url, page, API_KEY, LANG).enqueue(callback)
     }
 
     fun getList(id: String, callback: Callback<Playlist>) {
@@ -130,6 +130,7 @@ interface ApiRetrofit {
     @GET("movie/{URL}")
     fun getPage(
         @Path("URL") url: String,
+        @Query("page") page: Int,
         @Query("api_key") api_key: String,
         @Query("language") lang: String
     ): Call<Page>

@@ -6,6 +6,7 @@ import ru.neosvet.moviedb.repository.ListRepoCallbacks
 import ru.neosvet.moviedb.repository.ListRepository
 import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.utils.IncorrectResponseExc
+import java.net.URLEncoder
 
 class ListModel : ViewModel(), ListRepoCallbacks {
     companion object {
@@ -13,49 +14,49 @@ class ListModel : ViewModel(), ListRepoCallbacks {
         val POPULAR = "popular"
         val TOP_RATED = "top_rated"
         val SEARCH = "query"
+        fun getSearchName(query: String) = SEARCH + "=" + URLEncoder.encode(query, "utf-8")
     }
 
     private val state: MutableLiveData<ListState> = MutableLiveData()
     private val repository = ListRepository(this)
+    var index = 0
     var adult: Boolean = false
+        set(value) {
+            field = value
+        }
 
     fun getState() = state
 
 //PUBLIC    
 
-    fun loadList(list_id: Int, isReload: Boolean, adult: Boolean) {
+    fun loadList(list_id: Int, isReload: Boolean) {
         state.value = ListState.Loading
-        this.adult = adult
-        repository.requestCatalog(list_id.toString(), getLoadMode(isReload))
+        //repository.requestCatalog(list_id.toString(), getLoadMode(isReload))
     }
 
-    fun loadUpcoming(isReload: Boolean, adult: Boolean) {
+    fun loadUpcoming(isReload: Boolean, page: Int) {
         state.value = ListState.Loading
-        this.adult = adult
-        repository.requestCatalog(UPCOMING, getLoadMode(isReload))
+        index = 0
+        repository.requestCatalog(UPCOMING, page, getLoadMode(isReload))
     }
 
-    fun loadPopular(isReload: Boolean, adult: Boolean) {
+    fun loadPopular(isReload: Boolean, page: Int) {
         state.value = ListState.Loading
-        this.adult = adult
-        repository.requestCatalog(POPULAR, getLoadMode(isReload))
+        index = 1
+        repository.requestCatalog(POPULAR, page, getLoadMode(isReload))
 
     }
 
-    fun loadTopRated(isReload: Boolean, adult: Boolean) {
+    fun loadTopRated(isReload: Boolean, page: Int) {
         state.value = ListState.Loading
-        this.adult = adult
-        repository.requestCatalog(TOP_RATED, getLoadMode(isReload))
+        index = 2
+        repository.requestCatalog(TOP_RATED, page, getLoadMode(isReload))
     }
 
-    fun search(query: String, page: Int, adult: Boolean) {
+    fun search(query: String, page: Int, isReload: Boolean) {
         state.value = ListState.Loading
-        this.adult = adult
-        repository.requestSearch(query, page, adult)
-    }
-
-    fun lastSearch(page: Int) {
-        repository.requestCatalog(SEARCH + page, ListRepository.Mode.ONLY_CACHE)
+        index = 0
+        repository.requestSearch(query, page, isReload, adult)
     }
 
 //PRIVATE
@@ -71,7 +72,7 @@ class ListModel : ViewModel(), ListRepoCallbacks {
 
     override fun onSuccess(catalog: CatalogEntity) {
         val list = repository.getMoviesList(catalog.movie_ids, adult)
-        state.postValue(ListState.Success(catalog.title, list))
+        state.postValue(ListState.Success(index, catalog, list))
     }
 
     override fun onFailure(error: Throwable) {

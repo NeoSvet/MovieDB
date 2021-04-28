@@ -41,6 +41,14 @@
         </activity>
 
         <service android:name=".utils.GetterPhones" />
+        <service
+            android:name=".utils.MyFirebaseMessagingService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

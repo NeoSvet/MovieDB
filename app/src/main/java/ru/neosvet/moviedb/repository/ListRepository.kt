@@ -1,6 +1,5 @@
 package ru.neosvet.moviedb.repository
 
-import androidx.core.text.isDigitsOnly
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -13,7 +12,7 @@ import java.util.*
 class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
     private val source = RemoteSource()
     private val cache = LocalSource()
-    private var nameWaitLoad: String? = null
+    private var waitLoad: DataPage? = null
 
 //PUBLIC
 
@@ -21,24 +20,12 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
         CACHE_OR_LOAD, ONLY_CACHE, ONLY_LOAD
     }
 
-    fun getNewName(name: String?): String {
-        val n = if (name.isNullOrEmpty()) "Unnamed" else name
-        if (cache.containsCatalog(n)) {
-            var i = 1
-            var t = n
-            do {
-                i++
-                t = n + " [" + i + "]"
-            } while (cache.containsCatalog(t))
-            return t
-        }
-        return n
-    }
-
-    fun requestCatalog(name: String, mode: Mode) {
+    fun requestCatalog(name: String, page: Int, mode: Mode) {
         var needLoad = true
-        if (mode != Mode.ONLY_LOAD) {
-            val catalog = cache.getCatalog(name)
+        if (mode == Mode.ONLY_LOAD) {
+            cache.clearCatalog(name)
+        } else {
+            val catalog = cache.getCatalog(name, page)
             if (catalog != null) {
                 if (mode == Mode.ONLY_CACHE) {
                     callbacks.onSuccess(catalog)
@@ -47,25 +34,29 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
                 needLoad = DateUtils.olderThenDay(catalog.updated)
                 if (!needLoad || ConnectUtils.CONNECTED != true)
                     callbacks.onSuccess(catalog)
-            }
+            } else if (mode == Mode.ONLY_CACHE)
+                return
         }
         if (needLoad) {
             if (ConnectUtils.CONNECTED == true)
-                loadList(name)
+                loadPage(name, page)
             else {
-                nameWaitLoad = name
+                waitLoad = DataPage(name, page)
                 ConnectUtils.subscribe(this)
             }
         }
     }
 
-    fun clearCatalog(name: String) {
-        cache.clearCatalog(name)
-    }
-
-    fun requestSearch(query: String, page: Int, adult: Boolean) {
+    fun requestSearch(query: String, page: Int, isReload: Boolean, adult: Boolean) {
+        val name = ListModel.getSearchName(query)
+        val catalog = cache.getCatalog(name, page)
+        if (!isReload && catalog != null) {
+            callbacks.onSuccess(catalog)
+            return
+        }
         if (ConnectUtils.CONNECTED == true) {
-            clearCatalog(ListModel.SEARCH + page)
+            if (catalog != null)
+                cache.clearCatalog(name)
             source.search(query, page, adult, callBackPage)
         } else {
             callbacks.onFailure(NoConnectionExc())
@@ -78,31 +69,50 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
 
 //PRIVATE
 
-    private fun loadList(name: String) {
+    /*private fun getNewName(name: String?): String {
+        val n = if (name.isNullOrEmpty()) "Unnamed" else name
+        if (cache.containsCatalog(n)) {
+            var i = 1
+            var t = n
+            do {
+                i++
+                t = n + " [" + i + "]"
+            } while (cache.containsCatalog(t))
+            return t
+        }
+        return n
+    }*/
+
+    private fun loadPage(name: String, page: Int) {
         try {
-            if (name.isDigitsOnly())
+            /*if (name.isDigitsOnly())
                 source.getList(name, callBackList)
-            else
-                source.getPage(name, callBackPage)
+            else*/
+            source.getPage(name, page, callBackPage)
         } catch (e: Exception) {
             e.printStackTrace()
             callbacks.onFailure(e)
         }
     }
 
-    private fun addCatalog(name: String, desc: String?, list: List<Item>): CatalogEntity? {
-        if (list.size == 0)
+    private fun addCatalog(name: String, page: Page): CatalogEntity? {
+        if (page.results.size == 0)
             return null
-        val new_list = parseList(list)
+        val list = parseList(page.results)
         val ids = StringBuilder()
-        new_list.forEach {
+        list.forEach {
             cache.addMovie(it)
             ids.append(",")
             ids.append(it.id)
         }
         ids.delete(0, 1)
-        val d = if (desc.isNullOrEmpty()) null else desc
-        val catalog = CatalogEntity(name, DateUtils.getNow(), d ?: name, ids.toString())
+        val catalog = CatalogEntity(
+            name = name,
+            updated = DateUtils.getNow(),
+            page = page.page ?: 1,
+            total_pages = page.total_pages ?: 1,
+            movie_ids = ids.toString()
+        )
         cache.addCatalog(catalog)
         return catalog
     }
@@ -173,20 +183,15 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
         else if (url.contains(ListModel.TOP_RATED))
             ListModel.TOP_RATED
         else if (url.contains(ListModel.SEARCH)) {
-            ListModel.SEARCH + getNumberPage(url)
+            url.substring(url.indexOf(ListModel.SEARCH))
         } else
             url.substring(url.lastIndexOf("/") + 1)
-    }
-
-    private fun getNumberPage(url: String): String {
-        val i = url.indexOf("page")
-        return url.substring(i + 5, url.indexOf("&", i))
     }
 
     private fun onSuccess(catalog: CatalogEntity) {
         callbacks.onSuccess(catalog)
         ConnectUtils.unSubscribe(this)
-        nameWaitLoad = null
+        waitLoad = null
     }
 
 //CALLBACKS
@@ -197,7 +202,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
 
             if (response.isSuccessful && page != null) {
                 val name = getNamePage(call.request().url().toString())
-                val catalog = addCatalog(name, null, page.results)
+                val catalog = addCatalog(name, page)
                 if (catalog == null) {
                     callbacks.onFailure(ListNoFoundExc())
                     return
@@ -213,7 +218,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
         }
     }
 
-    val callBackList = object : Callback<Playlist> {
+    /*val callBackList = object : Callback<Playlist> {
         override fun onResponse(call: Call<Playlist>, response: Response<Playlist>) {
             val list: Playlist? = response.body()
 
@@ -233,7 +238,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
         override fun onFailure(call: Call<Playlist>, error: Throwable) {
             callbacks.onFailure(error)
         }
-    }
+    }*/
 
     private val callBackGenre = object : Callback<Genre> {
         override fun onResponse(call: Call<Genre>, response: Response<Genre>) {
@@ -250,11 +255,16 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
 //OVERRIDE
 
     override fun connectChanged(connected: Boolean) {
-        nameWaitLoad?.let {
+        waitLoad?.let {
             if (connected)
-                loadList(it)
+                loadPage(it.name, it.page)
             else
                 callbacks.onFailure(NoConnectionExc())
         }
     }
+
+    data class DataPage(
+        val name: String,
+        val page: Int
+    )
 }
