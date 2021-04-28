@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Кинопоиск</string>
+    <string name="try_load_en">Попробовать загрузить описание ещё раз.</string>
 </resources>

@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Movie DB</string>  
+    <string name="app_name">Movie DB</string>
+    <string name="try_load_en">Попробовать загрузить описание на английском.</string>
 </resources>
