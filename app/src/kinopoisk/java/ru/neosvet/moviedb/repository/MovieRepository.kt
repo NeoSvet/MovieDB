@@ -67,7 +67,16 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
 
             if (response.isSuccessful && movie != null) {
                 movie.filmId?.let {
-                    val m = cache.updateMovieDes(it, movie.description ?: "")
+                    val s = StringBuilder()
+                    movie.description?.let {
+                        s.appendLine(it)
+                        s.appendLine()
+                    }
+                    movie.facts?.forEach {
+                        s.appendLine(it)
+                        s.appendLine()
+                    }
+                    val m = cache.updateMovieDes(it, s.toString())
                     if (m != null)
                         callbacks.onSuccessMovie(m)
                     loadCredits(it)
