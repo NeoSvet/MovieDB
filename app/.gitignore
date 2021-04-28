@@ -1,7 +1,8 @@
 /build
-/src/debug/res/values/google_maps_api.xml
 /src/release/res/values/google_maps_api.xml
 /src/kinopoisk/google-services.json
 /src/moviedb/google-services.json
 /src/kinopoisk/java/ru/neosvet/moviedb/app/Apikey.kt
 /src/moviedb/java/ru/neosvet/moviedb/app/Apikey.kt
+/src/moviedbDebug/res/values/google_maps_api.xml
+/src/kinopoiskDebug/res/values/yandex_maps_api.xml
