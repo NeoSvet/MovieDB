@@ -1,8 +1,6 @@
 package ru.neosvet.moviedb.repository
 
-import android.util.Log
 import com.google.gson.GsonBuilder
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -37,10 +35,6 @@ class RemoteSource {
         httpClient.connectTimeout(3, TimeUnit.SECONDS)
         httpClient.readTimeout(3, TimeUnit.SECONDS)
         httpClient.writeTimeout(3, TimeUnit.SECONDS)
-        httpClient.addInterceptor(Interceptor { chain ->
-            Log.d("mylog", "url: " + chain.request().url().toString())
-            return@Interceptor chain.proceed(chain.request())
-        })
         return httpClient.build()
     }
 
