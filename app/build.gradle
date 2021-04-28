@@ -2,7 +2,6 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
-    id 'com.google.gms.google-services'
 }
 
 android {
@@ -48,12 +47,21 @@ android {
     }
 }
 
+android.productFlavors.each { flavor ->
+    if (flavor.name.equals("moviedb")) {
+        println("Building flavor with Google GCM [${flavor.name}] - applying plugin")
+        apply plugin: 'com.google.gms.google-services'
+        dependencies {
+            //Firebase
+            implementation 'com.google.firebase:firebase-messaging:21.1.0'
+            //Play services
+            implementation 'com.google.android.gms:play-services-auth:19.0.0'
+            implementation 'com.google.android.gms:play-services-maps:17.0.1'
+        }
+    }
+}
+
 dependencies {
-    //Firebase
-    implementation 'com.google.firebase:firebase-messaging:21.1.0'
-    //Play services
-    implementation 'com.google.android.gms:play-services-auth:19.0.0'
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'
     //Room
     implementation 'androidx.room:room-runtime:2.3.0'
     kapt 'androidx.room:room-compiler:2.3.0'
