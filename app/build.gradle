@@ -58,6 +58,12 @@ android.productFlavors.each { flavor ->
             implementation 'com.google.android.gms:play-services-auth:19.0.0'
             implementation 'com.google.android.gms:play-services-maps:17.0.1'
         }
+    } else if (flavor.name.equals("kinopoisk")) {
+        dependencies {
+            //Yandex Map
+            implementation 'com.yandex.android:mapkit:3.5.0'
+            implementation 'com.yandex.android:search:3.5.0'
+        }
     }
 }
 
