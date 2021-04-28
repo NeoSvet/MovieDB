@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Movie DB</string>
+    <string name="release_date">Дата выхода:</string>
     <string name="try_load_en">Попробовать загрузить описание на английском.</string>
 </resources>
