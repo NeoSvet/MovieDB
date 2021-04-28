@@ -53,3 +53,5 @@ class MovieModel : ViewModel(), MovieRepoCallbacks {
             state.postValue(MovieState.Error(error))
     }
 }
+
+fun MovieEntity.getLink() = "https://www.kinopoisk.ru/film/" + this.id
