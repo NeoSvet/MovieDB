@@ -1,9 +1,7 @@
 <resources>
-    <string name="app_name">Movie DB</string>
     <string name="search">Поиск</string>
     <string name="load">Загрузка</string>
     <string name="error">Ошибка</string>
-    <string name="release_date">Дата выхода:</string>
     <string name="no_connected">Подключение к интернету разорвано</string>
     <string name="connected">Подключение к интернету установленно</string>
     <string name="repeat">Повторить</string>
@@ -36,7 +34,6 @@
     <string name="crew">Персонал:&#160;</string>
     <string name="birthday">Дата рождения:&#160;</string>
     <string name="deathday">Дата смерти:&#160;</string>
-    <string name="try_load_en">Попробовать загрузить описание на английском.</string>
     <string name="push_channel_name">Канал push-уведомлений</string>
     <string name="push_channel_des">Push-уведомления от разработчика</string>
 </resources>

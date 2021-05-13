@@ -9,6 +9,7 @@ import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
+import ru.neosvet.moviedb.model.getLink
 import ru.neosvet.moviedb.repository.MovieRepository
 import ru.neosvet.moviedb.repository.room.DetailsEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
@@ -181,7 +182,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private fun initMessage(): String {
         movie?.let {
             return getString(R.string.recommend_movie) + it.title +
-                    "\nhttps://www.themoviedb.org/movie/" + it.id
+                    "\n" + it.getLink()
         }
         return ""
     }

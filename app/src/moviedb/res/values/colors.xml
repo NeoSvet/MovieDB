@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="primary">#032541</color>
+    <color name="primaryVariant">#010220</color>
+    <color name="secondary">#8CCDA3</color>
+    <color name="secondaryVariant">#02B3E4</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="card">#89B2B3</color>

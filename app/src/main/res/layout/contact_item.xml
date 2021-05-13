@@ -20,6 +20,7 @@
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginTop="@dimen/default_margin"
             android:layout_marginEnd="@dimen/default_margin"
+            android:textColor="?attr/colorOnSecondary"
             android:textSize="20sp" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -29,6 +30,7 @@
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginEnd="@dimen/default_margin"
             android:layout_marginBottom="@dimen/default_margin"
+            android:textColor="?attr/colorOnSecondary"
             android:textSize="12sp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
