@@ -27,8 +27,4 @@ class IncorrectResponseExc(override val message: String) : MyException() {
     }
 }
 
-class NoConnectionExc : MyException() {
-    override fun getTranslate(context: Context): String {
-        return context.getString(R.string.no_connection)
-    }
-}
+object NoConnectionExc : Exception("NoConnection")

@@ -59,7 +59,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
                 cache.clearCatalog(name)
             source.search(query, page, adult, callBackPage)
         } else {
-            callbacks.onFailure(NoConnectionExc())
+            callbacks.onFailure(NoConnectionExc)
         }
     }
 
@@ -261,7 +261,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
             if (connected)
                 loadPage(it.name, it.page)
             else
-                callbacks.onFailure(NoConnectionExc())
+                callbacks.onFailure(NoConnectionExc)
         }
     }
 

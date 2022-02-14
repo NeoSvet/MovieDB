@@ -2,8 +2,8 @@
     <string name="search">Поиск</string>
     <string name="load">Загрузка</string>
     <string name="format_error">Ошибка: %s</string>
-    <string name="no_connected">Подключение к интернету разорвано</string>
-    <string name="connected">Подключение к интернету установленно</string>
+    <string name="no_connected">Нет подключения к интернету</string>
+    <string name="connected">Подключение к интернету восстановлено</string>
     <string name="repeat">Повторить</string>
     <string name="upcoming">Новинки</string>
     <string name="popular">Популярное</string>
@@ -11,7 +11,6 @@
     <string name="item_no_found">Элемент не найден</string>
     <string name="list_no_found">Список не найден</string>
     <string name="incorrect_response">Неправильный ответ от сервера</string>
-    <string name="no_connection">Нет подключения к интернету</string>
     <string name="format_rating">Рейтинг %.2f</string>
     <string name="main">Главная</string>
     <string name="settings">Настройки</string>

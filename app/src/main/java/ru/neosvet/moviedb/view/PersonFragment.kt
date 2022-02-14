@@ -13,6 +13,7 @@ import ru.neosvet.moviedb.model.PersonState
 import ru.neosvet.moviedb.repository.room.PersonEntity
 import ru.neosvet.moviedb.utils.ImageUtils
 import ru.neosvet.moviedb.utils.MyException
+import ru.neosvet.moviedb.utils.NoConnectionExc
 
 class PersonFragment : Fragment(), Observer<PersonState> {
     companion object {
@@ -109,6 +110,8 @@ class PersonFragment : Fragment(), Observer<PersonState> {
             }
             is PersonState.Error -> {
                 main.finishLoad()
+                if(state.error is NoConnectionExc)
+                    return
                 val message = if (state.error is MyException)
                     state.error.getTranslate(requireContext())
                 else

@@ -15,6 +15,7 @@ import ru.neosvet.moviedb.repository.room.DetailsEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.ImageUtils
 import ru.neosvet.moviedb.utils.MyException
+import ru.neosvet.moviedb.utils.NoConnectionExc
 import ru.neosvet.moviedb.view.extension.OnBackFragment
 import ru.neosvet.moviedb.view.extension.hideKeyboard
 import ru.neosvet.moviedb.view.extension.showKeyboard
@@ -215,6 +216,8 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             }
             is MovieState.Error -> {
                 main.finishLoad()
+                if(state.error is NoConnectionExc)
+                    return
                 val message = if (state.error is MyException)
                     state.error.getTranslate(requireContext())
                 else

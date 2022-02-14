@@ -22,6 +22,7 @@ import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.ListUtils
 import ru.neosvet.moviedb.utils.MyException
+import ru.neosvet.moviedb.utils.NoConnectionExc
 import ru.neosvet.moviedb.utils.SettingsUtils
 
 class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
@@ -246,6 +247,8 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
             }
             is ListState.Error -> {
                 finishLoad()
+                if(state.error is NoConnectionExc)
+                    return
                 val message = if (state.error is MyException)
                     state.error.getTranslate(requireContext())
                 else
