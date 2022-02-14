@@ -5,15 +5,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "ru.neosvet.moviedb"
         minSdkVersion 23
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 31
+        versionCode 2
+        versionName "1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -28,11 +27,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
     flavorDimensions 'source'
     productFlavors {
@@ -53,10 +52,10 @@ android.productFlavors.each { flavor ->
         apply plugin: 'com.google.gms.google-services'
         dependencies {
             //Firebase
-            implementation 'com.google.firebase:firebase-messaging:21.1.0'
+            implementation 'com.google.firebase:firebase-messaging:23.0.0'
             //Play services
-            implementation 'com.google.android.gms:play-services-auth:19.0.0'
-            implementation 'com.google.android.gms:play-services-maps:17.0.1'
+            implementation 'com.google.android.gms:play-services-auth:20.1.0'
+            implementation 'com.google.android.gms:play-services-maps:18.0.2'
         }
     } else if (flavor.name.equals("kinopoisk")) {
         dependencies {
