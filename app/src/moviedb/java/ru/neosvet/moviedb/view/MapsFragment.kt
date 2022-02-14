@@ -19,7 +19,7 @@ import java.io.IOException
 
 class MapsFragment : Fragment() {
     companion object {
-        private val ARG_QUERY = "query"
+        private const val ARG_QUERY = "query"
 
         @JvmStatic
         fun newInstance(query: String) =
@@ -77,7 +77,7 @@ class MapsFragment : Fragment() {
         }.start()
     }
 
-    private fun addMarker(location: LatLng, title: String): Marker {
+    private fun addMarker(location: LatLng, title: String): Marker? {
         return map.addMarker(
             MarkerOptions()
                 .position(location)

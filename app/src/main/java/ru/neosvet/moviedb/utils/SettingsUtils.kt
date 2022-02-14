@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 
 class SettingsUtils(val context: Context) {
-    private val NAME = "settings"
-    private val ADULT = "adult"
+    companion object {
+        private const val NAME = "settings"
+        private const val ADULT = "adult"
+    }
     private val pref: SharedPreferences by lazy {
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
     }

@@ -7,9 +7,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
 class GetterPhones : IntentService("GetterPhones") {
     companion object {
-        val ID = "id"
-        val PHONE = "phone"
-        val INTENT_FILTER = "GetterPhones"
+        const val ID = "id"
+        const val PHONE = "phone"
+        const val INTENT_FILTER = "GetterPhones"
     }
 
     override fun onHandleIntent(intent: Intent?) {
@@ -39,12 +39,16 @@ class GetterPhones : IntentService("GetterPhones") {
             Phone.CONTACT_ID + " = " + id, null, null
         ) ?: return null
         var phone: String? = null
-        while (cursor.moveToNext()) {
-            val type = cursor.getInt(cursor.getColumnIndex(Phone.TYPE))
-            if (type == Phone.TYPE_MOBILE) {
-                phone = cursor.getString(cursor.getColumnIndex(Phone.NUMBER))
-                break
-            }
+        if (cursor.moveToFirst()) {
+            val iType = cursor.getColumnIndex(Phone.TYPE)
+            val iNumber = cursor.getColumnIndex(Phone.NUMBER)
+            do {
+                val type = cursor.getInt(iType)
+                if (type == Phone.TYPE_MOBILE) {
+                    phone = cursor.getString(iNumber)
+                    break
+                }
+            } while (cursor.moveToNext())
         }
         cursor.close()
         if (phone == null || phone.contains("#") || phone.length < 11)

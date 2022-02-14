@@ -10,10 +10,10 @@ import java.net.URLEncoder
 
 class ListModel : ViewModel(), ListRepoCallbacks {
     companion object {
-        val UPCOMING = "upcoming"
-        val POPULAR = "popular"
-        val TOP_RATED = "top_rated"
-        val SEARCH = "query"
+        const val UPCOMING = "upcoming"
+        const val POPULAR = "popular"
+        const val TOP_RATED = "top_rated"
+        const val SEARCH = "query"
         fun getSearchName(query: String) = SEARCH + "=" + URLEncoder.encode(query, "utf-8")
     }
 
@@ -21,9 +21,6 @@ class ListModel : ViewModel(), ListRepoCallbacks {
     private val repository = ListRepository(this)
     var index = 0
     var adult: Boolean = false
-        set(value) {
-            field = value
-        }
 
     fun getState() = state
 

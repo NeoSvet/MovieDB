@@ -1,6 +1,7 @@
 package ru.neosvet.moviedb.view
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -19,7 +20,8 @@ import ru.neosvet.moviedb.list.ContactsAdapter
 
 class ContactsFragment : Fragment(), ContactCallbacks {
     companion object {
-        private val ARG_MSG = "msg"
+        private const val REQUEST_CODE = 472
+        private const val ARG_MSG = "msg"
         fun newInstance(message: String) =
             ContactsFragment().apply {
                 arguments = Bundle().apply {
@@ -28,7 +30,6 @@ class ContactsFragment : Fragment(), ContactCallbacks {
             }
     }
 
-    private val REQUEST_CODE = 472
     private var message: String? = null
     private val adapter: ContactsAdapter by lazy {
         ContactsAdapter(requireContext(), this)
@@ -89,7 +90,7 @@ class ContactsFragment : Fragment(), ContactCallbacks {
                     AlertDialog.Builder(requireContext())
                         .setTitle(R.string.access_contacts)
                         .setMessage(R.string.about_access_contacts)
-                        .setNegativeButton(android.R.string.no) { dialog, _ ->
+                        .setNegativeButton(R.string.no) { dialog, _ ->
                             dialog.dismiss()
                         }
                         .create()
@@ -126,6 +127,7 @@ class ContactsFragment : Fragment(), ContactCallbacks {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun getContacts() {
         val contentResolver: ContentResolver = requireContext().contentResolver
         val cursorWithContacts: Cursor? = contentResolver.query(
@@ -159,7 +161,7 @@ class ContactsFragment : Fragment(), ContactCallbacks {
     }
 
     override fun onContactClicked(phone: String) {
-        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + phone))
+        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$phone"))
         intent.putExtra("sms_body", message)
         startActivity(intent)
     }

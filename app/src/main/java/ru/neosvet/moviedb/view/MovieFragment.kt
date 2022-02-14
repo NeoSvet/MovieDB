@@ -21,7 +21,7 @@ import ru.neosvet.moviedb.view.extension.showKeyboard
 
 class MovieFragment : OnBackFragment(), Observer<MovieState> {
     companion object {
-        private val ARG_ID = "movie_id"
+        private const val ARG_ID = "movie_id"
         fun newInstance(movieId: Int) =
             MovieFragment().apply {
                 arguments = Bundle().apply {
@@ -38,9 +38,9 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private lateinit var itemSave: MenuItem
     private lateinit var des: String
     private lateinit var note: String
-    private lateinit var cast_ids: List<String>
+    private lateinit var castIds: List<String>
     private lateinit var cast: List<String>
-    private lateinit var crew_ids: List<String>
+    private lateinit var crewIds: List<String>
     private lateinit var crew: List<String>
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
@@ -62,7 +62,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     ): View {
         setHasOptionsMenu(true)
         _binding = FragmentMovieBinding.inflate(inflater, container, false)
-        return binding.getRoot()
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -88,12 +88,12 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         }
         binding.tvCrew.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.container, PeopleFragment.newInstance(crew_ids, crew))
+                ?.replace(R.id.container, PeopleFragment.newInstance(crewIds, crew))
                 ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
         binding.tvCast.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.container, PeopleFragment.newInstance(cast_ids, cast))
+                ?.replace(R.id.container, PeopleFragment.newInstance(castIds, cast))
                 ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
         binding.tvTryLoadEn.setOnClickListener {
@@ -161,8 +161,8 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 etNote.setText(note)
                 tvDescription.visibility = View.GONE
                 etNote.visibility = View.VISIBLE
-                itemEdit.setVisible(false)
-                itemSave.setVisible(true)
+                itemEdit.isVisible = false
+                itemSave.isVisible = true
                 etNote.requestFocus()
                 etNote.setSelection(note.length)
                 requireActivity().showKeyboard(etNote)
@@ -215,13 +215,13 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             }
             is MovieState.Error -> {
                 main.finishLoad()
-                val message: String?
-                if (state.error is MyException)
-                    message = state.error.getTranslate(requireContext())
+                val message = if (state.error is MyException)
+                    state.error.getTranslate(requireContext())
                 else
-                    message = state.error.message
-                main.showError(message,
-                    getString(R.string.repeat), { loadDetails() })
+                    state.error.message
+                main.showError(
+                    message, getString(R.string.repeat)
+                ) { loadDetails() }
             }
         }
     }
@@ -232,7 +232,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             ImageUtils.load(item.poster, ivPoster)
             tvTitle.text = item.title
             if (item.date.isNotEmpty()) {
-                tvDate.text = getString(R.string.release_date) + " " + item.date
+                tvDate.text = String.format(getString(R.string.release_date), item.date)
                 tvDate.visibility = View.VISIBLE
             }
             tvOriginal.text = item.original
@@ -258,13 +258,13 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 tvCountries.text = getString(R.string.countries) + details.countries
                 tvCountries.visibility = View.VISIBLE
             }
-            cast_ids = details.cast_ids.split(MovieRepository.SEPARATOR)
+            castIds = details.cast_ids.split(MovieRepository.SEPARATOR)
             cast = details.cast.split(MovieRepository.SEPARATOR)
             if (cast[0].isNotEmpty()) {
                 tvCast.text = getString(R.string.cast) + limitedArray(cast)
                 tvCast.visibility = View.VISIBLE
             }
-            crew_ids = details.crew_ids.split(MovieRepository.SEPARATOR)
+            crewIds = details.crew_ids.split(MovieRepository.SEPARATOR)
             crew = details.crew.split(MovieRepository.SEPARATOR)
             if (crew[0].isNotEmpty()) {
                 tvCrew.text = getString(R.string.crew) + limitedArray(crew)

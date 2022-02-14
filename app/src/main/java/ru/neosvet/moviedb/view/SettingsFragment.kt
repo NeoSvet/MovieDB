@@ -21,13 +21,13 @@ class SettingsFragment : Fragment() {
     ): View {
         setHasOptionsMenu(true)
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
-        return binding.getRoot()
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.cbAdult.isChecked = settings.getAdult()
-        binding.cbAdult.setOnCheckedChangeListener { buttonView, isChecked ->
+        binding.cbAdult.setOnCheckedChangeListener { _, isChecked ->
             settings.setAdult(isChecked)
         }
     }

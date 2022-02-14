@@ -1,5 +1,6 @@
 package ru.neosvet.moviedb.view
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -56,6 +57,7 @@ class PeopleFragment : Fragment(), PersonCallbacks {
             initList()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initList() {
         for (i in people.indices) {
             adapter.addPerson(ids[i].toInt(), people[i])

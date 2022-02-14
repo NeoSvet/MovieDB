@@ -1,7 +1,7 @@
 <resources>
     <string name="search">Поиск</string>
     <string name="load">Загрузка</string>
-    <string name="error">Ошибка</string>
+    <string name="format_error">Ошибка: %s</string>
     <string name="no_connected">Подключение к интернету разорвано</string>
     <string name="connected">Подключение к интернету установленно</string>
     <string name="repeat">Повторить</string>
@@ -12,7 +12,7 @@
     <string name="list_no_found">Список не найден</string>
     <string name="incorrect_response">Неправильный ответ от сервера</string>
     <string name="no_connection">Нет подключения к интернету</string>
-    <string name="rating">Рейтинг</string>
+    <string name="format_rating">Рейтинг %.2f</string>
     <string name="main">Главная</string>
     <string name="settings">Настройки</string>
     <string name="content_for_adult">Контент для взрослых</string>
@@ -36,4 +36,5 @@
     <string name="deathday">Дата смерти:&#160;</string>
     <string name="push_channel_name">Канал push-уведомлений</string>
     <string name="push_channel_des">Push-уведомления от разработчика</string>
+    <string name="no">Нет</string>
 </resources>

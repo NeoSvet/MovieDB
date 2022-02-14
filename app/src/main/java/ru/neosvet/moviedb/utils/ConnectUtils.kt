@@ -25,14 +25,14 @@ class ConnectUtils : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.getBooleanExtra("noConnectivity", false)) {
+        CONNECTED = if (intent.getBooleanExtra("noConnectivity", false)) {
             if (observer != null)
                 Toast.makeText(context, R.string.no_connected, Toast.LENGTH_SHORT).show()
-            CONNECTED = false
+            false
         } else {
             if (observer != null)
                 Toast.makeText(context, R.string.connected, Toast.LENGTH_SHORT).show()
-            CONNECTED = true
+            true
         }
         observer?.connectChanged(CONNECTED ?: false)
     }

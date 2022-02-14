@@ -10,7 +10,7 @@ import ru.neosvet.moviedb.utils.ItemNoFoundExc
 
 class MovieRepository(val callbacks: MovieRepoCallbacks) {
     companion object {
-        val SEPARATOR = '@'
+        const val SEPARATOR = '@'
     }
 
     private val source = RemoteSource()
@@ -77,7 +77,7 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
 
 //CALLBACKS
 
-    val callBackDetails = object : Callback<Movie> {
+    private val callBackDetails = object : Callback<Movie> {
         override fun onResponse(call: Call<Movie>, response: Response<Movie>) {
             val movie: Movie? = response.body()
 
@@ -109,7 +109,7 @@ class MovieRepository(val callbacks: MovieRepoCallbacks) {
         }
     }
 
-    val callBackCredits = object : Callback<Credits> {
+    private val callBackCredits = object : Callback<Credits> {
         override fun onResponse(call: Call<Credits>, response: Response<Credits>) {
             val credits: Credits? = response.body()
 
