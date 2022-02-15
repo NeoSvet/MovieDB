@@ -28,9 +28,10 @@
     <string name="share_with">Поделиться фильмом с…</string>
     <string name="share">Поделиться</string>
     <string name="recommend_movie">Рекомендую фильм&#160;</string>
-    <string name="countries">Страны:&#160;</string>
-    <string name="cast">Актёры:&#160;</string>
-    <string name="crew">Персонал:&#160;</string>
+    <string name="format_countries">Страны: %s</string>
+    <string name="cast">Актёры</string>
+    <string name="crew">Персонал</string>
+    <string name="show_all">показать всех</string>
     <string name="birthday">Дата рождения:&#160;</string>
     <string name="deathday">Дата смерти:&#160;</string>
     <string name="push_channel_name">Канал push-уведомлений</string>

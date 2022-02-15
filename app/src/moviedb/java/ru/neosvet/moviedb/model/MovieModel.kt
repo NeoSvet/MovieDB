@@ -2,6 +2,7 @@ package ru.neosvet.moviedb.model
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import ru.neosvet.moviedb.list.Person
 import ru.neosvet.moviedb.repository.MovieRepoCallbacks
 import ru.neosvet.moviedb.repository.MovieRepository
 import ru.neosvet.moviedb.repository.room.DetailsEntity
@@ -41,6 +42,31 @@ class MovieModel : ViewModel(), MovieRepoCallbacks {
 
     fun getNote(id: Int) = repository.getNote(id)
 
+    private fun createList(strNames: String, strIds: String): List<Person> {
+        val list = arrayListOf<Person>()
+        val names = strNames.split(MovieRepository.SEPARATOR)
+        val ids = strIds.split(MovieRepository.SEPARATOR)
+        for (i in names.indices) {
+            val name = names[i]
+            val n = name.indexOf(" (")
+            val person = if (n > -1) {
+                Person(
+                    id = ids[i].toInt(),
+                    name = name.substring(0, n),
+                    role = name.substring(n + 2, name.length - 1)
+                )
+            } else {
+                Person(
+                    id = ids[i].toInt(),
+                    name = name,
+                    role = ""
+                )
+            }
+            list.add(person)
+        }
+        return list
+    }
+
 //OVERRIDE
 
     override fun onSuccessMovie(movie: MovieEntity) {
@@ -48,11 +74,28 @@ class MovieModel : ViewModel(), MovieRepoCallbacks {
     }
 
     override fun onSuccessDetails(details: DetailsEntity) {
-        state.postValue(MovieState.SuccessDetails(details))
+        state.postValue(
+            MovieState.SuccessDetails(
+                Details(
+                    countries = details.countries,
+                    cast = createList(details.cast, details.cast_ids),
+                    crew = createList(details.crew, details.crew_ids)
+                )
+            )
+        )
     }
 
     override fun onSuccessAll(movie: MovieEntity, details: DetailsEntity) {
-        state.postValue(MovieState.SuccessAll(movie, details))
+        state.postValue(
+            MovieState.SuccessAll(
+                movie,
+                Details(
+                    countries = details.countries,
+                    cast = createList(details.cast, details.cast_ids),
+                    crew = createList(details.crew, details.crew_ids)
+                )
+            )
+        )
     }
 
     override fun onFailure(error: Throwable) {

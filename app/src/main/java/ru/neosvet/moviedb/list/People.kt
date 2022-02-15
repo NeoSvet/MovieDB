@@ -1,71 +1,65 @@
 package ru.neosvet.moviedb.list
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textview.MaterialTextView
-import ru.neosvet.moviedb.R
+import ru.neosvet.moviedb.databinding.PeopleItemBinding
 import java.util.*
 
-data class Person(
-    val id: Int,
-    val name: String,
-    val des: String
-)
+class PeopleAdapter(
+  private val showAll: (List<Person>) -> Unit
+) : RecyclerView.Adapter<PeopleAdapter.Holder>() {
+    private val adapters = ArrayList<PersonsAdapter>()
+    private val listTitle = ArrayList<String>()
+    private val listPeople = ArrayList<List<Person>>()
 
-class PeopleAdapter(val context: Context, val callbacks: PersonCallbacks) :
-    RecyclerView.Adapter<PeopleAdapter.Holder>() {
+    fun addItem(title: String, people: List<Person>, adapter: PersonsAdapter) {
+        listTitle.add(title)
+        listPeople.add(people)
+        adapters.add(adapter)
+    }
 
-//BASE:
-
-    private val people = ArrayList<Person>()
-
-    fun addPerson(id: Int, name: String) {
-        if (name.contains(" (")) {
-            val i = name.indexOf(" (")
-            people.add(
-                Person(
-                    id,
-                    name.substring(0, i),
-                    name.substring(i + 2, name.length - 1)
-                )
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        Holder(
+            PeopleItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
-        } else
-            people.add(Person(id, name, ""))
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(
-            LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
         )
-    }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.setItem(people[position], callbacks)
+        holder.setItem(position, adapters[position])
     }
 
-    override fun getItemCount() = people.size
+    override fun getItemCount() = listTitle.size
 
 //HOLDER:
 
-    inner class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvName: MaterialTextView = itemView.findViewById(R.id.tvName)
-        private val tvDes: MaterialTextView = itemView.findViewById(R.id.tvPhone)
+    inner class Holder(
+        private val binding: PeopleItemBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            val manager = LinearLayoutManager(
+                binding.root.context,
+                RecyclerView.HORIZONTAL, false
+            )
+            binding.rvPersons.layoutManager = manager
+        }
 
-        fun setItem(item: Person, callbacks: PersonCallbacks) {
-            tvName.text = item.name
-            tvDes.text = item.des
-
-            itemView.setOnClickListener {
-                callbacks.onPersonClicked(item.id)
+        @SuppressLint("NotifyDataSetChanged")
+        fun setItem(position: Int, adapter: PersonsAdapter) = binding.run {
+            tvTitle.text = listTitle[position]
+            tvShowAll.setOnClickListener {
+                showAll.invoke(listPeople[position])
             }
+
+            rvPersons.adapter = adapter
+            adapter.notifyDataSetChanged()
+            if (adapter.index > 0)
+                rvPersons.scrollToPosition(adapter.index)
         }
     }
-}
-
-//CALLBACKS
-interface PersonCallbacks {
-    fun onPersonClicked(id: Int)
 }

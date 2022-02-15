@@ -104,32 +104,6 @@
                 app:layout_constraintTop_toBottomOf="@id/tvOriginal" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvCrew"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/default_margin"
-                android:layout_marginBottom="@dimen/default_margin"
-                android:textColor="@color/link"
-                android:textSize="15sp"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/tvTitle"
-                app:layout_constraintTop_toBottomOf="@id/tvGenres" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvCast"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/default_margin"
-                android:layout_marginBottom="@dimen/default_margin"
-                android:textColor="@color/link"
-                android:textSize="15sp"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/tvCrew"
-                app:layout_constraintTop_toBottomOf="@id/tvCrew" />
-
-            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvTryLoadEn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -139,7 +113,7 @@
                 android:textSize="16sp"
                 android:visibility="gone"
                 app:layout_constraintStart_toEndOf="@id/ivPoster"
-                app:layout_constraintTop_toBottomOf="@id/tvCast" />
+                app:layout_constraintTop_toBottomOf="@id/tvGenres" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvDescription"
@@ -150,6 +124,14 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivPoster"
                 app:layout_constraintTop_toBottomOf="@id/tvTryLoadEn" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPeople"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ivPoster"
+                app:layout_constraintTop_toBottomOf="@id/tvDescription" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNote"

@@ -1,44 +1,25 @@
 package ru.neosvet.moviedb.view
 
-import android.annotation.SuppressLint
+import android.graphics.Point
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ru.neosvet.moviedb.R
-import ru.neosvet.moviedb.list.PeopleAdapter
-import ru.neosvet.moviedb.list.PersonCallbacks
+import ru.neosvet.moviedb.list.Person
+import ru.neosvet.moviedb.list.PersonsAdapter
 
-class PeopleFragment : Fragment(), PersonCallbacks {
+class PeopleFragment : Fragment() {
     companion object {
-        private val ARG_IDS = "ids"
-        private val ARG_PEOPLE = "people"
-        fun newInstance(ids: List<String>, people: List<String>) =
-            PeopleFragment().apply {
-                arguments = Bundle().apply {
-                    putStringArray(ARG_IDS, ids.toTypedArray())
-                    putStringArray(ARG_PEOPLE, people.toTypedArray())
-                }
-            }
-    }
-
-    private var ids: Array<String> = arrayOf("")
-    private var people: Array<String> = arrayOf("")
-    private val adapter: PeopleAdapter by lazy {
-        PeopleAdapter(requireContext(), this)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.run {
-            getStringArray(ARG_IDS)?.let {
-                ids = it
-            }
-            getStringArray(ARG_PEOPLE)?.let {
-                people = it
-            }
+        private const val CARD_WIDTH = 120
+        private var people = listOf<Person>()
+        fun newInstance(list: List<Person>): PeopleFragment {
+            people = list
+            return PeopleFragment()
         }
     }
 
@@ -51,23 +32,36 @@ class PeopleFragment : Fragment(), PersonCallbacks {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val rvPeople = view.findViewById<RecyclerView>(R.id.rvPeople)
-        rvPeople.adapter = adapter
-        if (adapter.itemCount == 0)
-            initList()
+        initList()
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun initList() {
-        for (i in people.indices) {
-            adapter.addPerson(ids[i].toInt(), people[i])
+        val adapter = PersonsAdapter { id ->
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, PersonFragment.newInstance(id))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
-        adapter.notifyDataSetChanged()
+
+        view?.let {
+            val rvPeople = it.findViewById<RecyclerView>(R.id.rvPeople)
+            val width = getDisplayWidth() / resources.displayMetrics.density
+            val count = width.toInt() / CARD_WIDTH
+            rvPeople.layoutManager = GridLayoutManager(
+                requireContext(), count
+            )
+            rvPeople.adapter = adapter
+            adapter.setItems(people)
+        }
     }
 
-    override fun onPersonClicked(id: Int) {
-        activity?.supportFragmentManager?.beginTransaction()
-            ?.replace(R.id.container, PersonFragment.newInstance(id))
-            ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+    private fun getDisplayWidth(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val d = requireActivity().windowManager.currentWindowMetrics
+            d.bounds.width()
+        } else {
+            val p = Point(0, 0)
+            requireActivity().windowManager.defaultDisplay.getRealSize(p)
+            p.x
+        }
     }
 }

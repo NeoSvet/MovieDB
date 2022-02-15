@@ -1,17 +1,21 @@
 package ru.neosvet.moviedb.view
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentMovieBinding
+import ru.neosvet.moviedb.list.PeopleAdapter
+import ru.neosvet.moviedb.list.Person
+import ru.neosvet.moviedb.list.PersonsAdapter
+import ru.neosvet.moviedb.model.Details
 import ru.neosvet.moviedb.model.MovieModel
 import ru.neosvet.moviedb.model.MovieState
 import ru.neosvet.moviedb.model.getLink
-import ru.neosvet.moviedb.repository.MovieRepository
-import ru.neosvet.moviedb.repository.room.DetailsEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.ImageUtils
 import ru.neosvet.moviedb.utils.MyException
@@ -22,6 +26,7 @@ import ru.neosvet.moviedb.view.extension.showKeyboard
 
 class MovieFragment : OnBackFragment(), Observer<MovieState> {
     companion object {
+        private const val LIMIT_PERSON = 6
         private const val ARG_ID = "movie_id"
         fun newInstance(movieId: Int) =
             MovieFragment().apply {
@@ -39,15 +44,17 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     private lateinit var itemSave: MenuItem
     private lateinit var des: String
     private lateinit var note: String
-    private lateinit var castIds: List<String>
-    private lateinit var cast: List<String>
-    private lateinit var crewIds: List<String>
-    private lateinit var crew: List<String>
     private val model: MovieModel by lazy {
         ViewModelProvider(this).get(MovieModel::class.java)
     }
     private val main: MainActivity by lazy {
         requireActivity() as MainActivity
+    }
+    private lateinit var peopleAdapter: PeopleAdapter
+    private val onPersonClick: (Int) -> Unit = { id ->
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.replace(R.id.container, PersonFragment.newInstance(id))
+            ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +75,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initLists()
         loadDetails()
         initLink()
         binding.ivPoster.setOnClickListener {
@@ -78,6 +86,16 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         }
     }
 
+    private fun initLists() {
+        peopleAdapter = PeopleAdapter { list ->
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, PeopleFragment.newInstance(list))
+                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
+        }
+        binding.rvPeople.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvPeople.adapter = peopleAdapter
+    }
+
     private fun initLink() {
         binding.tvCountries.setOnClickListener {
             var s = binding.tvCountries.text
@@ -86,16 +104,6 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 showMenu(s)
             else
                 openMap(s)
-        }
-        binding.tvCrew.setOnClickListener {
-            activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.container, PeopleFragment.newInstance(crewIds, crew))
-                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
-        }
-        binding.tvCast.setOnClickListener {
-            activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.container, PeopleFragment.newInstance(castIds, cast))
-                ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
         binding.tvTryLoadEn.setOnClickListener {
             movieId?.let { model.loadDetailsEn(it) }
@@ -216,7 +224,7 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
             }
             is MovieState.Error -> {
                 main.finishLoad()
-                if(state.error is NoConnectionExc)
+                if (state.error is NoConnectionExc)
                     return
                 val message = if (state.error is MyException)
                     state.error.getTranslate(requireContext())
@@ -255,42 +263,39 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
         }
     }
 
-    private fun showDetails(details: DetailsEntity) {
+    @SuppressLint("NotifyDataSetChanged")
+    private fun showDetails(details: Details) {
         with(binding) {
             if (details.countries.isNotEmpty()) {
-                tvCountries.text = getString(R.string.countries) + details.countries
+                tvCountries.text =
+                    String.format(getString(R.string.format_countries), details.countries)
                 tvCountries.visibility = View.VISIBLE
             }
-            castIds = details.cast_ids.split(MovieRepository.SEPARATOR)
-            cast = details.cast.split(MovieRepository.SEPARATOR)
-            if (cast[0].isNotEmpty()) {
-                tvCast.text = getString(R.string.cast) + limitedArray(cast)
-                tvCast.visibility = View.VISIBLE
-            }
-            crewIds = details.crew_ids.split(MovieRepository.SEPARATOR)
-            crew = details.crew.split(MovieRepository.SEPARATOR)
-            if (crew[0].isNotEmpty()) {
-                tvCrew.text = getString(R.string.crew) + limitedArray(crew)
-                tvCrew.visibility = View.VISIBLE
-            }
+
+            peopleAdapter.addItem(
+                title = getString(R.string.cast),
+                people = details.cast,
+                adapter = createAdapter(details.cast)
+            )
+            peopleAdapter.addItem(
+                title = getString(R.string.crew),
+                people = details.crew,
+                adapter = createAdapter(details.crew)
+            )
+            peopleAdapter.notifyDataSetChanged()
         }
         main.finishLoad()
         model.getState().value = MovieState.Finished
     }
 
-    private fun limitedArray(array: List<String>): String {
-        val s = StringBuilder()
-        for (n in 0..4) {
-            if (n == array.size)
-                break
-            s.append(", ")
-            s.append(array[n])
+    private fun createAdapter(list: List<Person>): PersonsAdapter {
+        var i = 0
+        val adapter = PersonsAdapter(onPersonClick)
+        while (i < LIMIT_PERSON && i < list.size) {
+            adapter.addItem(list[i])
+            i++
         }
-        if (s.isNotEmpty()) {
-            s.delete(0, 2)
-            return s.toString()
-        }
-        return array[0]
+        return adapter
     }
 
     private fun showDes() {
