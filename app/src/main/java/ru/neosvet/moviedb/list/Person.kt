@@ -1,6 +1,5 @@
 package ru.neosvet.moviedb.list
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -19,23 +18,12 @@ data class Person(
 )
 
 class PersonsAdapter(
-    val onClick: (Int) -> Unit
+    private val persons: List<Person>,
+    private val onClick: (Int) -> Unit
 ) : RecyclerView.Adapter<PersonsAdapter.Holder>(), PersonRepoCallbacks {
     private val repository = PeopleRepository(this)
-    private val data = ArrayList<Person>()
     private val holders = ArrayList<Holder>()
     var index: Int = 0
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun setItems(items: List<Person>) {
-        data.clear()
-        data.addAll(items)
-        notifyDataSetChanged()
-    }
-
-    fun addItem(item: Person) {
-        data.add(item)
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val holder = Holder(
@@ -55,15 +43,15 @@ class PersonsAdapter(
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        if (data[position].photo == null)
-            repository.requestPerson(data[position].id, false)
-        holder.setItem(data[position])
+        if (persons[position].photo == null)
+            repository.requestPerson(persons[position].id, false)
+        holder.setItem(persons[position])
     }
 
     override fun onSuccess(person: PersonEntity) {
-        for (i in data.indices) {
-            if (data[i].id == person.id) {
-                data[i].photo = person.photo
+        for (i in persons.indices) {
+            if (persons[i].id == person.id) {
+                persons[i].photo = person.photo
                 searchHolder(person.id)?.startLoad(person.photo)
             }
         }
@@ -80,9 +68,7 @@ class PersonsAdapter(
     override fun onFailure(error: Throwable) {
     }
 
-    override fun getItemCount(): Int {
-        return data.size
-    }
+    override fun getItemCount() = persons.size
 
 //HOLDER:
 

@@ -6,18 +6,25 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ru.neosvet.moviedb.databinding.PeopleItemBinding
-import java.util.*
 
 class PeopleAdapter(
-  private val showAll: (List<Person>) -> Unit
+    private val showAll: (Int, Type) -> Unit
 ) : RecyclerView.Adapter<PeopleAdapter.Holder>() {
-    private val adapters = ArrayList<PersonsAdapter>()
-    private val listTitle = ArrayList<String>()
-    private val listPeople = ArrayList<List<Person>>()
+    enum class Type {
+        CREW, CAST
+    }
 
-    fun addItem(title: String, people: List<Person>, adapter: PersonsAdapter) {
-        listTitle.add(title)
-        listPeople.add(people)
+    data class Data(
+        val title: String,
+        val movieId: Int,
+        val type: Type
+    )
+
+    private val adapters = ArrayList<PersonsAdapter>()
+    private val data = ArrayList<Data>()
+
+    fun addItem(title: String, movieId: Int, type: Type, adapter: PersonsAdapter) {
+        data.add(Data(title, movieId, type))
         adapters.add(adapter)
     }
 
@@ -31,10 +38,10 @@ class PeopleAdapter(
         )
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.setItem(position, adapters[position])
+        holder.setItem(data[position], adapters[position])
     }
 
-    override fun getItemCount() = listTitle.size
+    override fun getItemCount() = data.size
 
 //HOLDER:
 
@@ -50,10 +57,10 @@ class PeopleAdapter(
         }
 
         @SuppressLint("NotifyDataSetChanged")
-        fun setItem(position: Int, adapter: PersonsAdapter) = binding.run {
-            tvTitle.text = listTitle[position]
+        fun setItem(data: Data, adapter: PersonsAdapter) = binding.run {
+            tvTitle.text = data.title
             tvShowAll.setOnClickListener {
-                showAll.invoke(listPeople[position])
+                showAll.invoke(data.movieId, data.type)
             }
 
             rvPersons.adapter = adapter

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import ru.neosvet.moviedb.R
 import ru.neosvet.moviedb.databinding.FragmentMovieBinding
 import ru.neosvet.moviedb.list.PeopleAdapter
-import ru.neosvet.moviedb.list.Person
 import ru.neosvet.moviedb.list.PersonsAdapter
 import ru.neosvet.moviedb.model.Details
 import ru.neosvet.moviedb.model.MovieModel
@@ -26,7 +25,6 @@ import ru.neosvet.moviedb.view.extension.showKeyboard
 
 class MovieFragment : OnBackFragment(), Observer<MovieState> {
     companion object {
-        private const val LIMIT_PERSON = 6
         private const val ARG_ID = "movie_id"
         fun newInstance(movieId: Int) =
             MovieFragment().apply {
@@ -87,9 +85,9 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
     }
 
     private fun initLists() {
-        peopleAdapter = PeopleAdapter { list ->
+        peopleAdapter = PeopleAdapter { id, type ->
             activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.container, PeopleFragment.newInstance(list))
+                ?.replace(R.id.container, PeopleFragment.newInstance(id, type))
                 ?.addToBackStack(MainActivity.MAIN_STACK)?.commit()
         }
         binding.rvPeople.layoutManager = LinearLayoutManager(requireContext())
@@ -272,30 +270,25 @@ class MovieFragment : OnBackFragment(), Observer<MovieState> {
                 tvCountries.visibility = View.VISIBLE
             }
 
-            peopleAdapter.addItem(
-                title = getString(R.string.cast),
-                people = details.cast,
-                adapter = createAdapter(details.cast)
-            )
-            peopleAdapter.addItem(
-                title = getString(R.string.crew),
-                people = details.crew,
-                adapter = createAdapter(details.crew)
-            )
-            peopleAdapter.notifyDataSetChanged()
+            movie?.id?.let { id ->
+                peopleAdapter.addItem(
+                    title = getString(R.string.cast),
+                    movieId = id,
+                    type = PeopleAdapter.Type.CAST,
+                    adapter = PersonsAdapter(details.cast, onPersonClick)
+                )
+                peopleAdapter.addItem(
+                    title = getString(R.string.crew),
+                    movieId = id,
+                    type = PeopleAdapter.Type.CREW,
+                    adapter = PersonsAdapter(details.crew, onPersonClick)
+                )
+                peopleAdapter.notifyDataSetChanged()
+            }
+
         }
         main.finishLoad()
         model.getState().value = MovieState.Finished
-    }
-
-    private fun createAdapter(list: List<Person>): PersonsAdapter {
-        var i = 0
-        val adapter = PersonsAdapter(onPersonClick)
-        while (i < LIMIT_PERSON && i < list.size) {
-            adapter.addItem(list[i])
-            i++
-        }
-        return adapter
     }
 
     private fun showDes() {
