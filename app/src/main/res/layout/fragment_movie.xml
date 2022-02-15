@@ -83,7 +83,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/default_margin"
-                    android:text="@string/rating"
                     android:textSize="15sp"
                     app:layout_constraintStart_toStartOf="@id/tvTitle"
                     app:layout_constraintTop_toBottomOf="@id/tvGenres" />
@@ -112,29 +111,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvCrew"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/default_margin"
-                android:layout_marginBottom="@dimen/default_margin"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:textColor="@color/link"
-                android:textSize="15sp"
-                android:visibility="gone" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvCast"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/default_margin"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:textColor="@color/link"
-                android:textSize="15sp"
-                android:visibility="gone" />
-
-            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvTryLoadEn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -150,6 +126,11 @@
                 android:layout_height="wrap_content"
                 android:padding="5dp"
                 android:textSize="16sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPeople"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNote"

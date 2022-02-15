@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import ru.neosvet.moviedb.R
 
-class PageAdapter(val movies: MoviesAdapter) : RecyclerView.Adapter<PageHolder>() {
+class PageAdapter(private val movies: MoviesAdapter) : RecyclerView.Adapter<PageHolder>() {
     private val current: Int = movies.catalog.page
     private val count: Int = movies.catalog.total_pages
 
@@ -39,9 +39,9 @@ class PageHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             )
         } else {
             tvPage.setBackgroundColor(android.R.color.transparent)
-            tvPage.setOnClickListener({
+            tvPage.setOnClickListener {
                 movies.callbacks.onPageClicked(page, movies)
-            })
+            }
         }
     }
 }

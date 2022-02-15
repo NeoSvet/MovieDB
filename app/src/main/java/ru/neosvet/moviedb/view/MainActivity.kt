@@ -17,18 +17,18 @@ import ru.neosvet.moviedb.view.extension.OnBackFragment
 
 class MainActivity : AppCompatActivity() {
     companion object {
-        val MAIN_STACK = "main"
+        const val MAIN_STACK = "main"
+        private const val TAG_LIST = "list"
     }
 
-    private val TAG_LIST = "list"
     private lateinit var binding: ActivityMainBinding
     private val recConnect = ConnectUtils()
     private var snackbar: Snackbar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(getLayoutInflater())
-        setContentView(binding.getRoot())
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         registerReceiver(recConnect, IntentFilter(CONNECTIVITY_ACTION))
         if (savedInstanceState == null) {
@@ -127,18 +127,15 @@ class MainActivity : AppCompatActivity() {
         titleAction: String?,
         eventAction: View.OnClickListener?
     ) {
-        val msg = message?.let {
-            ": " + it
-        } ?: ""
         snackbar = Snackbar.make(
             binding.panelButtons,
-            getString(R.string.error) + msg,
+            String.format(getString(R.string.format_error), message),
             Snackbar.LENGTH_INDEFINITE
         ).setAction(titleAction, eventAction)
         snackbar?.show()
     }
 
-    fun hideError() {
+    private fun hideError() {
         snackbar?.dismiss()
         snackbar = null
     }
@@ -146,8 +143,8 @@ class MainActivity : AppCompatActivity() {
     fun loadBigImage(url: String) {
         with(binding.ivBigImage) {
             ImageUtils.loadBig(url, this)
-            getLayoutParams().width = 100
-            getLayoutParams().height = 100
+            layoutParams.width = 100
+            layoutParams.height = 100
             requestLayout()
             binding.pBigImage.visibility = View.VISIBLE
 
@@ -167,13 +164,13 @@ class MainActivity : AppCompatActivity() {
             animator.interpolator = DecelerateInterpolator()
             animator.addUpdateListener { animation ->
                 if (isWidth) {
-                    getLayoutParams().width = animation.animatedValue as Int
-                    getLayoutParams().height =
-                        (getLayoutParams().width * 1.33f).toInt()
+                    layoutParams.width = animation.animatedValue as Int
+                    layoutParams.height =
+                        (layoutParams.width * 1.33f).toInt()
                 } else {
-                    getLayoutParams().height = animation.animatedValue as Int
-                    getLayoutParams().width =
-                        (getLayoutParams().height * 0.66f).toInt()
+                    layoutParams.height = animation.animatedValue as Int
+                    layoutParams.width =
+                        (layoutParams.height * 0.66f).toInt()
                 }
                 requestLayout()
             }

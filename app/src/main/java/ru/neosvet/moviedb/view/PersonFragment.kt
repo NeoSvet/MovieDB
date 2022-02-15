@@ -13,6 +13,7 @@ import ru.neosvet.moviedb.model.PersonState
 import ru.neosvet.moviedb.repository.room.PersonEntity
 import ru.neosvet.moviedb.utils.ImageUtils
 import ru.neosvet.moviedb.utils.MyException
+import ru.neosvet.moviedb.utils.NoConnectionExc
 
 class PersonFragment : Fragment(), Observer<PersonState> {
     companion object {
@@ -44,7 +45,7 @@ class PersonFragment : Fragment(), Observer<PersonState> {
     ): View {
         setHasOptionsMenu(true)
         _binding = FragmentPersonBinding.inflate(inflater, container, false)
-        return binding.getRoot()
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -109,13 +110,16 @@ class PersonFragment : Fragment(), Observer<PersonState> {
             }
             is PersonState.Error -> {
                 main.finishLoad()
-                val message: String?
-                if (state.error is MyException)
-                    message = state.error.getTranslate(requireContext())
+                if(state.error is NoConnectionExc)
+                    return
+                val message = if (state.error is MyException)
+                    state.error.getTranslate(requireContext())
                 else
-                    message = state.error.message
-                main.showError(message,
-                    getString(R.string.repeat), { loadPerson() })
+                    state.error.message
+                main.showError(
+                    message,
+                    getString(R.string.repeat)
+                ) { loadPerson() }
             }
         }
     }
@@ -132,7 +136,7 @@ class PersonFragment : Fragment(), Observer<PersonState> {
             if (person.popularity == 0f)
                 tvRating.visibility = View.GONE
             else
-                tvRating.text = getString(R.string.rating) + " %.2f".format(person.popularity)
+                tvRating.text = String.format(getString(R.string.format_rating), person.popularity)
             tvBiography.text = person.biography
         }
     }

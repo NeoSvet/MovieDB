@@ -10,6 +10,7 @@ class ConnectUtils : BroadcastReceiver() {
     companion object {
         var CONNECTED: Boolean? = null
         var observer: ConnectObserver? = null
+        private var isDisconnected = false
 
         fun subscribe(observer: ConnectObserver) {
             ConnectUtils.observer = observer
@@ -25,14 +26,16 @@ class ConnectUtils : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.getBooleanExtra("noConnectivity", false)) {
+        CONNECTED = if (intent.getBooleanExtra("noConnectivity", false)) {
+            isDisconnected = true
             if (observer != null)
                 Toast.makeText(context, R.string.no_connected, Toast.LENGTH_SHORT).show()
-            CONNECTED = false
+            false
         } else {
-            if (observer != null)
+            if (observer != null && isDisconnected)
                 Toast.makeText(context, R.string.connected, Toast.LENGTH_SHORT).show()
-            CONNECTED = true
+            isDisconnected = false
+            true
         }
         observer?.connectChanged(CONNECTED ?: false)
     }

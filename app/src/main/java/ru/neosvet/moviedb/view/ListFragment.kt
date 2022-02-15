@@ -1,5 +1,6 @@
 package ru.neosvet.moviedb.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -21,12 +22,16 @@ import ru.neosvet.moviedb.repository.room.CatalogEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.ListUtils
 import ru.neosvet.moviedb.utils.MyException
+import ru.neosvet.moviedb.utils.NoConnectionExc
 import ru.neosvet.moviedb.utils.SettingsUtils
 
 class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     companion object {
-        private val ARG_SEARCH = "search"
-        private val ARG_CLEAR = "clear"
+        private const val ARG_SEARCH = "search"
+        private const val ARG_CLEAR = "clear"
+        private const val MAIN_LIST = "main"
+        private const val COUNT_LIST = 3
+
         fun newInstance(withSearch: Boolean) =
             ListFragment().apply {
                 arguments = Bundle().apply {
@@ -35,9 +40,6 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
                 }
             }
     }
-
-    private val MAIN_LIST = "main"
-    private val COUNT_LIST = 3
     private var searcher: SearchView? = null
     private val main: MainActivity by lazy {
         requireActivity() as MainActivity
@@ -70,7 +72,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
     ): View {
         setHasOptionsMenu(true)
         _binding = FragmentListBinding.inflate(inflater, container, false)
-        return binding.getRoot()
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -134,18 +136,17 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
                 return true
             }
         })
-        searcher?.setOnCloseListener(object : SearchView.OnCloseListener {
-            override fun onClose(): Boolean {
-                query = null
-                return false
-            }
-        })
+        searcher?.setOnCloseListener {
+            query = null
+            false
+        }
         query?.let {
             searcher?.setQuery(it, false)
         }
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.refresh) {
             isRefresh = true
@@ -246,11 +247,12 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
             }
             is ListState.Error -> {
                 finishLoad()
-                val message: String?
-                if (state.error is MyException)
-                    message = state.error.getTranslate(requireContext())
+                if(state.error is NoConnectionExc)
+                    return
+                val message = if (state.error is MyException)
+                    state.error.getTranslate(requireContext())
                 else
-                    message = state.error.message
+                    state.error.message
                 showError(message)
             }
         }
@@ -258,10 +260,11 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
 
     private fun showError(message: String?) {
         main.showError(message,
-            getString(R.string.repeat), {
-                catalogAdapter.clear()
-                loadNextList()
-            })
+            getString(R.string.repeat)
+        ) {
+            catalogAdapter.clear()
+            loadNextList()
+        }
     }
 
     private fun finishLoad() {
@@ -284,6 +287,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
         catalogAdapter.restoreChildListIndex(listUtils)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun openSearch() {
         if (query == null)
             query = pref.getString(ARG_SEARCH, null)
@@ -297,6 +301,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
         searcher?.setIconified(false)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun closeSearch() {
         if (query != null) {
             saveQuery()
@@ -308,7 +313,7 @@ class ListFragment : Fragment(), CatalogCallbacks, Observer<ListState> {
             loadNextList()
         }
         arguments?.putBoolean(ARG_SEARCH, false)
-        searcher?.setIconified(true)
+        searcher?.isIconified = true
     }
 
     private fun saveQuery() {

@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 
 class ListUtils(val context: Context) {
-    private val NAME = "list_state"
+    companion object {
+        private const val NAME = "list_state"
+    }
     private val pref: SharedPreferences by lazy {
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
     }

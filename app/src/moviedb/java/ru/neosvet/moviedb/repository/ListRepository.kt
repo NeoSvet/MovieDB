@@ -59,7 +59,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
                 cache.clearCatalog(name)
             source.search(query, page, adult, callBackPage)
         } else {
-            callbacks.onFailure(NoConnectionExc())
+            callbacks.onFailure(NoConnectionExc)
         }
     }
 
@@ -96,7 +96,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
     }
 
     private fun addCatalog(name: String, page: Page): CatalogEntity? {
-        if (page.results.size == 0)
+        if (page.results.isEmpty())
             return null
         val list = parseList(page.results)
         val ids = StringBuilder()
@@ -122,14 +122,14 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
         val movies = ArrayList<MovieEntity>()
         list.forEach {
             val genres = it.genre_ids ?: ArrayList<Int>()
-            val genre_ids = StringBuilder()
-            genres.forEach {
-                genre_ids.append(",")
-                genre_ids.append(it)
-                if (!containsGenre(it) && !genres_for_load.contains(it))
-                    genres_for_load.add(it)
+            val genreIds = StringBuilder()
+            genres.forEach { id ->
+                genreIds.append(",")
+                genreIds.append(id)
+                if (!containsGenre(id) && !genres_for_load.contains(id))
+                    genres_for_load.add(id)
             }
-            genre_ids.delete(0, 1)
+            genreIds.delete(0, 1)
             movies.add(
                 MovieEntity(
                     id = it.id ?: -1,
@@ -137,7 +137,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
                     title = it.title ?: "",
                     original = getOriginal(it.original_title, it.original_language),
                     description = it.overview ?: "",
-                    genre_ids = genre_ids.toString(),
+                    genre_ids = genreIds.toString(),
                     date = DateUtils.format(it.release_date),
                     poster = it.poster_path ?: "",
                     vote = it.vote_average ?: 0f,
@@ -162,7 +162,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
 
     private fun getOriginal(title: String?, language: String?): String {
         title?.let {
-            return it + language?.let { " [${it.toUpperCase()}]" }
+            return it + language?.let { " [${it.toUpperCase(Locale.ROOT)}]" }
         }
         return ""
     }
@@ -176,16 +176,18 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
     }
 
     private fun getNamePage(url: String): String {
-        return if (url.contains(ListModel.UPCOMING))
-            ListModel.UPCOMING
-        else if (url.contains(ListModel.POPULAR))
-            ListModel.POPULAR
-        else if (url.contains(ListModel.TOP_RATED))
-            ListModel.TOP_RATED
-        else if (url.contains(ListModel.SEARCH)) {
-            url.substring(url.indexOf(ListModel.SEARCH))
-        } else
-            url.substring(url.lastIndexOf("/") + 1)
+        return when {
+            url.contains(ListModel.UPCOMING) ->
+                ListModel.UPCOMING
+            url.contains(ListModel.POPULAR) ->
+                ListModel.POPULAR
+            url.contains(ListModel.TOP_RATED) ->
+                ListModel.TOP_RATED
+            url.contains(ListModel.SEARCH) ->
+                url.substring(url.indexOf(ListModel.SEARCH))
+            else ->
+                url.substring(url.lastIndexOf("/") + 1)
+        }
     }
 
     private fun onSuccess(catalog: CatalogEntity) {
@@ -196,7 +198,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
 
 //CALLBACKS
 
-    val callBackPage = object : Callback<Page> {
+    private val callBackPage = object : Callback<Page> {
         override fun onResponse(call: Call<Page>, response: Response<Page>) {
             val page: Page? = response.body()
 
@@ -259,7 +261,7 @@ class ListRepository(val callbacks: ListRepoCallbacks) : ConnectObserver {
             if (connected)
                 loadPage(it.name, it.page)
             else
-                callbacks.onFailure(NoConnectionExc())
+                callbacks.onFailure(NoConnectionExc)
         }
     }
 

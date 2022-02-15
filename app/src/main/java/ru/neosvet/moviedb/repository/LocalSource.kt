@@ -41,10 +41,10 @@ class LocalSource {
     }
 
     fun getMoviesList(ids: String, adult: Boolean): List<MovieEntity> {
-        if (adult)
-            return base.movieDao().getListWithAdult(convertStrToList(ids))
+        return if (adult)
+            base.movieDao().getListWithAdult(convertStrToList(ids))
         else
-            return base.movieDao().getList(convertStrToList(ids))
+            base.movieDao().getList(convertStrToList(ids))
     }
 
     fun getGenreList(ids: String): List<GenreEntity> {

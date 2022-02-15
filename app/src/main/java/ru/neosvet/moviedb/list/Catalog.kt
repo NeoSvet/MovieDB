@@ -1,5 +1,6 @@
 package ru.neosvet.moviedb.list
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ class CatalogAdapter : RecyclerView.Adapter<CatalogAdapter.Holder>() {
     private val adapters = ArrayList<MoviesAdapter>()
     private val titles = ArrayList<String>()
 
+    @SuppressLint("NotifyDataSetChanged")
     fun addItem(title: String, adapter: MoviesAdapter) {
         titles.add(title)
         adapters.add(adapter)
@@ -74,10 +76,11 @@ class CatalogAdapter : RecyclerView.Adapter<CatalogAdapter.Holder>() {
             rvMovies.layoutManager = managerMovies
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         fun setItem(title: String, movies: MoviesAdapter) {
             tvTitle.text = title
             rvMovies.adapter = movies
-            rvMovies.setOnScrollChangeListener { v, _, _, _, _ ->
+            rvMovies.setOnScrollChangeListener { _, _, _, _, _ ->
                 movies.index = managerMovies.findFirstVisibleItemPosition()
             }
             movies.notifyDataSetChanged()

@@ -1,5 +1,6 @@
 package ru.neosvet.moviedb.model
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ru.neosvet.moviedb.repository.MovieRepoCallbacks
@@ -7,6 +8,7 @@ import ru.neosvet.moviedb.repository.MovieRepository
 import ru.neosvet.moviedb.repository.room.DetailsEntity
 import ru.neosvet.moviedb.repository.room.MovieEntity
 import ru.neosvet.moviedb.utils.IncorrectResponseExc
+import ru.neosvet.moviedb.utils.PeopleUtils
 
 class MovieModel : ViewModel(), MovieRepoCallbacks {
     private val state: MutableLiveData<MovieState> = MutableLiveData()
@@ -48,11 +50,28 @@ class MovieModel : ViewModel(), MovieRepoCallbacks {
     }
 
     override fun onSuccessDetails(details: DetailsEntity) {
-        state.postValue(MovieState.SuccessDetails(details))
+        state.postValue(
+            MovieState.SuccessDetails(
+                Details(
+                    countries = details.countries,
+                    cast = PeopleUtils.createShortList(details.cast, details.cast_ids),
+                    crew = PeopleUtils.createShortList(details.crew, details.crew_ids)
+                )
+            )
+        )
     }
 
     override fun onSuccessAll(movie: MovieEntity, details: DetailsEntity) {
-        state.postValue(MovieState.SuccessAll(movie, details))
+        state.postValue(
+            MovieState.SuccessAll(
+                movie,
+                Details(
+                    countries = details.countries,
+                    cast = PeopleUtils.createShortList(details.cast, details.cast_ids),
+                    crew = PeopleUtils.createShortList(details.crew, details.crew_ids)
+                )
+            )
+        )
     }
 
     override fun onFailure(error: Throwable) {

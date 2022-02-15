@@ -1,9 +1,9 @@
 <resources>
     <string name="search">Поиск</string>
     <string name="load">Загрузка</string>
-    <string name="error">Ошибка</string>
-    <string name="no_connected">Подключение к интернету разорвано</string>
-    <string name="connected">Подключение к интернету установленно</string>
+    <string name="format_error">Ошибка: %s</string>
+    <string name="no_connected">Нет подключения к интернету</string>
+    <string name="connected">Подключение к интернету восстановлено</string>
     <string name="repeat">Повторить</string>
     <string name="upcoming">Новинки</string>
     <string name="popular">Популярное</string>
@@ -11,8 +11,7 @@
     <string name="item_no_found">Элемент не найден</string>
     <string name="list_no_found">Список не найден</string>
     <string name="incorrect_response">Неправильный ответ от сервера</string>
-    <string name="no_connection">Нет подключения к интернету</string>
-    <string name="rating">Рейтинг</string>
+    <string name="format_rating">Рейтинг %.2f</string>
     <string name="main">Главная</string>
     <string name="settings">Настройки</string>
     <string name="content_for_adult">Контент для взрослых</string>
@@ -29,11 +28,13 @@
     <string name="share_with">Поделиться фильмом с…</string>
     <string name="share">Поделиться</string>
     <string name="recommend_movie">Рекомендую фильм&#160;</string>
-    <string name="countries">Страны:&#160;</string>
-    <string name="cast">Актёры:&#160;</string>
-    <string name="crew">Персонал:&#160;</string>
+    <string name="format_countries">Страны: %s</string>
+    <string name="cast">Актёры</string>
+    <string name="crew">Персонал</string>
+    <string name="show_all">показать всех</string>
     <string name="birthday">Дата рождения:&#160;</string>
     <string name="deathday">Дата смерти:&#160;</string>
     <string name="push_channel_name">Канал push-уведомлений</string>
     <string name="push_channel_des">Push-уведомления от разработчика</string>
+    <string name="no">Нет</string>
 </resources>

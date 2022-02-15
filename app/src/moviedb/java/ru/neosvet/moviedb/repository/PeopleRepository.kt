@@ -30,7 +30,7 @@ class PeopleRepository(val callbacks: PersonRepoCallbacks) {
 
 //CALLBACKS
 
-    val callBackPerson = object : Callback<Person> {
+    private val callBackPerson = object : Callback<Person> {
         override fun onResponse(call: Call<Person>, response: Response<Person>) {
             val person: Person? = response.body()
 
